@@ -5,18 +5,21 @@ import {
   Text,
   Button,
   View,
+
   Dimensions,
   Pressable,
   TextInput,
   TouchableOpacity,
+  DatePickerIOS,
 } from "react-native";
 import { database } from "../src/config/fb";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc,setDoc, doc } from "firebase/firestore";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 const NuevaPartida = ({ navigation }) => {
+  const [equipo, setEquipo] = useState(1);
   const [newTeam, setNewTeam] = useState({
     nombre: "Equipo A",
     position: false,
@@ -25,84 +28,182 @@ const NuevaPartida = ({ navigation }) => {
       jugador2: "",
     },
   });
+  const [newTeam2, setNewTeam2] = useState({
+    nombre: "Equipo B",
+    position: false,
+    jugadores: {
+      jugador1: "",
+      jugador2: "",
+    },
+  });
 
   const CreacionEquipo = async () => {
-    try {
-      await addDoc(collection(database, "Partida"), newTeam);
-      navigation.navigate("partida");
-    } catch (error) {
-      console.log(error);
+    switch (equipo) {
+      case 1:
+        try {
+          await setDoc(doc(database, "Partida", "Equipo1"), newTeam);
+          setEquipo(2);
+        } catch (error) {
+          console.log(error);
+        }
+        break;
+      case 2:
+        try {
+          await setDoc(doc(database, "Partida", "Equipo2"), newTeam2);
+          //await addDoc(collection(database, "Partida", "Equipo2"), newTeam2);
+          setEquipo(3);
+          navigation.navigate("partida");
+        } catch (error) {
+          console.log(error);
+        }
+        break;
+      default:
+        break;
     }
   };
 
-  return (
-    <View style={styles.pantalla}>
-      <Text style={styles.title}>
-        Introduce la información del primer equipo
-      </Text>
-      <TextInput
-        style={styles.inputTeam}
-        onChangeText={(text) => setNewTeam({ ...newTeam, nombre: text })}
-        value={newTeam.nombre}
-        maxLength={20}
-        placeholder="Equipo A"
-      />
-
-      <View style={styles.playerSection}>
-        <TextInput
-          style={styles.inputPlayer}
-          //placeholder="User Nickname"
-          onChangeText={(text) =>
-            setNewTeam({
-              ...newTeam,
-              jugadores: { ...newTeam.jugadores, jugador1: text },
-            })
-          }
-          placeholder="Jugador 1"
-        />
-        <Pressable
-          onPress={() =>
-            setNewTeam({ ...newTeam, position: !newTeam.position })
-          }
-        >
-          <Text style={styles.playerPosition}>
-            {newTeam.position == true ? "D" : "R"}
+  switch (equipo) {
+    case 1:
+      return (
+        <View style={styles.pantalla}>
+          <Text style={styles.title}>
+            Introduce la información del primer equipo
           </Text>
-        </Pressable>
-      </View>
+          <TextInput
+            style={styles.inputTeam}
+            onChangeText={(text) => setNewTeam({ ...newTeam, nombre: text })}
+            value={newTeam.nombre}
+            maxLength={20}
+            placeholder="Equipo A"
+          />
 
-      <View style={styles.playerSection}>
-        <TextInput
-          style={styles.inputPlayer}
-          //placeholder="User Nickname"
-          onChangeText={(text) =>
-            setNewTeam({
-              ...newTeam,
-              jugadores: { ...newTeam.jugadores, jugador2: text },
-            })
-          }
-          placeholder="Jugador 2"
-        />
-        <Pressable
-          onPress={() =>
-            setNewTeam({ ...newTeam, position: !newTeam.position })
-          }
-        >
-          <Text style={styles.playerPosition}>
-            {newTeam.position == true ? "R" : "D"}
+          <View style={styles.playerSection}>
+            <TextInput
+              style={styles.inputPlayer}
+              //placeholder="User Nickname"
+              onChangeText={(text) =>
+                setNewTeam({
+                  ...newTeam,
+                  jugadores: { ...newTeam.jugadores, jugador1: text },
+                })
+              }
+              placeholder="Jugador 1"
+            />
+            <Pressable
+              onPress={() =>
+                setNewTeam({ ...newTeam, position: !newTeam.position })
+              }
+            >
+              <Text style={styles.playerPosition}>
+                {newTeam.position == true ? "D" : "R"}
+              </Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.playerSection}>
+            <TextInput
+              style={styles.inputPlayer}
+              //placeholder="User Nickname"
+              onChangeText={(text) =>
+                setNewTeam({
+                  ...newTeam,
+                  jugadores: { ...newTeam.jugadores, jugador2: text },
+                })
+              }
+              placeholder="Jugador 2"
+            />
+            <Pressable
+              onPress={() =>
+                setNewTeam({ ...newTeam, position: !newTeam.position })
+              }
+            >
+              <Text style={styles.playerPosition}>
+                {newTeam.position == true ? "R" : "D"}
+              </Text>
+            </Pressable>
+          </View>
+          <TouchableOpacity
+            style={styles.siguiente}
+            onPress={() => {
+              CreacionEquipo();
+            }}
+          >
+            <Text style={styles.siguienteTexto}>Siguiente</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    case 2:
+      return (
+        <View style={styles.pantalla}>
+          <Text style={styles.title}>
+            Introduce la información del segundo equipo
           </Text>
-        </Pressable>
-      </View>
-      <TouchableOpacity
-        style={styles.siguiente}
-        onPress={() => {
-          CreacionEquipo();
-        }}
-      >
-        <Text style={styles.siguienteTexto}>Siguiente</Text>
-      </TouchableOpacity>
-    </View>
-  );
+          <TextInput
+            style={styles.inputTeam}
+            onChangeText={(text) => setNewTeam2({ ...newTeam2, nombre: text })}
+            value={newTeam2.nombre}
+            maxLength={20}
+            placeholder="Equipo B"
+          />
+
+          <View style={styles.playerSection}>
+            <TextInput
+              style={styles.inputPlayer}
+              //placeholder="User Nickname"
+              onChangeText={(text) =>
+                setNewTeam2({
+                  ...newTeam2,
+                  jugadores: { ...newTeam2.jugadores, jugador1: text },
+                })
+              }
+              value={newTeam2.jugadores.jugador1}
+              placeholder="Jugador 1"
+            />
+            <Pressable
+              onPress={() =>
+                setNewTeam2({ ...newTeam2, position: !newTeam2.position })
+              }
+            >
+              <Text style={styles.playerPosition}>
+                {newTeam2.position == true ? "D" : "R"}
+              </Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.playerSection}>
+            <TextInput
+              style={styles.inputPlayer}
+              //placeholder="User Nickname"
+              onChangeText={(text) =>
+                setNewTeam2({
+                  ...newTeam2,
+                  jugadores: { ...newTeam2.jugadores, jugador2: text },
+                })
+              }
+              value={newTeam2.jugadores.jugador2}
+              placeholder="Jugador 2"
+            />
+            <Pressable
+              onPress={() =>
+                setNewTeam2({ ...newTeam2, position: !newTeam2.position })
+              }
+            >
+              <Text style={styles.playerPosition}>
+                {newTeam2.position == true ? "R" : "D"}
+              </Text>
+            </Pressable>
+          </View>
+          <TouchableOpacity
+            style={styles.siguiente}
+            onPress={() => {
+              CreacionEquipo();
+            }}
+          >
+            <Text style={styles.siguienteTexto}>Siguiente</Text>
+          </TouchableOpacity>
+        </View>
+      );
+  }
 };
 
 const styles = StyleSheet.create({

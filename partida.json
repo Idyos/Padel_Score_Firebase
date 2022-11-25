@@ -1,0 +1,79 @@
+{
+    "info": {
+        "goldpoint": true,
+        "setammount": 3,
+        "equipo1": {
+            "nombre": "Sab/Zae",
+            "jugador1": {
+                "nombre": "Santi Sabaté Bordes",
+                "posición": "Revés"
+            },
+            "jugador2": {
+                "nombre": "Alex Zaera Bordes",
+                "posición": "Derecha"
+            }
+        },
+        "equipo2": {
+            "nombre": "Gau/Mir",
+            "jugador1": {
+                "nombre": "Joan Miravalls Valls",
+                "posición": "Revés"
+            },
+            "jugador2": {
+                "nombre": "Javier Gauxachs Monserrat",
+                "posición": "Derecha"
+            }
+        }
+    },
+    "partida": [
+        {
+            "set1": [
+                {
+                    "game1": [
+                        {
+                            "goldpoint": false,
+                            "breakpoint": false,
+                            "setpoint": false,
+                            "teamscore": "equipo1",
+                            "score": 15,
+                            "cause": "Unforced Error",
+                            "causer": "jugador2"
+                        },
+                        {
+                            "goldpoint": false,
+                            "breakpoint": false,
+                            "setpoint": false,
+                            "teamscore": "equipo1",
+                            "score": 30,
+                            "cause": "Winner",
+                            "causer": "jugador1"
+                        },
+                        {
+                            "goldpoint": false,
+                            "breakpoint": false,
+                            "setpoint": false,
+                            "teamscore": "equipo2",
+                            "score": 15,
+                            "cause": "Winner",
+                            "causer": "jugador1"
+                        },
+                        {
+                            "goldpoint": false,
+                            "breakpoint": false,
+                            "setpoint": false,
+                            "teamscore": "equipo1",
+                            "score": 40,
+                            "cause": "Winner",
+                            "causer": "jugador1"
+                        }
+                    ],
+                    "game2": [
+                        {
+                            
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
