@@ -1,11 +1,13 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Dimensions, Pressable } from "react-native";
 import { useEffect, useState } from "react";
+import PointDetail from "./Popup";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
-const Contador = () => {
+const Contador = (props) => {
+  
   const [score, setScore] = useState(0);
   const [realScore, setRealScore] = useState(1);
 
@@ -27,9 +29,12 @@ const Contador = () => {
   }, [score]);
 
   return (
-    <Pressable style={styles.contador} onPress={() => setScore(score==3 ? 0 : score + 1)}>
-      <Text style={styles.marcador}>{realScore}</Text>
-    </Pressable>
+    <>
+
+      <Pressable style={styles.contador} onPress={() => { setScore(score == 3 ? 0 : score + 1); props.visibleFunc(!props.visible) }}>
+        <Text style={styles.marcador}>{realScore}</Text>
+      </Pressable>
+    </>
   );
 };
 
