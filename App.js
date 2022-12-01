@@ -12,8 +12,8 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="nueva-partida" component={NuevaPartida} />
         <Stack.Screen name="partida" component={Partida} />
+        <Stack.Screen name="nueva-partida" component={NuevaPartida} />
       </Stack.Navigator>
     </NavigationContainer>
   );

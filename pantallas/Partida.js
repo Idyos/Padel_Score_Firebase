@@ -19,6 +19,8 @@ async function crearPartida() {
 
 
 const Partida = () => {
+  const [marcadorE1, setMarcadorE1] = useState(0);
+  const [marcadorE2, setMarcadorE2] = useState(0);
   const [puntoEquipo, setPuntoEquipo] = useState();
   const [modalVisible, setModalVisible] = useState(false);
   const [datos, setDatos] = useState([
@@ -39,6 +41,21 @@ const Partida = () => {
       position: false,
     },
   ]);
+
+  if(marcadorE1 === 4 || marcadorE2 === 4) {
+    setMarcadorE1(0);
+    setMarcadorE2(0);
+    updateJuego();
+  }
+
+  const updateJuego = async () => {
+   /* try {
+      await setDoc(doc(database, `/Partida/Matchdetails/Set1/Juego1/Puntos/Punto1`), newTeam);
+    } catch (error) {
+      console.log(error);
+    }*/
+  }
+
 
   useEffect(() => {
     const retrieveDocs = async () => {
@@ -64,11 +81,11 @@ const Partida = () => {
       <Text>{datos[0].nombre}</Text>
       <Text>{datos[0].jugadores.jugador1}</Text>
       <Text>{datos[0].jugadores.jugador2}</Text>
-      <Contador visible={modalVisible} visibleFunc={setModalVisible} punto={1} puntoequipo={setPuntoEquipo} />
+      <Contador visible={modalVisible} visibleFunc={setModalVisible} punto={1} puntoequipo={setPuntoEquipo} setMarcadorE1={setMarcadorE1} marcadorE1={marcadorE1}/>
       <Text>{datos[1].nombre}</Text>
       <Text>{datos[1].jugadores.jugador1}</Text>
       <Text>{datos[1].jugadores.jugador2}</Text>
-      <Contador visible={modalVisible} visibleFunc={setModalVisible} punto={2} puntoequipo={setPuntoEquipo} />
+      <Contador visible={modalVisible} visibleFunc={setModalVisible} punto={2} puntoequipo={setPuntoEquipo} setMarcadorE2={setMarcadorE2} marcadorE2={marcadorE2}/>
     </View>
   );
 };
