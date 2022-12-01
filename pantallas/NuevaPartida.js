@@ -13,7 +13,7 @@ import {
   DatePickerIOS,
 } from "react-native";
 import { database } from "../src/config/fb";
-import { collection, addDoc,setDoc, doc } from "firebase/firestore";
+import { collection, addDoc, setDoc, doc } from "firebase/firestore";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -27,6 +27,20 @@ const NuevaPartida = ({ navigation }) => {
       jugador1: "",
       jugador2: "",
     },
+    puntos: {
+      puntos1: {
+        winners: 0,
+        errores: 0,
+        smashes: 0,
+        smashesExito: 0,
+      },
+      puntos2: {
+        winners: 0,
+        errores: 0,
+        smashes: 0,
+        smashesExito: 0,
+      }
+    }
   });
   const [newTeam2, setNewTeam2] = useState({
     nombre: "Equipo B",
@@ -35,6 +49,20 @@ const NuevaPartida = ({ navigation }) => {
       jugador1: "",
       jugador2: "",
     },
+      puntos: {
+        puntos1: {
+          winners: 0,
+          errores: 0,
+          smashes: 0,
+          smashesExito: 0,
+        },
+        puntos2: {
+          winners: 0,
+          errores: 0,
+          smashes: 0,
+          smashesExito: 0,
+        }
+      }
   });
 
   const CreacionEquipo = async () => {

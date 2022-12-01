@@ -7,7 +7,6 @@ const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 const Contador = (props) => {
-  
   const [score, setScore] = useState(0);
   const [realScore, setRealScore] = useState(1);
 
@@ -31,7 +30,7 @@ const Contador = (props) => {
   return (
     <>
 
-      <Pressable style={styles.contador} onPress={() => { setScore(score == 3 ? 0 : score + 1); props.visibleFunc(!props.visible) }}>
+      <Pressable style={styles.contador} onPress={() => { setScore(score == 3 ? 0 : score + 1); props.visibleFunc(!props.visible); props.puntoequipo(props.punto === 1 ? 0 : 1) }}>
         <Text style={styles.marcador}>{realScore}</Text>
       </Pressable>
     </>
