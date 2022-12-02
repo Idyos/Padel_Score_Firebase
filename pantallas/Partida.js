@@ -19,6 +19,11 @@ async function crearPartida() {
 
 
 const Partida = () => {
+
+  const juegosE1Set1="";
+  const juegosE2Set1="";
+
+
   //AÑADIR PUNTOS EN EL JUEGO
   const [punto, setPunto] = useState({});
   const [puntosJuego, setPuntosJuego] = useState([]);
@@ -26,6 +31,14 @@ const Partida = () => {
   //MARCADOR DEL JUEGO
   const [marcadorE1, setMarcadorE1] = useState(0);
   const [marcadorE2, setMarcadorE2] = useState(0);
+
+  //JUEGOS DE CADA EQUIPO
+  const [juegosE1, setJuegosE1] = useState(5);
+  const [juegosE2, setJuegosE2] = useState(0);
+
+  //SETS DE CADA EQUIPO
+  const [setsE1, setSetsE1] = useState(0);
+  const [setsE2, setSetsE2] = useState(0);
   
   const [puntoEquipo, setPuntoEquipo] = useState();
   const [modalVisible, setModalVisible] = useState(false);
@@ -49,31 +62,47 @@ const Partida = () => {
   ]);
 
   const updateJuego = async () => {
-    console.log(puntosJuego);
     puntosJuego.map(async (puntos, index) => {
       try {
-        await setDoc(doc(database, `/Partida/Matchdetails/Set1/Juego1/Puntos/Punto${index}`), puntos);
+        await setDoc(doc(database, `/Partida/Matchdetails/Set${setsE1+setsE2+4}/Juego${juegosE1+juegosE2+1}/Puntos/Punto${index}`), puntos);
       } catch (error) {
         console.log(error);
       }
     })
- 
+    setPuntosJuego([]);
    }
  
 
 
   useEffect(() => {
-    var contador1=0;
-    var contador2=0;
+    let contador1=0;
+    let contador2=0;
     for(let i=0; i<puntosJuego.length; i++){    
       if(puntosJuego[i].team==0){
         contador1+=1;
-        console.log(contador1);
       }
       if(puntosJuego[i].team==1){
         contador2+=1;
       }
-      if(contador1 === 4 || contador2 === 4){
+      if(contador1 === 4){
+        if(juegosE1===6){
+          console.log("HE ENTRADO AL IF DE 6 JUEGOS");
+          setSetsE1(setsE1+1); 
+          return (juegosE1Set1 = juegosE1, juegosE2Set1 = juegosE2);
+        }else{
+          setJuegosE1(juegosE1+1);
+        }
+        setMarcadorE1(0);
+        setMarcadorE2(0);
+        updateJuego();
+      } 
+      if(contador2 === 4){
+        if(juegosE1===6){
+          setSetsE2(setsE2+1);
+          return (juegosE1Set1 = juegosE1, juegosE2Set1 = juegosE2);
+        }else{
+          setJuegosE2(juegosE2+1);
+        }
         setMarcadorE1(0);
         setMarcadorE2(0);
         updateJuego();
@@ -110,6 +139,8 @@ const Partida = () => {
       <Text>{datos[0].jugadores.jugador1}</Text>
       <Text>{datos[0].jugadores.jugador2}</Text>
       <Contador visible={modalVisible} visibleFunc={setModalVisible} punto={1} puntoequipo={setPuntoEquipo} setMarcadorE1={setMarcadorE1} marcadorE1={marcadorE1}/>
+      <Text>{juegosE1Set1=="" ? juegosE1 : juegosE1Set1}</Text>
+      <Text>{juegosE2Set1=="" ? juegosE2 : juegosE2Set1}</Text>
       <Text>{datos[1].nombre}</Text>
       <Text>{datos[1].jugadores.jugador1}</Text>
       <Text>{datos[1].jugadores.jugador2}</Text>
