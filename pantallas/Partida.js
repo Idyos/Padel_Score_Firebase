@@ -19,8 +19,14 @@ async function crearPartida() {
 
 
 const Partida = () => {
+  //AÑADIR PUNTOS EN EL JUEGO
+  const [punto, setPunto] = useState({});
+  const [puntosJuego, setPuntosJuego] = useState([]);
+
+  //MARCADOR DEL JUEGO
   const [marcadorE1, setMarcadorE1] = useState(0);
   const [marcadorE2, setMarcadorE2] = useState(0);
+  
   const [puntoEquipo, setPuntoEquipo] = useState();
   const [modalVisible, setModalVisible] = useState(false);
   const [datos, setDatos] = useState([
@@ -42,19 +48,41 @@ const Partida = () => {
     },
   ]);
 
-  if(marcadorE1 === 4 || marcadorE2 === 4) {
-    setMarcadorE1(0);
-    setMarcadorE2(0);
-    updateJuego();
-  }
-
   const updateJuego = async () => {
-   /* try {
-      await setDoc(doc(database, `/Partida/Matchdetails/Set1/Juego1/Puntos/Punto1`), newTeam);
-    } catch (error) {
-      console.log(error);
-    }*/
-  }
+    console.log(puntosJuego);
+    puntosJuego.map(async (puntos, index) => {
+      try {
+        await setDoc(doc(database, `/Partida/Matchdetails/Set1/Juego1/Puntos/Punto${index}`), puntos);
+      } catch (error) {
+        console.log(error);
+      }
+    })
+ 
+   }
+ 
+
+
+  useEffect(() => {
+    var contador1=0;
+    var contador2=0;
+    for(let i=0; i<puntosJuego.length; i++){    
+      if(puntosJuego[i].team==0){
+        contador1+=1;
+        console.log(contador1);
+      }
+      if(puntosJuego[i].team==1){
+        contador2+=1;
+      }
+      if(contador1 === 4 || contador2 === 4){
+        setMarcadorE1(0);
+        setMarcadorE2(0);
+        updateJuego();
+      }
+      
+    }
+  }, [puntosJuego]);
+
+
 
 
   useEffect(() => {
@@ -77,7 +105,7 @@ const Partida = () => {
   return (
 
     <View style={styles.pantalla}>
-      <PointDetail visible={modalVisible} visibleFunc={setModalVisible} datos={datos} puntoEquipo={puntoEquipo} />
+      <PointDetail visible={modalVisible} visibleFunc={setModalVisible} datos={datos} puntoEquipo={puntoEquipo} punto={punto} puntosJuego={puntosJuego} setPunto={setPunto} setPuntosJuego={setPuntosJuego} />
       <Text>{datos[0].nombre}</Text>
       <Text>{datos[0].jugadores.jugador1}</Text>
       <Text>{datos[0].jugadores.jugador2}</Text>

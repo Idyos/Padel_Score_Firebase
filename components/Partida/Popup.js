@@ -12,20 +12,19 @@ const PointDetail = (props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [equipo, setEquipo] = useState([]);
   const [equipoRival, setEquipoRival] = useState([]);
-  const [punto, setPunto] = useState({});
-  const [puntosJuego, setPuntosJuego] = useState([]);
+  //const [props.punto, props.setPunto] = useState({});
+  //const [props.puntosJuego, props.setPuntosJuego] = useState([]);
 
 
   useEffect(() => {
-    if (punto.player) {
-      setPuntosJuego([...puntosJuego, punto]);
-      setPunto({});
+    if (props.punto.player) {
+      props.setPuntosJuego([...props.puntosJuego, props.punto]);
+      props.setPunto({});
     }
-  }, [punto]);
+  }, [props.punto]);
 
   useEffect(() => {
-    console.log(puntosJuego);
-  }, [puntosJuego]);
+  }, [props.puntosJuego]);
 
   useEffect(() => {
     if (props.visible) {
@@ -35,8 +34,7 @@ const PointDetail = (props) => {
   }, [props.visible]);
 
   function applyPoint(item) {
-    setPunto({ ...punto, player: item, team: props.puntoEquipo });
-    console.log(equipo);
+    props.setPunto({ ...props.punto, player: item, team: props.puntoEquipo });
   }
 
   return (
@@ -61,7 +59,7 @@ const PointDetail = (props) => {
                   data={['Winner', 'Smash', 'Unforced Error']}
                   renderItem={({ item, index }) => (
                     <TouchableOpacity style={styles.pointOptionsItem} onPress={() => {
-                      setPunto({ ...punto, point: item }), setTimeout(() => {
+                      props.setPunto({ ...props.punto, point: item }), setTimeout(() => {
                         setIsOpen(true);
                       }, 500);
                     }}>
@@ -78,7 +76,7 @@ const PointDetail = (props) => {
                 <Text style={styles.modalText}>¿Quién ha causado el punto?</Text>
                 <FlatList
                   style={styles.pointOptions}
-                  data={punto.point=="Unforced Error" ? equipoRival : equipo}
+                  data={props.punto.point=="Unforced Error" ? equipoRival : equipo}
                   renderItem={({ item, index }) => (
                     <TouchableOpacity style={styles.pointOptionsItem} onPress={() => {
                       applyPoint(item);
