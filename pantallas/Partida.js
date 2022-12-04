@@ -102,62 +102,67 @@ const Partida = () => {
         setJuegosE1(juegosE1+1);
         setMarcadorE1(0);
         setMarcadorE2(0);
-        if(juegosE1===5 && juegosE2===6){
-          alert("TIEBREAK");
-        }
-        if(juegosE1>=5 && juegosE1-juegosE2>=1){
-          console.log("HE ENTRADO AL IF DE 6 JUEGOS");
-          setSetsE1(setsE1+1); 
-          if(setsE1===1){
-            alert("SE HA TERMINADO EL PARTIDO, GANADOR: "+datos[0].nombre)
-          }
-          if(setsE1+setsE2===0){
-            setJuegosE1Set1(juegosE1+1);
-            setJuegosE2Set1(juegosE2); 
-          }
-          if(setsE1+setsE2===1){
-            setJuegosE1Set2(juegosE1+1);
-            setJuegosE2Set2(juegosE2); 
-          }
-          updateJuego(); 
-          setJuegosE1(0);
-          setJuegosE2(0);
-        }else{
-          updateJuego();
-        }
+        updateJuego();
       } 
       if(contador2 === 4){
         setJuegosE2(juegosE2+1);
         setMarcadorE1(0);
         setMarcadorE2(0);
-        if(juegosE2===5 && juegosE1===6){
-          alert("TIEBREAK");
-        }
-        if(juegosE2>=5 && juegosE2-juegosE1>=1){
-          setSetsE2(setsE2+1); 
-          if(setsE2===1){
-            alert("SE HA TERMINADO EL PARTIDO, GANADOR: "+datos[1].nombre)
-          }
-          if(setsE1+setsE2===0){
-            setJuegosE2Set1(juegosE2+1); 
-            setJuegosE1Set1(juegosE1);
-          }
-          if(setsE1+setsE2===1){
-            setJuegosE2Set2(juegosE2+1); 
-            setJuegosE1Set2(juegosE1);
-          }
-          updateJuego(); 
-          setJuegosE1(0);
-          setJuegosE2(0);
-        }else{
-          updateJuego();
-        }
+        updateJuego();
       }
-    
+      
   }, [puntosJuego]);
 
+  useEffect(() => {
+    console.log("FUNCION DE LOS JUEGOS")
+    if(juegosE1===6 && juegosE2===6){
+      alert("TIEBREAK");
+    }
 
+    //EQUIPO 1
+    if(juegosE1>=6 && juegosE1-juegosE2>=2){
+      console.log("HE ENTRADO AL IF DE 6 JUEGOS");
+      setSetsE1(setsE1+1); 
+      if(setsE1===1){
+        alert("SE HA TERMINADO EL PARTIDO, GANADOR: "+datos[0].nombre)
+      }
+      if(setsE1+setsE2===0){
+        setJuegosE1Set1(juegosE1);
+        setJuegosE2Set1(juegosE2); 
+      }
+      if(setsE1+setsE2===1){
+        setJuegosE1Set2(juegosE1);
+        setJuegosE2Set2(juegosE2); 
+      }
+      updateJuego(); 
+      setJuegosE1(0);
+      setJuegosE2(0);
+    }else{
+      updateJuego();
+    }
 
+    //EQUIPO 2
+    if(juegosE2>=6 && juegosE2-juegosE1>=2){
+      setSetsE2(setsE2+1); 
+      if(setsE2===1){
+        alert("SE HA TERMINADO EL PARTIDO, GANADOR: "+datos[1].nombre)
+      }
+      if(setsE1+setsE2===0){
+        setJuegosE2Set1(juegosE2); 
+        setJuegosE1Set1(juegosE1);
+      }
+      if(setsE1+setsE2===1){
+        setJuegosE2Set2(juegosE2); 
+        setJuegosE1Set2(juegosE1);
+      }
+      updateJuego(); 
+      setJuegosE1(0);
+      setJuegosE2(0);
+    }else{
+      updateJuego();
+    }
+  }, [juegosE1===6, juegosE2===6])
+  
 
   useEffect(() => {
     const retrieveDocs = async () => {
