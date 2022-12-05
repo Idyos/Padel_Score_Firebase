@@ -7,12 +7,30 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { TextInput } from "react-native-paper";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 const Login = () => {
   const [correo, setCorreo] = useState("");
   const [pass, setPass] = useState("");
+
+  const handleLogin = () => {
+    const auth = getAuth();
+    createUserWithEmailAndPassword(auth, correo, pass)
+      .then((userCredential) => {
+        // Signed in 
+        const user = userCredential.user;
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // ..
+      });
+  }
+
   return (
     <View style={styles.login}>
       <Text style={styles.title}>Contador Pádel</Text>
@@ -34,13 +52,14 @@ const Login = () => {
           value={pass}
           onChangeText={(text) => setPass(text)}
           label="Contraseña"
+          secureTextEntry={true}
         />
         <View style={styles.registrarInfo}>
           <Text style={styles.registrarTexto}>No estas registrado? </Text>
           <Text style={styles.registrar}>Regístrate.</Text>
         </View>
       </View>
-      <TouchableOpacity style={styles.siguiente}>
+      <TouchableOpacity style={styles.siguiente} onPress={handleLogin}>
         <Text style={styles.siguienteTexto}>Login</Text>
       </TouchableOpacity>
     </View>
