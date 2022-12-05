@@ -12,7 +12,7 @@ import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
-const Login = () => {
+const Login = ({navigation}) => {
   const [correo, setCorreo] = useState("");
   const [pass, setPass] = useState("");
 
@@ -54,13 +54,12 @@ const Login = () => {
           label="Contraseña"
           secureTextEntry={true}
         />
-        <View style={styles.registrarInfo}>
-          <Text style={styles.registrarTexto}>No estas registrado? </Text>
-          <Text style={styles.registrar}>Regístrate.</Text>
-        </View>
       </View>
       <TouchableOpacity style={styles.siguiente} onPress={handleLogin}>
-        <Text style={styles.siguienteTexto}>Login</Text>
+        <Text style={styles.siguienteTexto}>Iniciar Sesión</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.registrarBoton} onPress={() => navigation.navigate("registrarse")}>
+        <Text style={styles.siguienteTexto}>Registrarse</Text>
       </TouchableOpacity>
     </View>
   );
@@ -95,10 +94,22 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
 
-  registrarInfo: {
-    width: "85%",
-    flexDirection: "row",
-    justifyContent: "flex-end",
+  registrarBoton: {
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    borderWidth: 2,
+    borderColor: 'orange',
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 15,
+    width: windowWidth / 1.5,
+    height: windowHeight / 7,
   },
 
   registrarTexto: {
