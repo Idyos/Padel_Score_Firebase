@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { TextInput } from "react-native-paper";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged  } from "firebase/auth";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -16,18 +16,30 @@ const Login = ({navigation}) => {
   const [correo, setCorreo] = useState("");
   const [pass, setPass] = useState("");
 
+
+  const auth = getAuth();
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is signed in, see docs for a list of available properties
+      // https://firebase.google.com/docs/reference/js/firebase.User
+      navigation.navigate('principal');
+      // ...
+    }
+  });
+
+
   const handleLogin = () => {
     const auth = getAuth();
-    createUserWithEmailAndPassword(auth, correo, pass)
+    signInWithEmailAndPassword(auth, correo, pass)
       .then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
         // ...
+        navigation.navigate("principal");
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        // ..
       });
   }
 
@@ -59,7 +71,7 @@ const Login = ({navigation}) => {
         <Text style={styles.siguienteTexto}>Iniciar Sesión</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.registrarBoton} onPress={() => navigation.navigate("registrarse")}>
-        <Text style={styles.siguienteTexto}>Registrarse</Text>
+        <Text style={styles.registrarTexto}>Registrarse</Text>
       </TouchableOpacity>
     </View>
   );
@@ -98,12 +110,13 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 5,
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
     borderWidth: 2,
+    backgroundColor: 'white',
     borderColor: 'orange',
     alignItems: "center",
     justifyContent: "center",
@@ -113,7 +126,8 @@ const styles = StyleSheet.create({
   },
 
   registrarTexto: {
-    fontSize: 17,
+    color: 'black',
+    fontSize: 25,
   },
 
   registrar: {

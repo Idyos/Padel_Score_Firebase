@@ -18,8 +18,8 @@ import { collection, addDoc, setDoc, doc } from "firebase/firestore";
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
-const NuevaPartida = ({ navigation }) => {
-  const [equipo, setEquipo] = useState(1);
+const NuevaPartida = ({ navigation, route }) => {
+  const [equipo, setEquipo] = useState(0);
   const [newTeam, setNewTeam] = useState({
     nombre: "Equipo A",
     position: false,
@@ -65,33 +65,52 @@ const NuevaPartida = ({ navigation }) => {
       }
   });
 
+  const [partida, setPartida] = useState();
+
   const CreacionEquipo = async () => {
-    switch (equipo) {
-      case 1:
-        try {
-          await setDoc(doc(database, "Partida", "Equipo1"), newTeam);
-          setEquipo(2);
-        } catch (error) {
-          console.log(error);
-        }
-        break;
-      case 2:
-        try {
-          await setDoc(doc(database, "Partida", "Equipo2"), newTeam2);
-          //await addDoc(collection(database, "Partida", "Equipo2"), newTeam2);
-          setEquipo(3);
-          navigation.navigate("partida");
-        } catch (error) {
-          console.log(error);
-        }
-        break;
-      default:
-        break;
-    }
+    if(partida===undefined){
+      const crearPartida = await addDoc(collection(database, "Partidas"), {usuario: route.params.user});
+      setPartida(crearPartida.id);
+      setEquipo(equipo+1);
+    }else{
+      setEquipo(equipo+1);
+    }  
   };
 
+  useEffect(() =>{
+   const addTeam = async () =>{    
+      switch (equipo) {
+        case 1:
+          try {
+            await setDoc(doc(database, `/Partidas/${partida}/PartidoCompleto/Equipo1`), newTeam);
+          } catch (error) {
+            console.log(error);
+          }
+          break;
+        case 2:
+          try {
+            await setDoc(doc(database, `/Partidas/${partida}/PartidoCompleto/Equipo2`), newTeam2);
+            navigation.navigate("partida", {partidaid: partida});
+          } catch (error) {
+            console.log(error);
+          }
+          break;
+        default:
+          break;
+      }
+    }
+   
+    if(partida===undefined){
+      return;
+    }else{
+      addTeam();
+    }
+
+
+  }, [equipo])
+
   switch (equipo) {
-    case 1:
+    case 0:
       return (
         <View style={styles.pantalla}>
           <Text style={styles.title}>
@@ -160,7 +179,7 @@ const NuevaPartida = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       );
-    case 2:
+    case 1:
       return (
         <View style={styles.pantalla}>
           <Text style={styles.title}>
