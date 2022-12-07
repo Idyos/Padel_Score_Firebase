@@ -31,7 +31,7 @@ export default function App() {
     <PaperProvider theme={theme}>
       <NavigationContainer>
         <Stack.Navigator>
-          <Stack.Screen name="login" component={Login} />
+          <Stack.Screen name="login" component={Login}  />
           <Stack.Screen name="registrarse" component={Registrarse} />
           <Stack.Screen name="partida" component={Partida} />
           <Stack.Screen name="principal" component={Principal} />

@@ -1,14 +1,34 @@
-import { Text, View, StyleSheet, Pressable } from "react-native";
-import React, { Component } from "react";
+import {
+  Text,
+  View,
+  StyleSheet,
+  Pressable,
+  FlatList,
+  DatePickerIOS,
+  SafeAreaView,
+} from "react-native";
+import React, { Component, useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { faFloppyDisk } from "@fortawesome/free-solid-svg-icons";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import AnadirPartida from "../components/Principal/AnadirPartida";
-import { useTheme } from 'react-native-paper';
-
+import { useTheme } from "react-native-paper";
+import { database } from "../src/config/fb";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  listcoll,
+} from "firebase/firestore";
+import CartaPartida from "../components/Principal/CartaPartida";
 
 const Principal = ({ navigation }) => {
+  const [partidas, setPartidas] = useState();
+  const [isExtended, setIsExtended] = useState(true);
+
+
   const theme = useTheme();
   const auth = getAuth();
 
@@ -33,18 +53,65 @@ const Principal = ({ navigation }) => {
         // An error happened.
       });
   };
+
+  const onScroll = ({ nativeEvent }) => {
+    const currentScrollPosition =
+      Math.floor(nativeEvent?.contentOffset?.y) ?? 0;
+
+    if(currentScrollPosition>30){
+      setIsExtended(false);
+    }
+    else{
+      setIsExtended(true);
+    }
+  };
+
+
+
+  useEffect(() => {
+    setPartidas([]);
+    const getMatches = async () => {
+      const q = query(
+        collection(database, "Partidas"),
+        where("usuario", "==", user)
+      );
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach(async (doc) => {
+        const q = collection(database, `Partidas/${doc.id}/PartidoCompleto`);
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((match) => {
+          setPartidas((current) => [...current, match.data()]);
+        });
+      });
+    };
+    getMatches();
+  }, []);
+
   return (
     <>
-      <View style={[styles.principal, {backgroundColor: theme.colors.background}]}>
-        <Pressable style={styles.partidaAnterior}>
-          <FontAwesomeIcon icon={faFloppyDisk} size={80} />
-          <Text style={styles.partidaAnteriorTexto}>Partidas Anteriores</Text>
-        </Pressable>
+      <View
+        style={[styles.principal, { backgroundColor: theme.colors.background }]}
+      >
+        {/*<CartaPartida />*/}
+        {partidas === undefined ? (
+          <Text style={styles.noMatches}>No hay partidas... Por ahora.</Text>
+        ) : (
+          <FlatList
+          onScrollEndDrag={onScroll}
+          onScrollBeginDrag={onScroll}
+            style={styles.listaPartidas}
+            contentContainerStyle={styles.listaPartidasContainer}
+            data={partidas}
+            renderItem={({ item }) => <CartaPartida item={item} />}
+            keyExtractor={(item, index) => "key" + index}
+          />
+        )}
+
         <Pressable onPress={SalirSesion}>
-          <Text style={styles.cerrarSesion}>Cerrar Sesión</Text>
+          {/*<Text style={styles.cerrarSesion}>Cerrar Sesión</Text>*/}
         </Pressable>
       </View>
-      <AnadirPartida navigation={navigation} user={user} />
+      <AnadirPartida navigation={navigation} user={user} isExtended={isExtended}/>
     </>
   );
 };
@@ -84,7 +151,6 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 15,
   },
-
   partidaAnterior: {
     shadowColor: "#000",
     shadowOffset: {
@@ -107,6 +173,19 @@ const styles = StyleSheet.create({
 
   partidaAnteriorTexto: {
     fontSize: 25,
+  },
+
+  noMatches: {
+    textAlign: 'center',
+    fontSize: 20,
+    marginTop: 20,
+  },
+
+  listaPartidas: {
+    width: "100%",
+  },
+
+  listaPartidasContainer: {
   },
 });
 

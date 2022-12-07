@@ -5,7 +5,6 @@ import {
   Text,
   Button,
   View,
-
   Dimensions,
   Pressable,
   TextInput,
@@ -19,95 +18,57 @@ const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 const NuevaPartida = ({ navigation, route }) => {
-  const [equipo, setEquipo] = useState(0);
-  const [newTeam, setNewTeam] = useState({
-    nombre: "Equipo A",
-    position: false,
-    jugadores: {
-      jugador1: "",
-      jugador2: "",
-    },
-    puntos: {
-      puntos1: {
-        winners: 0,
-        errores: 0,
-        smashes: 0,
-        smashesExito: 0,
-      },
-      puntos2: {
-        winners: 0,
-        errores: 0,
-        smashes: 0,
-        smashesExito: 0,
-      }
-    }
-  });
-  const [newTeam2, setNewTeam2] = useState({
-    nombre: "Equipo B",
-    position: false,
-    jugadores: {
-      jugador1: "",
-      jugador2: "",
-    },
-      puntos: {
-        puntos1: {
+  const [equipoObj, setEquipoObj] = useState({
+    equipo1: {
+      nombre: "Equipo A",
+      position: false,
+      jugadores: {
+        jugador1: {
+          nombre: "",
           winners: 0,
-          errores: 0,
           smashes: 0,
+          unfError: 0,
           smashesExito: 0,
         },
-        puntos2: {
+        jugador2: {
+          nombre: "",
           winners: 0,
-          errores: 0,
           smashes: 0,
+          unfError: 0,
           smashesExito: 0,
-        }
-      }
+        },
+      },
+    },
+    equipo2: {
+      nombre: "Equipo B",
+      position: false,
+      jugadores: {
+        jugador1: {
+          nombre: "",
+          winners: 0,
+          smashes: 0,
+          unfError: 0,
+          smashesExito: 0,
+        },
+        jugador2: {
+          nombre: "",
+          winners: 0,
+          smashes: 0,
+          unfError: 0,
+          smashesExito: 0,
+        },
+      },
+    },
   });
-
-  const [partida, setPartida] = useState();
+  const [equipo, setEquipo] = useState(0);
 
   const CreacionEquipo = async () => {
-    if(partida===undefined){
-      const crearPartida = await addDoc(collection(database, "Partidas"), {usuario: route.params.user});
-      setPartida(crearPartida.id);
-      setEquipo(equipo+1);
-    }else{
-      setEquipo(equipo+1);
-    }  
+      const crearPartida = await addDoc(collection(database, "Partidas"), {
+        usuario: route.params.user,
+      });
+      navigation.navigate("partida", { partidaid: crearPartida.id,infoequipos: equipoObj });
+    
   };
-
-  useEffect(() =>{
-   const addTeam = async () =>{    
-      switch (equipo) {
-        case 1:
-          try {
-            await setDoc(doc(database, `/Partidas/${partida}/PartidoCompleto/Equipo1`), newTeam);
-          } catch (error) {
-            console.log(error);
-          }
-          break;
-        case 2:
-          try {
-            await setDoc(doc(database, `/Partidas/${partida}/PartidoCompleto/Equipo2`), newTeam2);
-            navigation.navigate("partida", {partidaid: partida});
-          } catch (error) {
-            console.log(error);
-          }
-          break;
-        default:
-          break;
-      }
-    }
-   
-    if(partida===undefined){
-      return;
-    }else{
-      addTeam();
-    }
-
-
-  }, [equipo])
 
   switch (equipo) {
     case 0:
@@ -118,8 +79,13 @@ const NuevaPartida = ({ navigation, route }) => {
           </Text>
           <TextInput
             style={styles.inputTeam}
-            onChangeText={(text) => setNewTeam({ ...newTeam, nombre: text })}
-            value={newTeam.nombre}
+            onChangeText={(text) =>
+              setEquipoObj({
+                ...equipoObj,
+                equipo1: { ...equipoObj.equipo1, nombre: text },
+              })
+            }
+            value={equipoObj.equipo1.nombre}
             maxLength={20}
             placeholder="Equipo A"
           />
@@ -127,22 +93,40 @@ const NuevaPartida = ({ navigation, route }) => {
           <View style={styles.playerSection}>
             <TextInput
               style={styles.inputPlayer}
-              //placeholder="User Nickname"
+              placeholder="Jugador 1"
+              value={equipoObj.equipo1.jugadores.jugador1.nombre}
               onChangeText={(text) =>
-                setNewTeam({
-                  ...newTeam,
-                  jugadores: { ...newTeam.jugadores, jugador1: text },
+                setEquipoObj({
+                  ...equipoObj,
+                  equipo1: {
+                    ...equipoObj.equipo1,
+                    jugadores: {
+                      ...equipoObj.equipo1.jugadores,
+                      jugador1: {
+                        nombre: text,
+                        winners: 0,
+                        smashes: 0,
+                        unfError: 0,
+                        smashesExito: 0,
+                      },
+                    },
+                  },
                 })
               }
-              placeholder="Jugador 1"
             />
             <Pressable
               onPress={() =>
-                setNewTeam({ ...newTeam, position: !newTeam.position })
+                setEquipoObj({
+                  ...equipoObj,
+                  equipo1: {
+                    ...equipoObj.equipo1,
+                    position: !equipoObj.equipo1.position,
+                  },
+                })
               }
             >
               <Text style={styles.playerPosition}>
-                {newTeam.position == true ? "D" : "R"}
+                {equipoObj.equipo1.position == true ? "D" : "R"}
               </Text>
             </Pressable>
           </View>
@@ -150,29 +134,47 @@ const NuevaPartida = ({ navigation, route }) => {
           <View style={styles.playerSection}>
             <TextInput
               style={styles.inputPlayer}
-              //placeholder="User Nickname"
-              onChangeText={(text) =>
-                setNewTeam({
-                  ...newTeam,
-                  jugadores: { ...newTeam.jugadores, jugador2: text },
-                })
-              }
               placeholder="Jugador 2"
+              value={equipoObj.equipo1.jugadores.jugador2.nombre}
+              onChangeText={(text) => {
+                setEquipoObj({
+                  ...equipoObj,
+                  equipo1: {
+                    ...equipoObj.equipo1,
+                    jugadores: {
+                      ...equipoObj.equipo1.jugadores,
+                      jugador2: {
+                        nombre: text,
+                        winners: 0,
+                        smashes: 0,
+                        unfError: 0,
+                        smashesExito: 0,
+                      },
+                    },
+                  },
+                });
+              }}
             />
             <Pressable
               onPress={() =>
-                setNewTeam({ ...newTeam, position: !newTeam.position })
+                setEquipoObj({
+                  ...equipoObj,
+                  equipo1: {
+                    ...equipoObj.equipo1,
+                    position: !equipoObj.equipo1.position,
+                  },
+                })
               }
             >
               <Text style={styles.playerPosition}>
-                {newTeam.position == true ? "R" : "D"}
+                {equipoObj.equipo1.position == true ? "R" : "D"}
               </Text>
             </Pressable>
           </View>
           <TouchableOpacity
             style={styles.siguiente}
             onPress={() => {
-              CreacionEquipo();
+              setEquipo(equipo + 1);
             }}
           >
             <Text style={styles.siguienteTexto}>Siguiente</Text>
@@ -187,8 +189,13 @@ const NuevaPartida = ({ navigation, route }) => {
           </Text>
           <TextInput
             style={styles.inputTeam}
-            onChangeText={(text) => setNewTeam2({ ...newTeam2, nombre: text })}
-            value={newTeam2.nombre}
+            onChangeText={(text) =>
+              setEquipoObj({
+                ...equipoObj,
+                equipo2: { ...equipoObj.equipo2, nombre: text },
+              })
+            }
+            value={equipoObj.equipo2.nombre}
             maxLength={20}
             placeholder="Equipo B"
           />
@@ -196,23 +203,40 @@ const NuevaPartida = ({ navigation, route }) => {
           <View style={styles.playerSection}>
             <TextInput
               style={styles.inputPlayer}
-              //placeholder="User Nickname"
+              placeholder="Jugador 1"
+              value={equipoObj.equipo2.jugadores.jugador1.nombre}
               onChangeText={(text) =>
-                setNewTeam2({
-                  ...newTeam2,
-                  jugadores: { ...newTeam2.jugadores, jugador1: text },
+                setEquipoObj({
+                  ...equipoObj,
+                  equipo2: {
+                    ...equipoObj.equipo2,
+                    jugadores: {
+                      ...equipoObj.equipo2.jugadores,
+                      jugador1: {
+                        nombre: text,
+                        winners: 0,
+                        smashes: 0,
+                        unfError: 0,
+                        smashesExito: 0,
+                      },
+                    },
+                  },
                 })
               }
-              value={newTeam2.jugadores.jugador1}
-              placeholder="Jugador 1"
             />
             <Pressable
               onPress={() =>
-                setNewTeam2({ ...newTeam2, position: !newTeam2.position })
+                setEquipoObj({
+                  ...equipoObj,
+                  equipo2: {
+                    ...equipoObj.equipo2,
+                    position: !equipoObj.equipo2.position,
+                  },
+                })
               }
             >
               <Text style={styles.playerPosition}>
-                {newTeam2.position == true ? "D" : "R"}
+                {equipoObj.equipo2.position == true ? "D" : "R"}
               </Text>
             </Pressable>
           </View>
@@ -220,23 +244,40 @@ const NuevaPartida = ({ navigation, route }) => {
           <View style={styles.playerSection}>
             <TextInput
               style={styles.inputPlayer}
-              //placeholder="User Nickname"
-              onChangeText={(text) =>
-                setNewTeam2({
-                  ...newTeam2,
-                  jugadores: { ...newTeam2.jugadores, jugador2: text },
-                })
-              }
-              value={newTeam2.jugadores.jugador2}
               placeholder="Jugador 2"
+              value={equipoObj.equipo2.jugadores.jugador2.nombre}
+              onChangeText={(text) => {
+                setEquipoObj({
+                  ...equipoObj,
+                  equipo2: {
+                    ...equipoObj.equipo2,
+                    jugadores: {
+                      ...equipoObj.equipo2.jugadores,
+                      jugador2: {
+                        nombre: text,
+                        winners: 0,
+                        smashes: 0,
+                        unfError: 0,
+                        smashesExito: 0,
+                      },
+                    },
+                  },
+                });
+              }}
             />
             <Pressable
               onPress={() =>
-                setNewTeam2({ ...newTeam2, position: !newTeam2.position })
+                setEquipoObj({
+                  ...equipoObj,
+                  equipo2: {
+                    ...equipoObj.equipo2,
+                    position: !equipoObj.equipo2.position,
+                  },
+                })
               }
             >
               <Text style={styles.playerPosition}>
-                {newTeam2.position == true ? "R" : "D"}
+                {equipoObj.equipo2.position == true ? "R" : "D"}
               </Text>
             </Pressable>
           </View>
@@ -246,7 +287,7 @@ const NuevaPartida = ({ navigation, route }) => {
               CreacionEquipo();
             }}
           >
-            <Text style={styles.siguienteTexto}>Siguiente</Text>
+            <Text style={styles.siguienteTexto}>Crear Partida</Text>
           </TouchableOpacity>
         </View>
       );

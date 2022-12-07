@@ -24,17 +24,14 @@ const AnadirPartida = ({
   iconMode,
   navigation,
   user,
+  isExtended
 }) => {
-  const [isExtended, setIsExtended] = useState(true);
+
+
+  console.log(isExtended);
   const isIOS = Platform.OS === 'ios';
   const theme = useTheme();
 
-  const onScroll = ({ nativeEvent }) => {
-    const currentScrollPosition =
-      Math.floor(nativeEvent?.contentOffset?.y) ?? 0;
-
-    setIsExtended(currentScrollPosition <= 0);
-  };
 
   const fabStyle = { [animateFrom]: 16 };
 

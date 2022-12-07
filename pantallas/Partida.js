@@ -12,11 +12,11 @@ import { useEffect, useRef, useState } from "react";
 import Contador from "../components/Partida/Contador";
 import PointDetail from "../components/Partida/Popup";
 
-async function crearPartida(partidaid) {
+async function crearPartida(partidaid, infoequipos) {
   try {
     await setDoc(
       doc(database, `Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
-      { sets: 3, juegos: 6 }
+      {infoequipos}
     );
   } catch (e) {
     console.log(e);
@@ -25,6 +25,7 @@ async function crearPartida(partidaid) {
 
 const Partida = ({ route }) => {
   const partidaid = route.params.partidaid;
+  const infoequipos = route.params.infoequipos;
 
   const [isTiebreak, setTiebreak] = useState(false);
   const [goldenPoint, setGoldenPoint] = useState(false);
@@ -58,19 +59,19 @@ const Partida = ({ route }) => {
   const [datos, setDatos] = useState([
     {
       jugadores: {
-        jugador1: "",
-        jugador2: "",
+        jugador1: infoequipos.equipo1.jugadores.jugador1.nombre,
+        jugador2: infoequipos.equipo1.jugadores.jugador2.nombre,
       },
-      nombre: "",
-      position: false,
+      nombre: infoequipos.equipo1.nombre,
+      position: infoequipos.equipo1.position,
     },
     {
       jugadores: {
-        jugador1: "",
-        jugador2: "",
+        jugador1: infoequipos.equipo2.jugadores.jugador1.nombre,
+        jugador2: infoequipos.equipo2.jugadores.jugador2.nombre,
       },
-      nombre: "",
-      position: false,
+      nombre: infoequipos.equipo2.nombre,
+      position: infoequipos.equipo2.position,
     },
   ]);
 
@@ -155,6 +156,7 @@ const Partida = ({ route }) => {
     if (juegosE1 === 6 && juegosE2 === 6) {
       alert("TIEBREAK");
       setTiebreak(true);
+      return;
     }
 
     //EQUIPO 1
@@ -216,6 +218,8 @@ const Partida = ({ route }) => {
     }
   }, [juegosE1 === 6, juegosE2 === 6]);
 
+  crearPartida(partidaid, infoequipos);
+
   useEffect(() => {
     const retrieveDocs = async () => {
       try {
@@ -223,10 +227,6 @@ const Partida = ({ route }) => {
           database,
           `Partidas/${partidaid}/PartidoCompleto`
         );
-        const data = await getDocs(matchCol);
-        const result = data.docs.map((doc) => doc.data());
-        setDatos(result);
-        return result;
       } catch (e) {
         console.log(e);
       }
@@ -234,7 +234,7 @@ const Partida = ({ route }) => {
     retrieveDocs();
   }, []);
 
-  crearPartida(partidaid);
+
 
   return (
     <View style={styles.pantalla}>
