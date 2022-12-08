@@ -268,7 +268,7 @@ const Partida = ({ route }) => {
           {
               infoSets[0] === undefined
                 ? ""
-                : infoSets[1] === undefined ? juegosE1 : infoSets[1].equipo2
+                : infoSets[1] === undefined ? juegosE2 : infoSets[1].equipo2
             }
           </Text>
         </View>
@@ -284,7 +284,7 @@ const Partida = ({ route }) => {
           {
               infoSets[1] === undefined
                 ? ""
-                : infoSets[2] === undefined ? juegosE1 : infoSets[2].equipo2
+                : infoSets[2] === undefined ? juegosE2 : infoSets[2].equipo2
             }
           </Text>
         </View>
