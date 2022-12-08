@@ -29,7 +29,6 @@ const Contador = (props) => {
         }
         break;
       case true:
-        console.log("HOLA");
         {props.punto==1 ? setRealScore(props.marcadorE1) : setRealScore(props.marcadorE2)}
         break;
        

@@ -23,9 +23,10 @@ import {
   listcoll,
 } from "firebase/firestore";
 import CartaPartida from "../components/Principal/CartaPartida";
+import Cajillero from "../components/Principal/Cajillero";
 
 const Principal = ({ navigation }) => {
-  const [partidas, setPartidas] = useState();
+  const [partidas, setPartidas] = useState([]);
   const [isExtended, setIsExtended] = useState(true);
 
 
@@ -89,11 +90,12 @@ const Principal = ({ navigation }) => {
 
   return (
     <>
+    <Cajillero />
       <View
         style={[styles.principal, { backgroundColor: theme.colors.background }]}
       >
         {/*<CartaPartida />*/}
-        {partidas === undefined ? (
+        {partidas.length===0 ? (
           <Text style={styles.noMatches}>No hay partidas... Por ahora.</Text>
         ) : (
           <FlatList
@@ -107,8 +109,8 @@ const Principal = ({ navigation }) => {
           />
         )}
 
-        <Pressable onPress={SalirSesion}>
-          {/*<Text style={styles.cerrarSesion}>Cerrar Sesión</Text>*/}
+        <Pressable onPress={SalirSesion} style={styles.cerrarSesiontext}>
+          <Text style={styles.cerrarSesion}>Cerrar Sesión</Text>
         </Pressable>
       </View>
       <AnadirPartida navigation={navigation} user={user} isExtended={isExtended}/>
@@ -145,6 +147,10 @@ const styles = StyleSheet.create({
   partidaNuevaTexto: {
     color: "white",
     fontSize: 20,
+  },
+
+  cerrarSesiontext: {
+    position: 'absolute',
   },
 
   cerrarSesion: {

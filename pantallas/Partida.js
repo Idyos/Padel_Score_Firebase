@@ -16,7 +16,7 @@ async function crearPartida(partidaid, infoequipos) {
   try {
     await setDoc(
       doc(database, `Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
-      {infoequipos}
+      { infoequipos }
     );
   } catch (e) {
     console.log(e);
@@ -27,16 +27,11 @@ const Partida = ({ route }) => {
   const partidaid = route.params.partidaid;
   const infoequipos = route.params.infoequipos;
 
+
   const [isTiebreak, setTiebreak] = useState(false);
   const [goldenPoint, setGoldenPoint] = useState(false);
 
-  //JUEGOS DE CADA EQUIPO SET 1
-  const [juegosE1Set1, setJuegosE1Set1] = useState();
-  const [juegosE2Set1, setJuegosE2Set1] = useState();
-
-  //JUEGOS DE CADA EQUIPO SET 2
-  const [juegosE1Set2, setJuegosE1Set2] = useState();
-  const [juegosE2Set2, setJuegosE2Set2] = useState();
+  const [infoSets, setInfoSets] = useState([]);
 
   //AÑADIR PUNTOS EN EL JUEGO
   const [punto, setPunto] = useState({});
@@ -47,8 +42,8 @@ const Partida = ({ route }) => {
   const [marcadorE2, setMarcadorE2] = useState(0);
 
   //JUEGOS DE CADA EQUIPO
-  const [juegosE1, setJuegosE1] = useState(5);
-  const [juegosE2, setJuegosE2] = useState(4);
+  const [juegosE1, setJuegosE1] = useState(6);
+  const [juegosE2, setJuegosE2] = useState(5);
 
   //SETS DE CADA EQUIPO
   const [setsE1, setSetsE1] = useState(0);
@@ -94,14 +89,11 @@ const Partida = ({ route }) => {
     setPuntosJuego([]);
   };
 
-  const addSetInfo = async (set) => {
+  const addSetInfo = async () => {
     console.log(partidaid);
-    console.log(set);
+    const matchRef = doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`);
     try {
-      await setDoc(
-        doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
-        { set1: set }
-      );
+      await updateDoc(matchRef, infoSets);
     } catch (error) {
       console.log(error);
     }
@@ -119,17 +111,19 @@ const Partida = ({ route }) => {
       }
     }
     if (isTiebreak == true) {
-      if(contador1>=7 && contador1-contador2>=2){
+      if (contador1 >= 7 && contador1 - contador2 >= 2) {
         setJuegosE1(juegosE1 + 1);
         setMarcadorE1(0);
         setMarcadorE2(0);
         updateJuego();
+        setTiebreak(false);
       }
-      if(contador2>=7 && contador2-contador1>=2){
+      if (contador2 >= 7 && contador2 - contador1 >= 2) {
         setJuegosE2(juegosE2 + 1);
         setMarcadorE1(0);
         setMarcadorE2(0);
         updateJuego();
+        setTiebreak(false);
       }
     } else {
       if (contador1 === 3 && contador2 === 3) {
@@ -160,65 +154,51 @@ const Partida = ({ route }) => {
     }
 
     //EQUIPO 1
-    if ((juegosE1 >= 6 && juegosE1 - juegosE2 >= 2) || (juegosE1===7)) {
-      console.log("HE ENTRADO AL IF DE 6 JUEGOS");
+    if ((juegosE1 >= 6 && juegosE1 - juegosE2 >= 2) || juegosE1 === 7) {
       setSetsE1(setsE1 + 1);
-      if (setsE1 === 1) {
-        alert("SE HA TERMINADO EL PARTIDO, GANADOR: " + datos[0].nombre);
-      }
-      if (setsE1 + setsE2 === 0) {
-        let set1 = {
-          juegosEquipo1: juegosE1,
-          juegosEquipo2: juegosE2,
-        };
-        addSetInfo(set1);
-        setJuegosE1Set1(juegosE1);
-        setJuegosE2Set1(juegosE2);
-      }
-      if (setsE1 + setsE2 === 1) {
-        setJuegosE1Set2(juegosE1);
-        setJuegosE2Set2(juegosE2);
-      }
-      updateJuego();
-      setJuegosE1(0);
-      setJuegosE2(0);
     } else {
       updateJuego();
     }
 
     //EQUIPO 2
-    if ((juegosE2 >= 6 && juegosE2 - juegosE1 >= 2) || (juegosE2===7)) {
+    if ((juegosE2 >= 6 && juegosE2 - juegosE1 >= 2) || juegosE2 === 7) {
       setSetsE2(setsE2 + 1);
-      if (setsE2 === 1) {
-        alert("SE HA TERMINADO EL PARTIDO, GANADOR: " + datos[1].nombre);
-      }
-      if (setsE1 + setsE2 === 0) {
-        let set1 = {
-          juegosEquipo1: juegosE1,
-          juegosEquipo2: juegosE2,
-        };
-        addSetInfo(set1);
-        setJuegosE2Set1(juegosE2);
-        setJuegosE1Set1(juegosE1);
-      }
-      if (setsE1 + setsE2 === 1) {
-        let set2 = {
-          juegosEquipo1: juegosE1,
-          juegosEquipo2: juegosE2,
-        };
-        addSetInfo(set2);
-        setJuegosE2Set2(juegosE2);
-        setJuegosE1Set2(juegosE1);
-      }
-      updateJuego();
-      setJuegosE1(0);
-      setJuegosE2(0);
     } else {
       updateJuego();
     }
   }, [juegosE1 === 6, juegosE2 === 6]);
 
-  crearPartida(partidaid, infoequipos);
+  useEffect(() => {
+    ///EQUIPO 1
+    if (setsE1 === 2 ) {
+      alert("SE HA TERMINADO EL PARTIDO, GANADOR: " + datos[0].nombre);
+      addSetInfo();
+    }
+    if (setsE2 === 2) {
+      alert("SE HA TERMINADO EL PARTIDO, GANADOR: " + datos[1].nombre);
+      addSetInfo();
+    }
+    if (setsE1 + setsE2 === 1) {
+      setInfoSets((current) => [
+        ...current,
+        { equipo1: juegosE1, equipo2: juegosE2 },
+      ]);
+      updateJuego();
+      setJuegosE1(0);
+      setJuegosE2(0);
+      return;
+    }
+    if (setsE1 + setsE2 === 2) {
+      setInfoSets((current) => [
+        ...current,
+        { equipo1: juegosE1, equipo2: juegosE2 },
+      ]);
+      updateJuego();
+      setJuegosE1(0);
+      setJuegosE2(0);
+      return;
+    }
+  }, [setsE1, setsE2]);
 
   useEffect(() => {
     const retrieveDocs = async () => {
@@ -234,7 +214,7 @@ const Partida = ({ route }) => {
     retrieveDocs();
   }, []);
 
-
+  crearPartida(partidaid, infoequipos);
 
   return (
     <View style={styles.pantalla}>
@@ -270,31 +250,43 @@ const Partida = ({ route }) => {
       <View style={styles.marcadorSets}>
         <View style={styles.set}>
           <Text style={styles.marcador}>
-            {juegosE1Set1 == undefined ? juegosE1 : juegosE1Set1}
+            {infoSets[0] === undefined ? juegosE1 : infoSets[0].equipo1}
           </Text>
           <Text style={styles.marcador}>
-            {juegosE2Set1 == undefined ? juegosE2 : juegosE2Set1}
+            {infoSets[0] === undefined ? juegosE2 : infoSets[0].equipo2}
           </Text>
         </View>
         <View style={styles.set}>
           <Text style={styles.marcador}>
-            {juegosE1Set1
-              ? juegosE1Set2 == undefined
-                ? juegosE1
-                : juegosE1Set2
-              : ""}
+            {
+              infoSets[0] === undefined
+                ? ""
+                : infoSets[1] === undefined ? juegosE1 : infoSets[1].equipo1
+            }
           </Text>
           <Text style={styles.marcador}>
-            {juegosE1Set1
-              ? juegosE2Set2 == undefined
-                ? juegosE2
-                : juegosE2Set2
-              : ""}
+          {
+              infoSets[0] === undefined
+                ? ""
+                : infoSets[1] === undefined ? juegosE1 : infoSets[1].equipo2
+            }
           </Text>
         </View>
         <View style={styles.set}>
-          <Text style={styles.marcador}>{juegosE1Set2 ? juegosE1 : ""}</Text>
-          <Text style={styles.marcador}>{juegosE1Set2 ? juegosE2 : ""}</Text>
+          <Text style={styles.marcador}>
+          {
+              infoSets[1] === undefined
+                ? ""
+                : infoSets[2] === undefined ? juegosE1 : infoSets[2].equipo1
+            }
+          </Text>
+          <Text style={styles.marcador}>
+          {
+              infoSets[1] === undefined
+                ? ""
+                : infoSets[2] === undefined ? juegosE1 : infoSets[2].equipo2
+            }
+          </Text>
         </View>
       </View>
 

@@ -15,23 +15,14 @@ export default function App() {
 
   const theme = {
     ...DefaultTheme,
-    roundness: 2,
-    dark: false,
-    colors: {
-      ...DefaultTheme.colors,
-      primary: '#30579a',
-      accent: 'orange',
-      accent_alt: '#547f2f',
-      text: '#090707',
-      comment: '#ececec',
-    }
+    version: 3,
   };
 
   return (
     <PaperProvider theme={theme}>
       <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="login" component={Login}  />
+        <Stack.Navigator options={{headerShown: false}}>
+          <Stack.Screen name="login" component={Login} />
           <Stack.Screen name="registrarse" component={Registrarse} />
           <Stack.Screen name="partida" component={Partida} />
           <Stack.Screen name="principal" component={Principal} />
