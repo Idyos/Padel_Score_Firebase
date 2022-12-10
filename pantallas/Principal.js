@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Pressable,
   FlatList,
+  TouchableOpacity,
   DatePickerIOS,
   SafeAreaView,
 } from "react-native";
@@ -24,11 +25,12 @@ import {
 } from "firebase/firestore";
 import CartaPartida from "../components/Principal/CartaPartida";
 import Cajillero from "../components/Principal/Cajillero";
+import { NavigationContainer, useFocusEffect } from "@react-navigation/native";
 
 const Principal = ({ navigation }) => {
   const [partidas, setPartidas] = useState([]);
   const [isExtended, setIsExtended] = useState(true);
-
+  const [setsMatch, setSets] = useState();
 
   const theme = useTheme();
   const auth = getAuth();
@@ -59,15 +61,23 @@ const Principal = ({ navigation }) => {
     const currentScrollPosition =
       Math.floor(nativeEvent?.contentOffset?.y) ?? 0;
 
-    if(currentScrollPosition>30){
+    if (currentScrollPosition > 30) {
       setIsExtended(false);
-    }
-    else{
+    } else {
       setIsExtended(true);
     }
   };
 
 
+  /*useFocusEffect(
+    React.useCallback(() => {
+      const parent = navigation.getParent();
+  
+      parent.setOptions({ gestureEnabled: true });
+  
+      return () => parent.setOptions({ gestureEnabled: false });
+    }, [navigation])
+  );*/
 
   useEffect(() => {
     setPartidas([]);
@@ -80,8 +90,8 @@ const Principal = ({ navigation }) => {
       querySnapshot.forEach(async (doc) => {
         const q = collection(database, `Partidas/${doc.id}/PartidoCompleto`);
         const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((match) => {
-          setPartidas((current) => [...current, match.data()]);
+        querySnapshot.forEach(async (match) => {
+          setPartidas((current) => [...current, [match.data(), doc.id]]);
         });
       });
     };
@@ -90,21 +100,25 @@ const Principal = ({ navigation }) => {
 
   return (
     <>
-    <Cajillero />
       <View
-        style={[styles.principal, { backgroundColor: theme.colors.background }]}
+        style={[styles.principal, { backgroundColor: theme.colors.primary }]}
       >
-        {/*<CartaPartida />*/}
-        {partidas.length===0 ? (
+        {partidas.length === 0 ? (
           <Text style={styles.noMatches}>No hay partidas... Por ahora.</Text>
         ) : (
           <FlatList
-          onScrollEndDrag={onScroll}
-          onScrollBeginDrag={onScroll}
+            onScrollEndDrag={onScroll}
+            onScrollBeginDrag={onScroll}
             style={styles.listaPartidas}
             contentContainerStyle={styles.listaPartidasContainer}
             data={partidas}
-            renderItem={({ item }) => <CartaPartida item={item} />}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => navigation.navigate("info-partida", item[1])}
+              >
+                <CartaPartida item={item} />
+              </TouchableOpacity>
+            )}
             keyExtractor={(item, index) => "key" + index}
           />
         )}
@@ -113,7 +127,11 @@ const Principal = ({ navigation }) => {
           <Text style={styles.cerrarSesion}>Cerrar Sesión</Text>
         </Pressable>
       </View>
-      <AnadirPartida navigation={navigation} user={user} isExtended={isExtended}/>
+      <AnadirPartida
+        navigation={navigation}
+        user={user}
+        isExtended={isExtended}
+      />
     </>
   );
 };
@@ -150,7 +168,7 @@ const styles = StyleSheet.create({
   },
 
   cerrarSesiontext: {
-    position: 'absolute',
+    position: "absolute",
   },
 
   cerrarSesion: {
@@ -182,7 +200,9 @@ const styles = StyleSheet.create({
   },
 
   noMatches: {
-    textAlign: 'center',
+    flex: 1,
+    textAlignVertical: "center",
+    textAlign: "center",
     fontSize: 20,
     marginTop: 20,
   },
@@ -191,8 +211,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
 
-  listaPartidasContainer: {
-  },
+  listaPartidasContainer: {},
 });
 
 export default Principal;
