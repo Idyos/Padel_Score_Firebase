@@ -1,23 +1,20 @@
-import * as React from 'react';
-import { Drawer } from 'react-native-paper';
+import * as React from "react";
+import { Button, View } from "react-native";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import { NavigationContainer } from "@react-navigation/native";
+import NuevaPartida from "../../pantallas/NuevaPartida";
+import Principal from "../../pantallas/Principal";
 
-const Cajillero = () => {
-  const [active, setActive] = React.useState('');
+const Drawer = createDrawerNavigator();
 
+function Cajillero() {
   return (
-    <Drawer.Section title="Some title" showDivider={false}>
-      <Drawer.Item
-        label="First Item"
-        active={active === 'first'}
-        onPress={() => setActive('first')}
-      />
-      <Drawer.Item
-        label="Second Item"
-        active={active === 'second'}
-        onPress={() => setActive('second')}
-      />
-    </Drawer.Section>
+    <NavigationContainer independent={true}>
+      <Drawer.Navigator initialRouteName="Home">
+        <Drawer.Screen name="Home" component={NuevaPartida} />
+      </Drawer.Navigator>
+    </NavigationContainer>
   );
-};
+}
 
 export default Cajillero;

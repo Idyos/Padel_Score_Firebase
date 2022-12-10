@@ -26,12 +26,9 @@ const AnadirPartida = ({
   user,
   isExtended
 }) => {
-
-
-  console.log(isExtended);
+  
   const isIOS = Platform.OS === 'ios';
   const theme = useTheme();
-
 
   const fabStyle = { [animateFrom]: 16 };
 

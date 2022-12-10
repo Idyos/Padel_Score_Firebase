@@ -12,7 +12,9 @@ import {
   DatePickerIOS,
 } from "react-native";
 import { database } from "../src/config/fb";
-import { collection, addDoc, setDoc, doc } from "firebase/firestore";
+import { collection, addDoc, setDoc, doc, now } from "firebase/firestore";
+import firebase from "firebase/app";
+
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -65,6 +67,7 @@ const NuevaPartida = ({ navigation, route }) => {
   const CreacionEquipo = async () => {
       const crearPartida = await addDoc(collection(database, "Partidas"), {
         usuario: route.params.user,
+
       });
       navigation.navigate("partida", { partidaid: crearPartida.id,infoequipos: equipoObj });
     

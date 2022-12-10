@@ -1,21 +1,24 @@
-import { StyleSheet, Text, View, Dimensions } from "react-native";
-import React, { useState } from "react";
+import { StyleSheet, Text, View, Dimensions, Pressable } from "react-native";
+import React, { useEffect, useState } from "react";
 
 const windowHeight = Dimensions.get("window").height;
 
-function CartaPartida({item}) {
+const CartaPartida = ({item}) => {
+
+
+
     return (
         <View style={styles.partidaInfo}>
-          <Text style={styles.title}> {item===undefined ? "" : item.infoequipos.equipo1.nombre} / {item===undefined ? "" : item.infoequipos.equipo2.nombre}</Text>
+          <Text style={styles.title}> {item[0]===undefined ? "" : item[0].infoequipos.equipo1.nombre} / {item[0]===undefined ? "" : item[0].infoequipos.equipo2.nombre}</Text>
           <View style={styles.partidaDetalles}>
             <View>
-              <Text>{item===undefined ? "" : item.infoequipos.equipo1.jugadores.jugador1.nombre}</Text>
-              <Text>{item===undefined ? "" : item.infoequipos.equipo1.jugadores.jugador2.nombre}</Text>
+              <Text>{item[0]===undefined ? "" : item[0].infoequipos.equipo1.jugadores.jugador1.nombre}</Text>
+              <Text>{item[0]===undefined ? "" : item[0].infoequipos.equipo1.jugadores.jugador2.nombre}</Text>
             </View>
             <View style={{ flexDirection: "row" }}>
               <View style={styles.set}>
+              <Text>2</Text>
                 <Text>5</Text>
-                <Text>7</Text>
               </View>
               <View style={styles.set}>
                 <Text>6</Text>
@@ -27,8 +30,8 @@ function CartaPartida({item}) {
               </View>
             </View>
             <View style={{alignItems: 'flex-end'}}>
-              <Text>{item===undefined ? "" : item.infoequipos.equipo2.jugadores.jugador1.nombre}</Text>
-              <Text>{item===undefined ? "" : item.infoequipos.equipo2.jugadores.jugador2.nombre}</Text>
+              <Text>{item[0]===undefined ? "" : item[0].infoequipos.equipo2.jugadores.jugador1.nombre}</Text>
+              <Text>{item[0]===undefined ? "" : item[0].infoequipos.equipo2.jugadores.jugador2.nombre}</Text>
             </View>
           </View>
         </View>
