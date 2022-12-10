@@ -99,12 +99,10 @@ const Partida = ({ route }) => {
   };
 
 const updateSets= async () => {
-  console.log(setsE1+setsE2);
+  let sets=setsE1+setsE2+1;
   try {
- 
-    await setDoc(doc(database,`/Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
-      {set1: {equipo1: juegosE1, equipo2: juegosE2}});
-  
+    await setDoc(doc(database,`/Partidas/${partidaid}/PartidoCompleto/SetsResults`),
+      {set:{equipo1: juegosE1, equipo2: juegosE2}});
   } catch (error) {
     console.log(error);
   }

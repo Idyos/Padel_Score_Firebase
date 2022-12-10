@@ -15,28 +15,30 @@ import { Divider, SegmentedButtons } from "react-native-paper";
 const GraficoInfo = () => {
   return (
     <View style={styles.Graficos}>
-    <View style={styles.grafico}>
-      <View style={styles.graficoInfo}>
-        <Text>5</Text>
-        <Text>Winners</Text>
-        <Text>15</Text>
+      <View style={styles.grafico}>
+        <View style={styles.graficoInfo}>
+          <Text>5</Text>
+          <Text>Winners</Text>
+          <Text>15</Text>
+        </View>
+        <View style={styles.grafico1}>
+          <View style={styles.grafico11}></View>
+        </View>
+        <View style={styles.grafico2}></View>
       </View>
-      <View style={styles.grafico1}>
-        <View style={styles.grafico11}></View>
-      </View>
-      <View style={styles.grafico2}></View>
     </View>
-  </View>
   )
 }
 
 
 const InfoPartida = ({ route }) => {
-  console.log(route.params);
+  const infoTeam = route.params[0];
+  console.log(infoTeam);
   const [matchInfoGeneral, setMatchInfoGeneral] = useState("");
   const [value, setValue] = useState("");
 
-  useEffect(() => {
+
+  /*useEffect(() => {
     const getMatches = async () => {
       const q = collection(
         database,
@@ -44,13 +46,14 @@ const InfoPartida = ({ route }) => {
       );
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach((match) => {
+        console.log(match.data())
         setMatchInfoGeneral(match.data());
       });
     };
     getMatches();
-  }, []);
+  }, []);*/
 
-  console.log(matchInfoGeneral.infoequipos);
+  console.log(matchInfoGeneral);
 
   return (
     <View style={styles.pantalla}>
@@ -63,16 +66,10 @@ const InfoPartida = ({ route }) => {
         <View style={styles.team}>
           <View>
             <Text>
-              {matchInfoGeneral === ""
-                ? ""
-                : matchInfoGeneral.infoequipos.equipo1.jugadores.jugador1
-                    .nombre}
+              {infoTeam.equipo1.jugadores.jugador1.nombre}
             </Text>
             <Text>
-              {matchInfoGeneral === ""
-                ? ""
-                : matchInfoGeneral.infoequipos.equipo1.jugadores.jugador2
-                    .nombre}
+            {infoTeam.equipo1.jugadores.jugador2.nombre}
             </Text>
           </View>
           <View style={styles.setsPerTeam}>
@@ -81,18 +78,12 @@ const InfoPartida = ({ route }) => {
         </View>
         <View style={styles.team}>
           <View>
-            <Text>
-              {matchInfoGeneral === ""
-                ? ""
-                : matchInfoGeneral.infoequipos.equipo2.jugadores.jugador1
-                    .nombre}
+                <Text>
+                {infoTeam.equipo2.jugadores.jugador1.nombre}
             </Text>
             <Text>
-              {matchInfoGeneral === ""
-                ? ""
-                : matchInfoGeneral.infoequipos.equipo2.jugadores.jugador2
-                    .nombre}
-            </Text>
+            {infoTeam.equipo2.jugadores.jugador2.nombre}
+</Text>
           </View>
           <View style={styles.setsPerTeam}>
             <Text>HOLAAA</Text>
@@ -121,17 +112,13 @@ const InfoPartida = ({ route }) => {
       <View style={styles.infoPorSets}>
         <View style={styles.team}>
           <View>
-          <Text>
-            {matchInfoGeneral === ""
-              ? ""
-              : matchInfoGeneral.infoequipos.equipo1.jugadores.jugador1.nombre}
+               <Text>
+               {infoTeam.equipo1.jugadores.jugador1.nombre}
           </Text>
           <Text>
-            {matchInfoGeneral === ""
-              ? ""
-              : matchInfoGeneral.infoequipos.equipo1.jugadores.jugador2.nombre}
-          </Text>
-        </View>
+          {infoTeam.equipo1.jugadores.jugador2.nombre}
+        </Text>
+          </View>
         </View>
         <View style={styles.setsPerTeam}>
           <Text>HOLAAA</Text>
@@ -139,24 +126,20 @@ const InfoPartida = ({ route }) => {
 
         <View style={styles.team}>
           <View>
-          <Text style={{textAlign: 'right'}}>
-            {matchInfoGeneral === ""
-              ? ""
-              : matchInfoGeneral.infoequipos.equipo2.jugadores.jugador1.nombre}
+            <Text style={{textAlign: 'right'}}>
+            {infoTeam.equipo2.jugadores.jugador1.nombre}
           </Text>
           <Text style={{textAlign: 'right'}}>
-            {matchInfoGeneral === ""
-              ? ""
-              : matchInfoGeneral.infoequipos.equipo2.jugadores.jugador2.nombre}
-          </Text>
+          {infoTeam.equipo2.jugadores.jugador2.nombre}
+      </Text>
           </View>
         </View>
       </View>
-   <GraficoInfo />
-   <GraficoInfo />
-   <GraficoInfo />
-   <GraficoInfo />
-   <GraficoInfo />
+      <GraficoInfo />
+      <GraficoInfo />
+      <GraficoInfo />
+      <GraficoInfo />
+      <GraficoInfo />
     </View>
   );
 };

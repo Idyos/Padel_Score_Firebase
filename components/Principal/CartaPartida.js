@@ -9,16 +9,16 @@ const CartaPartida = ({item}) => {
 
     return (
         <View style={styles.partidaInfo}>
-          <Text style={styles.title}> {item[0]===undefined ? "" : item[0].infoequipos.equipo1.nombre} / {item[0]===undefined ? "" : item[0].infoequipos.equipo2.nombre}</Text>
+        <Text style={styles.title}> {item[0]===undefined ? "" : item[0].equipo1.nombre} / {item[0]===undefined ? "" : item[0].equipo2.nombre}</Text>
           <View style={styles.partidaDetalles}>
             <View>
-              <Text>{item[0]===undefined ? "" : item[0].infoequipos.equipo1.jugadores.jugador1.nombre}</Text>
-              <Text>{item[0]===undefined ? "" : item[0].infoequipos.equipo1.jugadores.jugador2.nombre}</Text>
+              <Text>{item[0]===undefined ? "" : item[0].equipo1.jugadores.jugador1.nombre}</Text>
+              <Text>{item[0]===undefined ? "" : item[0].equipo1.jugadores.jugador2.nombre}</Text>
             </View>
             <View style={{ flexDirection: "row" }}>
               <View style={styles.set}>
-              <Text>2</Text>
-                <Text>5</Text>
+              <Text>{item[2]===undefined ? "?" : item[2].equipo1}</Text>
+                <Text>{item[2]===undefined ? "?" : item[2].equipo2}</Text>
               </View>
               <View style={styles.set}>
                 <Text>6</Text>
@@ -30,8 +30,8 @@ const CartaPartida = ({item}) => {
               </View>
             </View>
             <View style={{alignItems: 'flex-end'}}>
-              <Text>{item[0]===undefined ? "" : item[0].infoequipos.equipo2.jugadores.jugador1.nombre}</Text>
-              <Text>{item[0]===undefined ? "" : item[0].infoequipos.equipo2.jugadores.jugador2.nombre}</Text>
+              <Text>{item[0]===undefined ? "" : item[0].equipo2.jugadores.jugador1.nombre}</Text>
+              <Text>{item[0]===undefined ? "" : item[0].equipo2.jugadores.jugador2.nombre}</Text> 
             </View>
           </View>
         </View>

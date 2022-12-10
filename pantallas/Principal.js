@@ -90,13 +90,23 @@ const Principal = ({ navigation }) => {
       querySnapshot.forEach(async (doc) => {
         const q = collection(database, `Partidas/${doc.id}/PartidoCompleto`);
         const querySnapshot = await getDocs(q);
+        let equipos={};
+        let sets={};
         querySnapshot.forEach(async (match) => {
-          setPartidas((current) => [...current, [match.data(), doc.id]]);
+          match.data().infoequipos===undefined ? ""  : equipos = match.data().infoequipos;
+          //match.data().sets===undefined ? ""  : sets = match.data().set;
+          //console.log(equipos);
+          sets = match.data().set;
+          setPartidas((current) => [...current, [equipos, doc.id, sets]])
+          //setPartidas((current) => [...current, [match.data(), doc.id]]);
+      
         });
       });
     };
     getMatches();
   }, []);
+
+console.log(partidas);
 
   return (
     <>
@@ -114,7 +124,7 @@ const Principal = ({ navigation }) => {
             data={partidas}
             renderItem={({ item }) => (
               <TouchableOpacity
-                onPress={() => navigation.navigate("info-partida", item[1])}
+                onPress={() => navigation.navigate("info-partida", item)}
               >
                 <CartaPartida item={item} />
               </TouchableOpacity>
