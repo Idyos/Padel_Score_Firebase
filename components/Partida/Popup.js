@@ -103,7 +103,8 @@ const PointDetail = (props) => {
                         <TouchableOpacity
                           style={styles.pointOptionsItem}
                           onPress={() => {
-                            applyPoint(item);
+                            //console.log(index);
+                            applyPoint(index+1);
                             setTimeout(() => {
                               props.visibleFunc(false);
                               setIsOpen(false);

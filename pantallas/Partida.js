@@ -8,17 +8,27 @@ import {
   addDoc,
   updateDoc,
   arrayUnion,
+  increment,
+  getDoc,
 } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 import Contador from "../components/Partida/Contador";
 import PointDetail from "../components/Partida/Popup";
+import { combineTransition } from "react-native-reanimated";
 
 async function crearPartida(partidaid, infoequipos) {
   try {
+    const matchRef =  doc(database, `Partidas/${partidaid}/PartidoCompleto/Matchdetails`)
+    const refSnap = await getDoc(matchRef);
+    if(refSnap.exists()){
+      console.log("Partida ya creada!");
+    }else{
+      console.log("Voy a crear la partida!");
     await setDoc(
       doc(database, `Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
       { infoequipos }
     );
+  }
   } catch (e) {
     console.log(e);
   }
@@ -42,7 +52,7 @@ const Partida = ({ route }) => {
 
   //JUEGOS DE CADA EQUIPO
   const [juegosE1, setJuegosE1] = useState(5);
-  const [juegosE2, setJuegosE2] = useState(4);
+  const [juegosE2, setJuegosE2] = useState(6);
 
   //SETS DE CADA EQUIPO
   const [setsE1, setSetsE1] = useState(0);
@@ -69,8 +79,14 @@ const Partida = ({ route }) => {
     },
   ];
 
+  const infoPlayers = doc(
+    database,
+    `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`
+  );
+
   const updateJuego = async (team) => {
     puntosJuego.map(async (puntos, index) => {
+      console.log(puntos);
       try {
         await setDoc(
           doc(
@@ -79,9 +95,8 @@ const Partida = ({ route }) => {
               setsE1 + setsE2 + 1
             }/Juego${juegosE1 + juegosE2 + 1}`
           ),
-          {winner: team}
+          { winner: team }
         );
-
         await setDoc(
           doc(
             database,
@@ -91,6 +106,18 @@ const Partida = ({ route }) => {
           ),
           puntos
         );
+
+        await setDoc(
+          doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
+          {
+            infoequipos: {
+              ["equipo" + (puntos.team + 1)]: {
+                jugadores: { ["jugador" + puntos.player]: { [puntos.point]: increment(1) } },
+              },
+            },
+          },
+          { merge: true }
+        );
       } catch (error) {
         console.log(error);
       }
@@ -98,15 +125,25 @@ const Partida = ({ route }) => {
     });
   };
 
-const updateSets= async () => {
-  let sets=setsE1+setsE2+1;
-  try {
-    await setDoc(doc(database,`/Partidas/${partidaid}/PartidoCompleto/SetsResults`),
-      {set:{equipo1: juegosE1, equipo2: juegosE2}});
-  } catch (error) {
-    console.log(error);
-  }
-}
+  const updateSets = async () => {
+    const setsDoc = doc(
+      database,
+      `/Partidas/${partidaid}/PartidoCompleto/SetsResults`
+    );
+    try {
+          await setDoc(
+            setsDoc,
+            {
+              set: {
+                ["set" + (setsE1+setsE2)]: { equipo1: juegosE1, equipo2: juegosE2 },
+              },
+            },
+            { merge: true }
+          );
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     let contador1 = 0;
@@ -124,14 +161,14 @@ const updateSets= async () => {
         setJuegosE1(juegosE1 + 1);
         setMarcadorE1(0);
         setMarcadorE2(0);
-        updateJuego();
+        updateJuego("equipo1");
         setTiebreak(false);
       }
       if (contador2 >= 7 && contador2 - contador1 >= 2) {
         setJuegosE2(juegosE2 + 1);
         setMarcadorE1(0);
         setMarcadorE2(0);
-        updateJuego();
+        updateJuego("equipo2");
         setTiebreak(false);
       }
     } else {
@@ -164,44 +201,49 @@ const updateSets= async () => {
     //EQUIPO 1
     if ((juegosE1 >= 6 && juegosE1 - juegosE2 >= 2) || juegosE1 === 7) {
       setSetsE1(setsE1 + 1);
-      updateSets();
-    } 
+      
+    }
     if ((juegosE2 >= 6 && juegosE2 - juegosE1 >= 2) || juegosE2 === 7) {
       setSetsE2(setsE2 + 1);
-      updateSets();
-    } 
-   /* else {
-      console.log("LLAMO A LA FUNCION UPDATE JUEGO");
-      updateJuego();
-    }*/
+    }
   }, [juegosE1 === 6, juegosE2 === 6]);
 
   useEffect(() => {
+    for(i=1; i<=3; i++){
+      if(setsE1+setsE2===i){
+
+      }
+    }
     ///EQUIPO 1
     if (setsE1 === 2) {
-
       alert("SE HA TERMINADO EL PARTIDO, GANADOR: " + datos[0].nombre);
-
     }
     if (setsE2 === 2) {
-
       alert("SE HA TERMINADO EL PARTIDO, GANADOR: " + datos[1].nombre);
-
     }
     if (setsE1 + setsE2 === 1) {
-      setInfoSets(current => [...current, {equipo1: juegosE1, equipo2: juegosE2}]);
+      setInfoSets((current) => [
+        ...current,
+        { equipo1: juegosE1, equipo2: juegosE2 },
+      ]);
       setJuegosE1(0);
       setJuegosE2(0);
-
+      updateSets();
     }
     if (setsE1 + setsE2 === 2) {
-      setInfoSets(current => [...current, {equipo1: juegosE1, equipo2: juegosE2}]);
+      setInfoSets((current) => [
+        ...current,
+        { equipo1: juegosE1, equipo2: juegosE2 },
+      ]);
       setJuegosE1(0);
       setJuegosE2(0);
+      updateSets();
     }
   }, [setsE1, setsE2]);
 
-  crearPartida(partidaid, infoequipos);
+  useEffect(() => {
+    crearPartida(partidaid, infoequipos);
+  }, []);
 
   return (
     <View style={styles.pantalla}>

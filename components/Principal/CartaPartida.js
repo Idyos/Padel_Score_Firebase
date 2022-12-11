@@ -5,7 +5,7 @@ const windowHeight = Dimensions.get("window").height;
 
 const CartaPartida = ({item}) => {
 
-
+console.log(item[2]);
 
     return (
         <View style={styles.partidaInfo}>
@@ -17,16 +17,16 @@ const CartaPartida = ({item}) => {
             </View>
             <View style={{ flexDirection: "row" }}>
               <View style={styles.set}>
-              <Text>{item[2]===undefined ? "?" : item[2].equipo1}</Text>
-                <Text>{item[2]===undefined ? "?" : item[2].equipo2}</Text>
+              <Text>{item[2].set1===undefined ? "?" : item[2].set1.equipo1}</Text>
+                <Text>{item[2].set1===undefined ? "?" : item[2].set1.equipo2}</Text>
               </View>
               <View style={styles.set}>
-                <Text>6</Text>
-                <Text>2</Text>
+              <Text>{item[2].set2===undefined ? "?" : item[2].set2.equipo1}</Text>
+                <Text>{item[2].set2===undefined ? "?" : item[2].set2.equipo2}</Text>
               </View>
               <View style={styles.set}>
-                <Text>6</Text>
-                <Text>7</Text>
+              <Text>{item[2].set3===undefined ? "?" : item[2].set3.equipo1}</Text>
+                <Text>{item[2].set3===undefined ? "?" : item[2].set3.equipo2}</Text>
               </View>
             </View>
             <View style={{alignItems: 'flex-end'}}>

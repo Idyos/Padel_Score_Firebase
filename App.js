@@ -29,13 +29,20 @@ function Cajillero() {
   );
 }
 
+import {
+  MD3LightTheme,
+  MD3DarkTheme,
+} from 'react-native-paper';
+
+
+
 export default function App() {
   //  <StatusBar style="auto" />
 
   const theme = {
     ...DefaultTheme,
     version: 3,
-    dark: true,
+    dark: false,
   };
 
   return (
