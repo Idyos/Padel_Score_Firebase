@@ -18,17 +18,20 @@ import { combineTransition } from "react-native-reanimated";
 
 async function crearPartida(partidaid, infoequipos) {
   try {
-    const matchRef =  doc(database, `Partidas/${partidaid}/PartidoCompleto/Matchdetails`)
-    const refSnap = await getDoc(matchRef);
-    if(refSnap.exists()){
-      console.log("Partida ya creada!");
-    }else{
-      console.log("Voy a crear la partida!");
-    await setDoc(
-      doc(database, `Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
-      { infoequipos }
+    const matchRef = doc(
+      database,
+      `Partidas/${partidaid}/PartidoCompleto/Matchdetails`
     );
-  }
+    const refSnap = await getDoc(matchRef);
+    if (refSnap.exists()) {
+      console.log("Partida ya creada!");
+    } else {
+      console.log("Voy a crear la partida!");
+      await setDoc(
+        doc(database, `Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
+        { infoequipos }
+      );
+    }
   } catch (e) {
     console.log(e);
   }
@@ -86,7 +89,6 @@ const Partida = ({ route }) => {
 
   const updateJuego = async (team) => {
     puntosJuego.map(async (puntos, index) => {
-      console.log(puntos);
       try {
         await setDoc(
           doc(
@@ -112,7 +114,9 @@ const Partida = ({ route }) => {
           {
             infoequipos: {
               ["equipo" + (puntos.team + 1)]: {
-                jugadores: { ["jugador" + puntos.player]: { [puntos.point]: increment(1) } },
+                jugadores: {
+                  ["jugador" + puntos.player]: { [puntos.point]: increment(1) },
+                },
               },
             },
           },
@@ -130,19 +134,60 @@ const Partida = ({ route }) => {
       database,
       `/Partidas/${partidaid}/PartidoCompleto/SetsResults`
     );
-    try {
+
+
+    setTimeout(async () => {
+      const matchInfo = await getDoc(
+        doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`)
+      );  
+      const equipo1info = matchInfo.data().infoequipos.equipo1.jugadores;
+      const equipo2info = matchInfo.data().infoequipos.equipo2.jugadores;
+      console.log(equipo1info);
+        try {
           await setDoc(
             setsDoc,
             {
               set: {
-                ["set" + (setsE1+setsE2)]: { equipo1: juegosE1, equipo2: juegosE2 },
+                ["set" + (setsE1 + setsE2)]: {
+                  equipo1: {
+                    games: juegosE1,
+                    jugador1: {
+                      winners: equipo1info.jugador1.winners,
+                      smashes: equipo1info.jugador1.smashes,
+                      smashesExito: equipo1info.jugador1.smashesExito,
+                      unfError: equipo1info.jugador1.unfError,
+                    },
+                    jugador2: {
+                      winners: equipo1info.jugador2.winners,
+                      smashes: equipo1info.jugador2.smashes,
+                      smashesExito: equipo1info.jugador2.smashesExito,
+                      unfError: equipo1info.jugador2.unfError,
+                    },
+                  },
+                  equipo2: {
+                    games: juegosE2,
+                    jugador1: {
+                      winners: equipo2info.jugador1.winners,
+                      smashes: equipo2info.jugador1.smashes,
+                      smashesExito: equipo2info.jugador1.smashesExito,
+                      unfError: equipo2info.jugador1.unfError,
+                    },
+                    jugador2: {
+                      winners: equipo2info.jugador2.winners,
+                      smashes: equipo2info.jugador2.smashes,
+                      smashesExito: equipo2info.jugador2.smashesExito,
+                      unfError: equipo2info.jugador2.unfError,
+                    },
+                  },
+                },
               },
             },
             { merge: true }
           );
-    } catch (error) {
-      console.log(error);
-    }
+        } catch (error) {
+          console.log(error);
+        }
+    }, 1500);    
   };
 
   useEffect(() => {
@@ -201,7 +246,6 @@ const Partida = ({ route }) => {
     //EQUIPO 1
     if ((juegosE1 >= 6 && juegosE1 - juegosE2 >= 2) || juegosE1 === 7) {
       setSetsE1(setsE1 + 1);
-      
     }
     if ((juegosE2 >= 6 && juegosE2 - juegosE1 >= 2) || juegosE2 === 7) {
       setSetsE2(setsE2 + 1);
@@ -209,9 +253,8 @@ const Partida = ({ route }) => {
   }, [juegosE1 === 6, juegosE2 === 6]);
 
   useEffect(() => {
-    for(i=1; i<=3; i++){
-      if(setsE1+setsE2===i){
-
+    for (let i = 1; i <= 3; i++) {
+      if (setsE1 + setsE2 === i) {
       }
     }
     ///EQUIPO 1

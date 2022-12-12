@@ -93,7 +93,6 @@ const Principal = ({ navigation }) => {
         let equipos={};
         let sets={};
         querySnapshot.forEach(async (match) => {
-          console.log(doc.id)
           match.data().infoequipos===undefined ? ""  : equipos = match.data().infoequipos;
           match.data().set===undefined ? ""  : sets = match.data().set;
           match.data().set===undefined ? "" : setPartidas((current) => [...current, [equipos, doc.id, sets]]);

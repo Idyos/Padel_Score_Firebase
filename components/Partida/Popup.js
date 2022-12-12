@@ -20,6 +20,10 @@ const PointDetail = (props) => {
   const [equipoRival, setEquipoRival] = useState([]);
   //const [props.punto, props.setPunto] = useState({});
   //const [props.puntosJuego, props.setPuntosJuego] = useState([]);
+  console.log("BUENOS:"+equipo);
+  console.log("MALOS:"+equipoRival);
+  console.log(props.puntoEquipo);
+  console.log(props.punto);
 
   useEffect(() => {
     if (props.punto.player) {
@@ -65,12 +69,12 @@ const PointDetail = (props) => {
                     </Text>
                     <FlatList
                       style={styles.pointOptions}
-                      data={["Winner", "Smash", "Unforced Error"]}
+                      data={[{original:"Winner", data: "winners" }, {original: "Smash", data: "smashesExito"}, {original: "Unforced Error", data: "unfError"}]}
                       renderItem={({ item, index }) => (
                         <TouchableOpacity
                           style={styles.pointOptionsItem}
                           onPress={() => {
-                            props.setPunto({ ...props.punto, point: item }),
+                            props.setPunto({ ...props.punto, point: item.data }),
                               setTimeout(() => {
                                 setIsOpen(true);
                               }, 500);
@@ -81,7 +85,7 @@ const PointDetail = (props) => {
                           //status={puntos === point ? 'checked' : 'unchecked'}
                           // onPress={() => { setPuntos }}
                           />
-                          <Text>{item}</Text>
+                          <Text>{item.original}</Text>
                         </TouchableOpacity>
                       )}
                       keyExtractor={(item, index) => "key" + index}
@@ -95,7 +99,7 @@ const PointDetail = (props) => {
                     <FlatList
                       style={styles.pointOptions}
                       data={
-                        props.punto.point == "Unforced Error"
+                        props.punto.point == "unfError"
                           ? equipoRival
                           : equipo
                       }

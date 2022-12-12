@@ -5,8 +5,6 @@ const windowHeight = Dimensions.get("window").height;
 
 const CartaPartida = ({item}) => {
 
-console.log(item[2]);
-
     return (
         <View style={styles.partidaInfo}>
         <Text style={styles.title}> {item[0]===undefined ? "" : item[0].equipo1.nombre} / {item[0]===undefined ? "" : item[0].equipo2.nombre}</Text>
@@ -17,16 +15,16 @@ console.log(item[2]);
             </View>
             <View style={{ flexDirection: "row" }}>
               <View style={styles.set}>
-              <Text>{item[2].set1===undefined ? "?" : item[2].set1.equipo1}</Text>
-                <Text>{item[2].set1===undefined ? "?" : item[2].set1.equipo2}</Text>
+              <Text>{item[2].set1===undefined ? "?" : item[2].set1.equipo1.games}</Text>
+                <Text>{item[2].set1===undefined ? "?" : item[2].set1.equipo2.games}</Text>
               </View>
               <View style={styles.set}>
-              <Text>{item[2].set2===undefined ? "?" : item[2].set2.equipo1}</Text>
-                <Text>{item[2].set2===undefined ? "?" : item[2].set2.equipo2}</Text>
+              <Text>{item[2].set2===undefined ? "?" : item[2].set2.equipo1.games}</Text>
+                <Text>{item[2].set2===undefined ? "?" : item[2].set2.equipo2.games}</Text>
               </View>
               <View style={styles.set}>
-              <Text>{item[2].set3===undefined ? "?" : item[2].set3.equipo1}</Text>
-                <Text>{item[2].set3===undefined ? "?" : item[2].set3.equipo2}</Text>
+              <Text>{item[2].set3===undefined ? "?" : item[2].set3.equipo1.games}</Text>
+                <Text>{item[2].set3===undefined ? "?" : item[2].set3.equipo2.games}</Text>
               </View>
             </View>
             <View style={{alignItems: 'flex-end'}}>
