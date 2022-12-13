@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View, BackHandler, Alert } from "react-native";
 import { database } from "../src/config/fb";
 import {
   collection,
@@ -17,6 +17,8 @@ import PointDetail from "../components/Partida/Popup";
 import { combineTransition } from "react-native-reanimated";
 
 async function crearPartida(partidaid, infoequipos) {
+
+
   try {
     const matchRef = doc(
       database,
@@ -37,7 +39,34 @@ async function crearPartida(partidaid, infoequipos) {
   }
 }
 
-const Partida = ({ route }) => {
+const Partida = ({ route, navigation }) => {
+
+ // const hasUnsavedChanges = Boolean(text);
+
+  BackHandler.addEventListener('hardwareBackPress', () => {
+    navigation.addListener('beforeRemove', (e) => {
+
+      // Prevent default behavior of leaving the screen
+      e.preventDefault();
+
+      // Prompt the user before leaving the screen
+      Alert.alert(
+        'Discard changes?',
+        'You have unsaved changes. Are you sure to discard them and leave the screen?',
+        [
+          { text: "Don't leave", style: 'cancel', onPress: () => {} },
+          {
+            text: 'Discard',
+            style: 'destructive',
+            // If the user confirmed, then we dispatch the action we blocked earlier
+            // This will continue the action that had triggered the removal of the screen
+            onPress: () => navigation.navigate("principal"),
+          },
+        ]
+      );
+    })
+  });
+
   const partidaid = route.params.partidaid;
   const infoequipos = route.params.infoequipos;
 
@@ -54,8 +83,8 @@ const Partida = ({ route }) => {
   const [marcadorE2, setMarcadorE2] = useState(0);
 
   //JUEGOS DE CADA EQUIPO
-  const [juegosE1, setJuegosE1] = useState(5);
-  const [juegosE2, setJuegosE2] = useState(6);
+  const [juegosE1, setJuegosE1] = useState(0);
+  const [juegosE2, setJuegosE2] = useState(0);
 
   //SETS DE CADA EQUIPO
   const [setsE1, setSetsE1] = useState(0);
@@ -260,9 +289,19 @@ const Partida = ({ route }) => {
     ///EQUIPO 1
     if (setsE1 === 2) {
       alert("SE HA TERMINADO EL PARTIDO, GANADOR: " + datos[0].nombre);
+      setInfoSets((current) => [
+        ...current,
+        { equipo1: juegosE1, equipo2: juegosE2 },
+      ]);
+      updateSets();
     }
     if (setsE2 === 2) {
       alert("SE HA TERMINADO EL PARTIDO, GANADOR: " + datos[1].nombre);
+      setInfoSets((current) => [
+        ...current,
+        { equipo1: juegosE1, equipo2: juegosE2 },
+      ]);
+      updateSets();
     }
     if (setsE1 + setsE2 === 1) {
       setInfoSets((current) => [
