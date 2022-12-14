@@ -42,7 +42,7 @@ export default function App() {
   const theme = {
     ...DefaultTheme,
     version: 3,
-    dark: false,
+    dark: true,
   };
 
   return (
@@ -51,8 +51,8 @@ export default function App() {
         <Stack.Navigator options={{ headerShown: false }}>
           <Stack.Screen name="login" component={Login} />
           <Stack.Screen name="registrarse" component={Registrarse} />
-          <Stack.Screen name="partida" component={Partida} />
-          <Stack.Screen name="principal" component={Principal} />
+          <Stack.Screen name="partida" component={Partida} options={{headerShown: false}} />
+          <Stack.Screen name="principal" component={Principal} options={{headerShown: false}}/>
           <Stack.Screen name="info-partida" component={InfoPartida} />
           <Stack.Screen name="nueva-partida" component={NuevaPartida} />
         </Stack.Navigator>

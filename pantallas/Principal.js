@@ -6,8 +6,9 @@ import {
   FlatList,
   TouchableOpacity,
   DatePickerIOS,
-  SafeAreaView,
+  Animated,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import React, { Component, useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -26,6 +27,7 @@ import {
 import CartaPartida from "../components/Principal/CartaPartida";
 import Cajillero from "../components/Principal/Cajillero";
 import { NavigationContainer, useFocusEffect } from "@react-navigation/native";
+import { Easing } from "react-native-reanimated";
 
 const Principal = ({ navigation }) => {
   const [partidas, setPartidas] = useState([]);
@@ -68,16 +70,18 @@ const Principal = ({ navigation }) => {
     }
   };
 
+  const fadeAnim = useRef(new Animated.Value(-400)).current;
 
-  /*useFocusEffect(
-    React.useCallback(() => {
-      const parent = navigation.getParent();
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      delay: 500,
+      duration: 800,
+      useNativeDriver: true, 
+    }).start();
+  }, [])
+    
   
-      parent.setOptions({ gestureEnabled: true });
-  
-      return () => parent.setOptions({ gestureEnabled: false });
-    }, [navigation])
-  );*/
 
   useEffect(() => {
     setPartidas([]);
@@ -109,7 +113,7 @@ const Principal = ({ navigation }) => {
 
   return (
     <>
-      <View
+      <SafeAreaView
         style={[styles.principal, { backgroundColor: theme.colors.primary }]}
       >
         {partidas.length === 0 ? (
@@ -125,17 +129,18 @@ const Principal = ({ navigation }) => {
               <TouchableOpacity
                 onPress={() => navigation.navigate("info-partida", item)}
               >
+                <Animated.View style={{transform: [{translateX: fadeAnim}]}}>
                 <CartaPartida item={item} />
+                </Animated.View>
               </TouchableOpacity>
             )}
             keyExtractor={(item, index) => "key" + index}
           />
         )}
-
         <Pressable onPress={SalirSesion} style={styles.cerrarSesiontext}>
           <Text style={styles.cerrarSesion}>Cerrar Sesión</Text>
         </Pressable>
-      </View>
+      </SafeAreaView>
       <AnadirPartida
         navigation={navigation}
         user={user}

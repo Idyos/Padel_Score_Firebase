@@ -1,7 +1,8 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Dimensions, Pressable } from "react-native";
+import { StyleSheet, View, Dimensions, Pressable } from "react-native";
 import { useEffect, useState } from "react";
 import PointDetail from "./Popup";
+import { Surface, Text } from "react-native-paper";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -36,13 +37,13 @@ const Contador = (props) => {
   }, [props.marcadorE1, props.marcadorE2]);
 
   return (
-    <>
+      <Surface elevation={1}
+      style={
+        props.goldenPoint == true
+          ? [styles.contador, styles.contadorGoldenPoint]
+          : styles.contador
+      }>
       <Pressable
-        style={
-          props.goldenPoint == true
-            ? [styles.contador, styles.contadorGoldenPoint]
-            : styles.contador
-        }
         onPress={() => {
           props.punto == 1
             ? props.setMarcadorE1(props.marcadorE1 + 1)
@@ -53,8 +54,8 @@ const Contador = (props) => {
         }}
       >
         <Text style={styles.marcador}>{realScore}</Text>
-      </Pressable>
-    </>
+        </Pressable>
+      </Surface>
   );
 };
 
@@ -76,10 +77,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     margin: 10,
     alignItems: "center",
-    backgroundColor: "#f0f8ff",
-    width: "80%",
-    height: "40%",
-    padding: 10,
+    width: "70%",
+    padding: 40,
     borderRadius: 10,
   },
   marcador: {

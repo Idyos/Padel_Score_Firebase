@@ -150,9 +150,11 @@ const PointDetail = (props) => {
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "stretch",
-    marginTop: 22,
+    position: 'absolute',
+    left: 0,
+    //top: 0,
+    right: 0,
+    bottom: "23%",
   },
   modalView: {
     margin: 20,

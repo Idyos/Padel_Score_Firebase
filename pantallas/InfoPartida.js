@@ -2,10 +2,10 @@ import {
   StyleSheet,
   Text,
   View,
-  SafeAreaView,
   FlatList,
   BackHandler,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useEffect, useState } from "react";
 import { database } from "../src/config/fb";
 import {
@@ -17,6 +17,7 @@ import {
   listcoll,
 } from "firebase/firestore";
 import { Divider, SegmentedButtons } from "react-native-paper";
+import { AuthErrorCodes } from "@firebase/auth";
 
 const GraficoInfo = ({ matchData, matchFunc, match, value, setsLength }) => {
   const infoMatchEquipo1 = matchData.params[0].equipo1.jugadores;
@@ -141,6 +142,7 @@ const GraficoInfo = ({ matchData, matchFunc, match, value, setsLength }) => {
     }
   }, [value]);
   return (
+    <View style={styles.graficosContainer}>
     <FlatList
       data={match}
       renderItem={({ item }) => (
@@ -184,6 +186,7 @@ const GraficoInfo = ({ matchData, matchFunc, match, value, setsLength }) => {
       )}
       keyExtractor={(item, index) => "key" + index}
     />
+    </View>
   );
 };
 
@@ -216,12 +219,12 @@ console.log(Object.keys(infoSets));
   return (
     <View style={styles.pantalla}>
       <View style={styles.setsInfo}>
-        <View style={[styles.team, { justifyContent: "space-around" }]}>
+        <View style={[styles.team, { justifyContent: "space-between" }]}>
           <Text>Players:</Text>
           <Text>Score</Text>
         </View>
         <Divider bold={true} />
-        <View style={styles.team}>
+        <View style={[styles.team, {width: "76%"}]}>
           <View>
             <Text>{infoTeam.equipo1.jugadores.jugador1.nombre}</Text>
             <Text>{infoTeam.equipo1.jugadores.jugador2.nombre}</Text>
@@ -236,7 +239,7 @@ console.log(Object.keys(infoSets));
           </View>
           </View>
         </View>
-        <View style={styles.team}>
+        <View style={[styles.team, {width: "76%"}]}>
           <View>
             <Text>{infoTeam.equipo2.jugadores.jugador1.nombre}</Text>
             <Text>{infoTeam.equipo2.jugadores.jugador2.nombre}</Text>
@@ -259,7 +262,7 @@ console.log(Object.keys(infoSets));
         />
       </SafeAreaView>
       <View style={styles.infoPorSets}>
-        <View style={styles.team}>
+        <View style={styles.teamUnder}>
           <View>
             <Text>{infoTeam.equipo1.jugadores.jugador1.nombre}</Text>
             <Text>{infoTeam.equipo1.jugadores.jugador2.nombre}</Text>
@@ -275,7 +278,7 @@ console.log(Object.keys(infoSets));
           </Text>
         </View>
 
-        <View style={styles.team}>
+        <View style={styles.teamUnder}>
           <View>
             <Text style={{ textAlign: "right" }}>
               {infoTeam.equipo2.jugadores.jugador1.nombre}
@@ -302,10 +305,11 @@ export default InfoPartida;
 const styles = StyleSheet.create({
   pantalla: {
     flex: 1,
-    height: "100%",
+    height: "10%",
   },
 
   setsInfo: {
+    justifyContent: 'space-around',
     flexDirection: "column",
   },
 
@@ -314,14 +318,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   team: {
+    alignSelf: 'center',
+    width: "80%",
     marginVertical: 10,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
+  },
+
+  teamUnder: {
+    //marginBottom: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   infoPorSets: {
     alignSelf: "center",
-    width: "85%",
+    width: "90%",
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
@@ -375,5 +388,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     height: "100%",
     width: "50%",
+  },
+
+  graficosContainer: {
+    marginVertical: 25,
   },
 });

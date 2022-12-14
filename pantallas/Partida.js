@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View, BackHandler, Alert } from "react-native";
+import { Pressable, StyleSheet, View, BackHandler, Alert } from "react-native";
 import { database } from "../src/config/fb";
 import {
   collection,
@@ -15,6 +15,8 @@ import { useEffect, useRef, useState } from "react";
 import Contador from "../components/Partida/Contador";
 import PointDetail from "../components/Partida/Popup";
 import { combineTransition } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Text } from "react-native-paper";
 
 async function crearPartida(partidaid, infoequipos) {
 
@@ -41,7 +43,7 @@ async function crearPartida(partidaid, infoequipos) {
 
 const Partida = ({ route, navigation }) => {
 
- // const hasUnsavedChanges = Boolean(text);
+  // const hasUnsavedChanges = Boolean(text);
 
   BackHandler.addEventListener('hardwareBackPress', () => {
     navigation.addListener('beforeRemove', (e) => {
@@ -54,7 +56,7 @@ const Partida = ({ route, navigation }) => {
         'Discard changes?',
         'You have unsaved changes. Are you sure to discard them and leave the screen?',
         [
-          { text: "Don't leave", style: 'cancel', onPress: () => {} },
+          { text: "Don't leave", style: 'cancel', onPress: () => { } },
           {
             text: 'Discard',
             style: 'destructive',
@@ -83,8 +85,8 @@ const Partida = ({ route, navigation }) => {
   const [marcadorE2, setMarcadorE2] = useState(0);
 
   //JUEGOS DE CADA EQUIPO
-  const [juegosE1, setJuegosE1] = useState(0);
-  const [juegosE2, setJuegosE2] = useState(0);
+  const [juegosE1, setJuegosE1] = useState(5);
+  const [juegosE2, setJuegosE2] = useState(4);
 
   //SETS DE CADA EQUIPO
   const [setsE1, setSetsE1] = useState(0);
@@ -122,8 +124,7 @@ const Partida = ({ route, navigation }) => {
         await setDoc(
           doc(
             database,
-            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${
-              setsE1 + setsE2 + 1
+            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${setsE1 + setsE2 + 1
             }/Juego${juegosE1 + juegosE2 + 1}`
           ),
           { winner: team }
@@ -131,8 +132,7 @@ const Partida = ({ route, navigation }) => {
         await setDoc(
           doc(
             database,
-            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${
-              setsE1 + setsE2 + 1
+            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${setsE1 + setsE2 + 1
             }/Juego${juegosE1 + juegosE2 + 1}/Puntos/Punto${index}`
           ),
           puntos
@@ -168,55 +168,55 @@ const Partida = ({ route, navigation }) => {
     setTimeout(async () => {
       const matchInfo = await getDoc(
         doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`)
-      );  
+      );
       const equipo1info = matchInfo.data().infoequipos.equipo1.jugadores;
       const equipo2info = matchInfo.data().infoequipos.equipo2.jugadores;
       console.log(equipo1info);
-        try {
-          await setDoc(
-            setsDoc,
-            {
-              set: {
-                ["set" + (setsE1 + setsE2)]: {
-                  equipo1: {
-                    games: juegosE1,
-                    jugador1: {
-                      winners: equipo1info.jugador1.winners,
-                      smashes: equipo1info.jugador1.smashes,
-                      smashesExito: equipo1info.jugador1.smashesExito,
-                      unfError: equipo1info.jugador1.unfError,
-                    },
-                    jugador2: {
-                      winners: equipo1info.jugador2.winners,
-                      smashes: equipo1info.jugador2.smashes,
-                      smashesExito: equipo1info.jugador2.smashesExito,
-                      unfError: equipo1info.jugador2.unfError,
-                    },
+      try {
+        await setDoc(
+          setsDoc,
+          {
+            set: {
+              ["set" + (setsE1 + setsE2)]: {
+                equipo1: {
+                  games: juegosE1,
+                  jugador1: {
+                    winners: equipo1info.jugador1.winners,
+                    smashes: equipo1info.jugador1.smashes,
+                    smashesExito: equipo1info.jugador1.smashesExito,
+                    unfError: equipo1info.jugador1.unfError,
                   },
-                  equipo2: {
-                    games: juegosE2,
-                    jugador1: {
-                      winners: equipo2info.jugador1.winners,
-                      smashes: equipo2info.jugador1.smashes,
-                      smashesExito: equipo2info.jugador1.smashesExito,
-                      unfError: equipo2info.jugador1.unfError,
-                    },
-                    jugador2: {
-                      winners: equipo2info.jugador2.winners,
-                      smashes: equipo2info.jugador2.smashes,
-                      smashesExito: equipo2info.jugador2.smashesExito,
-                      unfError: equipo2info.jugador2.unfError,
-                    },
+                  jugador2: {
+                    winners: equipo1info.jugador2.winners,
+                    smashes: equipo1info.jugador2.smashes,
+                    smashesExito: equipo1info.jugador2.smashesExito,
+                    unfError: equipo1info.jugador2.unfError,
+                  },
+                },
+                equipo2: {
+                  games: juegosE2,
+                  jugador1: {
+                    winners: equipo2info.jugador1.winners,
+                    smashes: equipo2info.jugador1.smashes,
+                    smashesExito: equipo2info.jugador1.smashesExito,
+                    unfError: equipo2info.jugador1.unfError,
+                  },
+                  jugador2: {
+                    winners: equipo2info.jugador2.winners,
+                    smashes: equipo2info.jugador2.smashes,
+                    smashesExito: equipo2info.jugador2.smashesExito,
+                    unfError: equipo2info.jugador2.unfError,
                   },
                 },
               },
             },
-            { merge: true }
-          );
-        } catch (error) {
-          console.log(error);
-        }
-    }, 1500);    
+          },
+          { merge: true }
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    }, 1500);
   };
 
   useEffect(() => {
@@ -328,7 +328,7 @@ const Partida = ({ route, navigation }) => {
   }, []);
 
   return (
-    <View style={styles.pantalla}>
+    <SafeAreaView style={styles.pantalla}>
       <PointDetail
         visible={modalVisible}
         visibleFunc={setModalVisible}
@@ -340,95 +340,106 @@ const Partida = ({ route, navigation }) => {
         setPuntosJuego={setPuntosJuego}
         tiebreak={isTiebreak}
       />
-
-      <View style={styles.datosJugadores}>
-        <Text>{datos[0].nombre}</Text>
-        <View style={styles.nombresJugadores}>
-          <Text>{datos[0].jugadores.jugador1} / </Text>
-          <Text>{datos[0].jugadores.jugador2}</Text>
+      <View style={styles.equipo}>
+        <View style={styles.datosJugadores}>
+          <Text>{datos[0].nombre}</Text>
+          <View style={styles.nombresJugadores}>
+            <Text>{datos[0].jugadores.jugador1} / </Text>
+            <Text>{datos[0].jugadores.jugador2}</Text>
+          </View>
         </View>
+        <Contador
+          visible={modalVisible}
+          visibleFunc={setModalVisible}
+          punto={1}
+          puntoequipo={setPuntoEquipo}
+          setMarcadorE1={setMarcadorE1}
+          marcadorE1={marcadorE1}
+          goldenPoint={goldenPoint}
+          tiebreak={isTiebreak}
+        />
       </View>
-      <Contador
-        visible={modalVisible}
-        visibleFunc={setModalVisible}
-        punto={1}
-        puntoequipo={setPuntoEquipo}
-        setMarcadorE1={setMarcadorE1}
-        marcadorE1={marcadorE1}
-        goldenPoint={goldenPoint}
-        tiebreak={isTiebreak}
-      />
       <View style={styles.marcadorSets}>
-        <View style={styles.set}>
-          <Text style={styles.marcador}>
-            {infoSets[0] === undefined ? juegosE1 : infoSets[0].equipo1}
-          </Text>
-          <Text style={styles.marcador}>
-            {infoSets[0] === undefined ? juegosE2 : infoSets[0].equipo2}
-          </Text>
+        <View>
+          <Text>PUNTO DE ORO</Text>
         </View>
-        <View style={styles.set}>
-          <Text style={styles.marcador}>
-            {infoSets[0] === undefined
-              ? ""
-              : infoSets[1] === undefined
-              ? juegosE1
-              : infoSets[1].equipo1}
-          </Text>
-          <Text style={styles.marcador}>
-            {infoSets[0] === undefined
-              ? ""
-              : infoSets[1] === undefined
-              ? juegosE2
-              : infoSets[1].equipo2}
-          </Text>
-        </View>
-        <View style={styles.set}>
-          <Text style={styles.marcador}>
-            {infoSets[1] === undefined
-              ? ""
-              : infoSets[2] === undefined
-              ? juegosE1
-              : infoSets[2].equipo1}
-          </Text>
-          <Text style={styles.marcador}>
-            {infoSets[1] === undefined
-              ? ""
-              : infoSets[2] === undefined
-              ? juegosE2
-              : infoSets[2].equipo2}
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.datosJugadores}>
-        <Text>{datos[1].nombre}</Text>
-        <View style={styles.nombresJugadores}>
-          <Text>{datos[1].jugadores.jugador1} / </Text>
-          <Text>{datos[1].jugadores.jugador2}</Text>
+        <View style={styles.sets}>
+          <View style={styles.set}>
+            <Text style={styles.marcador}>
+              {infoSets[0] === undefined ? juegosE1 : infoSets[0].equipo1}
+            </Text>
+            <Text style={styles.marcador}>
+              {infoSets[0] === undefined ? juegosE2 : infoSets[0].equipo2}
+            </Text>
+          </View>
+          <View style={styles.set}>
+            <Text style={styles.marcador}>
+              {infoSets[0] === undefined
+                ? ""
+                : infoSets[1] === undefined
+                  ? juegosE1
+                  : infoSets[1].equipo1}
+            </Text>
+            <Text style={styles.marcador}>
+              {infoSets[0] === undefined
+                ? ""
+                : infoSets[1] === undefined
+                  ? juegosE2
+                  : infoSets[1].equipo2}
+            </Text>
+          </View>
+          <View style={styles.set}>
+            <Text style={styles.marcador}>
+              {infoSets[1] === undefined
+                ? ""
+                : infoSets[2] === undefined
+                  ? juegosE1
+                  : infoSets[2].equipo1}
+            </Text>
+            <Text style={styles.marcador}>
+              {infoSets[1] === undefined
+                ? ""
+                : infoSets[2] === undefined
+                  ? juegosE2
+                  : infoSets[2].equipo2}
+            </Text>
+          </View>
         </View>
       </View>
-      <Contador
-        visible={modalVisible}
-        visibleFunc={setModalVisible}
-        punto={2}
-        puntoequipo={setPuntoEquipo}
-        setMarcadorE2={setMarcadorE2}
-        marcadorE2={marcadorE2}
-        goldenPoint={goldenPoint}
-        tiebreak={isTiebreak}
-      />
-    </View>
+      <View style={styles.equipo}>
+        <View style={styles.datosJugadores}>
+          <Text>{datos[1].nombre}</Text>
+          <View style={styles.nombresJugadores}>
+            <Text>{datos[1].jugadores.jugador1} / </Text>
+            <Text>{datos[1].jugadores.jugador2}</Text>
+          </View>
+        </View>
+        <Contador
+          visible={modalVisible}
+          visibleFunc={setModalVisible}
+          punto={2}
+          puntoequipo={setPuntoEquipo}
+          setMarcadorE2={setMarcadorE2}
+          marcadorE2={marcadorE2}
+          goldenPoint={goldenPoint}
+          tiebreak={isTiebreak}
+        />
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   pantalla: {
     flex: 1,
-    backgroundColor: "white",
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
   },
+  equipo: {
+    alignItems: 'center',
+    width: "100%",
+  },
+
 
   datosJugadores: {
     justifyContent: "space-between",
@@ -442,7 +453,19 @@ const styles = StyleSheet.create({
   },
 
   marcadorSets: {
+    width: "90%",
+    position: 'relative',
     flexDirection: "row",
+  },
+
+  sets: {
+    left: 0,
+    right: 0,
+    justifyContent: 'center', 
+    alignSelf: 'center',
+    flexDirection: 'row',
+    position: 'absolute',
+    //backgroundColor: 'blue',
   },
 
   set: {
