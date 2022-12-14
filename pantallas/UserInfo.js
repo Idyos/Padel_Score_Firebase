@@ -5,31 +5,10 @@ import { Chip } from "react-native-paper";
 
 const windowHeight = Dimensions.get("window").height;
 
-const CartaPartida = ({ item }) => {
-
-  const sets = item[2];
-  const players = item[0];
-
+const Profile = () => {
   return (
     <Surface style={styles.partidaInfo} elevation={1}>
-     
-      <Text style={styles.title}> {item[0] === undefined ? "" : item[0].equipo1.nombre} / {item[0] === undefined ? "" : item[0].equipo2.nombre}</Text>
-      <View style={styles.partidaDetalles}>
-      <View style={styles.setContainer}>
-          <FlatList
-            data={Object.keys(item[2])}
-            renderItem={({ item }) => <View style={styles.set}><Text style={styles.setResult}>{sets[item].equipo1.games}</Text><Text style={styles.setResult}>{sets[item].equipo2.games}</Text></View>}
-          />
-        </View>
-          <FlatList
-          style={{flexDirection: 'row', justifyContent:'space-between', width: "100%"}} 
-          data={Object.keys(item[0])}
-          renderItem={({ item, index }) => <View><Text style={index==1 ? {textAlign: 'right'}: {textAlign: 'auto'}}>{players[item].jugadores.jugador1.nombre}</Text><Text style={index==1 ? {textAlign: 'right'}: {textAlign: 'auto'}}>{players[item].jugadores.jugador2.nombre}</Text></View>}
-          listKey={(item, index) => index.toString()}
-          />
-   
-      </View>
-     {/* <Chip style={styles.partidoNoTerminado} icon="alert-circle-outline">Este partido no se ha terminado.</Chip>*/}
+     <Text>HOLAAA</Text>
     </Surface>
   );
 }
@@ -85,4 +64,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CartaPartida;
+export default Profile;

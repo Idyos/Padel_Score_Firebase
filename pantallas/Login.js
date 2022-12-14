@@ -22,7 +22,7 @@ const Login = ({navigation}) => {
     if (user) {
       // User is signed in, see docs for a list of available properties
       // https://firebase.google.com/docs/reference/js/firebase.User
-      navigation.navigate('principal');
+      navigation.navigate("tabbar", {screen: 'principal'});
       // ...
     }
   });
@@ -35,7 +35,7 @@ const Login = ({navigation}) => {
         // Signed in 
         const user = userCredential.user;
         // ...
-        navigation.navigate("principal");
+        navigation.navigate("tabbar", {screen: 'principal'});
       })
       .catch((error) => {
         const errorCode = error.code;
