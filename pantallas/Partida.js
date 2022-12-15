@@ -16,7 +16,9 @@ import Contador from "../components/Partida/Contador";
 import PointDetail from "../components/Partida/Popup";
 import { combineTransition } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Text } from "react-native-paper";
+import { Text, Portal, Dialog } from "react-native-paper";
+import SalirPartida from "../components/Partida/SalirPartida";
+import { StackActions } from '@react-navigation/native';
 
 async function crearPartida(partidaid, infoequipos) {
 
@@ -43,6 +45,7 @@ async function crearPartida(partidaid, infoequipos) {
 
 const Partida = ({ route, navigation }) => {
 
+  const [atrasPartida, setAtrasPartida] = useState(false);
   // const hasUnsavedChanges = Boolean(text);
 
   BackHandler.addEventListener('hardwareBackPress', () => {
@@ -52,20 +55,7 @@ const Partida = ({ route, navigation }) => {
       e.preventDefault();
 
       // Prompt the user before leaving the screen
-      Alert.alert(
-        'Discard changes?',
-        'You have unsaved changes. Are you sure to discard them and leave the screen?',
-        [
-          { text: "Don't leave", style: 'cancel', onPress: () => { } },
-          {
-            text: 'Discard',
-            style: 'destructive',
-            // If the user confirmed, then we dispatch the action we blocked earlier
-            // This will continue the action that had triggered the removal of the screen
-            onPress: () => navigation.navigate("principal"),
-          },
-        ]
-      );
+      setAtrasPartida(true);
     })
   });
 
@@ -74,6 +64,7 @@ const Partida = ({ route, navigation }) => {
 
   const [isTiebreak, setTiebreak] = useState(false);
   const [goldenPoint, setGoldenPoint] = useState(false);
+  const [serve, setServe] = useState(false);
 
   const [infoSets, setInfoSets] = useState([]);
   //AÑADIR PUNTOS EN EL JUEGO
@@ -118,8 +109,24 @@ const Partida = ({ route, navigation }) => {
     `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`
   );
 
+
+  const terminarPartida = async () => {
+   /* const popAction = StackActions.pop(1);
+
+    try {
+      await setDoc(doc(database, `Partidas/${partidaid}`), { partidaTerminada: true }, {merge: true})
+    } catch (error) {
+      console.log(error);
+    }
+    updateJuego("null");
+    updateSets(1);*/
+    navigation.dispatch(popAction);
+  }
+
+
   const updateJuego = async (team) => {
     puntosJuego.map(async (puntos, index) => {
+      index == puntosJuego.length - 1 && goldenPoint === true ? console.log("SON IGUALES") : console.log("NO");
       try {
         await setDoc(
           doc(
@@ -143,6 +150,7 @@ const Partida = ({ route, navigation }) => {
           {
             infoequipos: {
               ["equipo" + (puntos.team + 1)]: {
+                puntosOro: index == puntosJuego.length - 1 && goldenPoint === true ? increment(1) : increment(0),
                 jugadores: {
                   ["jugador" + puntos.player]: { [puntos.point]: increment(1) },
                 },
@@ -151,20 +159,22 @@ const Partida = ({ route, navigation }) => {
           },
           { merge: true }
         );
+
       } catch (error) {
         console.log(error);
       }
+      setGoldenPoint(false);
       setPuntosJuego([]);
     });
   };
 
-  const updateSets = async () => {
+  const updateSets = async (value) => {
     const setsDoc = doc(
       database,
       `/Partidas/${partidaid}/PartidoCompleto/SetsResults`
     );
 
-
+    //TODO: No hacer que se añada la info del set con un timeout, sino que se añada cuando se termine de añadir en el sets results
     setTimeout(async () => {
       const matchInfo = await getDoc(
         doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`)
@@ -177,9 +187,10 @@ const Partida = ({ route, navigation }) => {
           setsDoc,
           {
             set: {
-              ["set" + (setsE1 + setsE2)]: {
+              ["set" + (setsE1 + setsE2+value)]: {
                 equipo1: {
                   games: juegosE1,
+                  puntosOro: matchInfo.data().infoequipos.equipo1.puntosOro,
                   jugador1: {
                     winners: equipo1info.jugador1.winners,
                     smashes: equipo1info.jugador1.smashes,
@@ -195,6 +206,7 @@ const Partida = ({ route, navigation }) => {
                 },
                 equipo2: {
                   games: juegosE2,
+                  puntosOro: matchInfo.data().infoequipos.equipo2.puntosOro,
                   jugador1: {
                     winners: equipo2info.jugador1.winners,
                     smashes: equipo2info.jugador1.smashes,
@@ -248,8 +260,6 @@ const Partida = ({ route, navigation }) => {
     } else {
       if (contador1 === 3 && contador2 === 3) {
         setGoldenPoint(true);
-      } else {
-        setGoldenPoint(false);
       }
       if (contador1 === 4) {
         setJuegosE1(juegosE1 + 1);
@@ -293,7 +303,7 @@ const Partida = ({ route, navigation }) => {
         ...current,
         { equipo1: juegosE1, equipo2: juegosE2 },
       ]);
-      updateSets();
+      updateSets(0);
     }
     if (setsE2 === 2) {
       alert("SE HA TERMINADO EL PARTIDO, GANADOR: " + datos[1].nombre);
@@ -301,7 +311,7 @@ const Partida = ({ route, navigation }) => {
         ...current,
         { equipo1: juegosE1, equipo2: juegosE2 },
       ]);
-      updateSets();
+      updateSets(0);
     }
     if (setsE1 + setsE2 === 1) {
       setInfoSets((current) => [
@@ -310,7 +320,7 @@ const Partida = ({ route, navigation }) => {
       ]);
       setJuegosE1(0);
       setJuegosE2(0);
-      updateSets();
+      updateSets(0);
     }
     if (setsE1 + setsE2 === 2) {
       setInfoSets((current) => [
@@ -319,7 +329,7 @@ const Partida = ({ route, navigation }) => {
       ]);
       setJuegosE1(0);
       setJuegosE2(0);
-      updateSets();
+      updateSets(0);
     }
   }, [setsE1, setsE2]);
 
@@ -329,6 +339,7 @@ const Partida = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={styles.pantalla}>
+      <SalirPartida visible={atrasPartida} setVisible={setAtrasPartida} terminarPartida={terminarPartida} />
       <PointDetail
         visible={modalVisible}
         visibleFunc={setModalVisible}
@@ -461,7 +472,7 @@ const styles = StyleSheet.create({
   sets: {
     left: 0,
     right: 0,
-    justifyContent: 'center', 
+    justifyContent: 'center',
     alignSelf: 'center',
     flexDirection: 'row',
     position: 'absolute',
