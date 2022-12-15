@@ -12,24 +12,21 @@ import Principal from "./pantallas/Principal";
 import Login from "./pantallas/Login";
 import Registrarse from "./pantallas/Registrarse";
 import Profile from "./pantallas/UserInfo";
-import { DefaultTheme, Provider as PaperProvider } from "react-native-paper";
+import { DefaultTheme, MD3DarkTheme, MD3LightTheme, Provider as PaperProvider } from "react-native-paper";
 import InfoPartida from "./pantallas/InfoPartida";
 
 const Stack = createNativeStackNavigator();
 const Tab=createMaterialBottomTabNavigator();
 
-import {
-  MD3LightTheme,
-  MD3DarkTheme,
-} from 'react-native-paper';
-import { ToastAndroid } from "react-native";
 
 function Home() {
   return (
     <Tab.Navigator
+    shifting={false}
       initialRouteName="Feed"
       activeColor="blue"
       barStyle={{ backgroundColor: 'tomato'}}
+      
     >
       <Tab.Screen
         name="principal"
@@ -37,17 +34,7 @@ function Home() {
         options={{
           tabBarLabel: 'Partidas',
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="home" color={color} size={26} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="nueva-partida"
-        component={NuevaPartida}
-        options={{
-          tabBarLabel: 'Nueva Partida',
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="bell" color={color} size={26} />
+            <MaterialCommunityIcons name="clipboard-list" color={color} size={26} />
           ),
         }}
       />
@@ -72,7 +59,7 @@ export default function App() {
 
 
   const theme = {
-    ...DefaultTheme,
+    ...MD3LightTheme,
     version: 3,
     dark: true,
   };

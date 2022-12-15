@@ -1,6 +1,5 @@
 import {
   StyleSheet,
-  Text,
   View,
   FlatList,
   BackHandler,
@@ -16,7 +15,7 @@ import {
   getDocs,
   listcoll,
 } from "firebase/firestore";
-import { Divider, SegmentedButtons } from "react-native-paper";
+import { Divider, SegmentedButtons, Text, withTheme } from "react-native-paper";
 import { AuthErrorCodes } from "@firebase/auth";
 
 const GraficoInfo = ({ matchData, matchFunc, match, value, setsLength }) => {
@@ -190,7 +189,7 @@ const GraficoInfo = ({ matchData, matchFunc, match, value, setsLength }) => {
   );
 };
 
-const InfoPartida = ({ route }) => {
+const InfoPartida = ({ route, theme }) => {
   const infoTeam = route.params[0];
   const infoSets = route.params[2];
   const [setsResults, setSetsResults] = useState([
@@ -217,7 +216,7 @@ const InfoPartida = ({ route }) => {
 console.log(Object.keys(infoSets));
 
   return (
-    <View style={styles.pantalla}>
+    <View style={[styles.pantalla, {backgroundColor: theme.colors.background}]}>
       <View style={styles.setsInfo}>
         <View style={[styles.team, { justifyContent: "space-between" }]}>
           <Text>Players:</Text>
@@ -300,7 +299,7 @@ console.log(Object.keys(infoSets));
   );
 };
 
-export default InfoPartida;
+export default withTheme(InfoPartida);
 
 const styles = StyleSheet.create({
   pantalla: {

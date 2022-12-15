@@ -15,7 +15,7 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { faFloppyDisk } from "@fortawesome/free-solid-svg-icons";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import AnadirPartida from "../components/Principal/AnadirPartida";
-import { useTheme } from "react-native-paper";
+import { useTheme, withTheme } from "react-native-paper";
 import { database } from "../src/config/fb";
 import {
   collection,
@@ -25,7 +25,6 @@ import {
   listcoll,
 } from "firebase/firestore";
 import CartaPartida from "../components/Principal/CartaPartida";
-import Cajillero from "../components/Principal/Cajillero";
 import { NavigationContainer, useFocusEffect } from "@react-navigation/native";
 import { Easing } from "react-native-reanimated";
 
@@ -114,7 +113,7 @@ const Principal = ({ navigation }) => {
   return (
     <>
       <SafeAreaView
-        style={[styles.principal, { backgroundColor: theme.colors.primary }]}
+        style={[styles.principal, { backgroundColor: theme.colors.background }]}
       >
         {partidas.length === 0 ? (
           <Text style={styles.noMatches}>No hay partidas... Por ahora.</Text>
@@ -228,4 +227,4 @@ const styles = StyleSheet.create({
   listaPartidasContainer: {},
 });
 
-export default Principal;
+export default withTheme(Principal);
