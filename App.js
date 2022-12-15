@@ -16,17 +16,17 @@ import { DefaultTheme, MD3DarkTheme, MD3LightTheme, Provider as PaperProvider } 
 import InfoPartida from "./pantallas/InfoPartida";
 
 const Stack = createNativeStackNavigator();
-const Tab=createMaterialBottomTabNavigator();
+const Tab = createMaterialBottomTabNavigator();
 
 
 function Home() {
   return (
     <Tab.Navigator
-    shifting={false}
+      shifting={true}
       initialRouteName="Feed"
       activeColor="blue"
-      barStyle={{ backgroundColor: 'tomato'}}
-      
+      barStyle={{ backgroundColor: 'tomato' }}
+
     >
       <Tab.Screen
         name="principal"
@@ -52,6 +52,10 @@ function Home() {
   );
 }
 
+
+
+
+
 export default function App() {
   //  <StatusBar style="auto" />
 
@@ -69,9 +73,9 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen name="login" component={Login} />
-          <Stack.Screen name="tabbar" component={Home} options={{headerShown: false}}/>
+          <Stack.Screen name="tabbar" component={Home} options={{ headerShown: false }} />
           <Stack.Screen name="registrarse" component={Registrarse} />
-          <Stack.Screen name="partida" component={Partida} options={{headerShown: false}} />
+          <Stack.Screen name="partida" component={Partida} options={{ headerShown: false }} />
           <Stack.Screen name="info-partida" component={InfoPartida} />
           <Stack.Screen name="nueva-partida" component={NuevaPartida} />
         </Stack.Navigator>

@@ -37,25 +37,28 @@ const Contador = (props) => {
   }, [props.marcadorE1, props.marcadorE2]);
 
   return (
-      <Surface elevation={1}
+    <Pressable
+    style={{width: "75%"}}
+    onPress={() => {
+      props.punto == 1
+        ? props.setMarcadorE1(props.marcadorE1 + 1)
+        : props.setMarcadorE2(props.marcadorE2 + 1);
+      setScore(score == 3 ? 0 : score + 1);
+      props.visibleFunc(!props.visible);
+      props.puntoequipo(props.punto === 1 ? 0 : 1);
+    }}
+  >
+    <Surface elevation={1}
       style={
         props.goldenPoint == true
           ? [styles.contador, styles.contadorGoldenPoint]
           : styles.contador
       }>
-      <Pressable
-        onPress={() => {
-          props.punto == 1
-            ? props.setMarcadorE1(props.marcadorE1 + 1)
-            : props.setMarcadorE2(props.marcadorE2 + 1);
-          setScore(score == 3 ? 0 : score + 1);
-          props.visibleFunc(!props.visible);
-          props.puntoequipo(props.punto === 1 ? 0 : 1);
-        }}
-      >
+    
         <Text style={styles.marcador}>{realScore}</Text>
-        </Pressable>
+        
       </Surface>
+      </Pressable>
   );
 };
 
@@ -77,7 +80,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     margin: 10,
     alignItems: "center",
-    width: "70%",
     padding: 40,
     borderRadius: 10,
   },

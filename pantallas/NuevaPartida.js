@@ -24,6 +24,9 @@ const NuevaPartida = ({ navigation, route }) => {
     equipo1: {
       nombre: "Equipo A",
       position: false,
+      puntosOro: 0,
+      breakPoints: 0,
+      breakPointsExito: 0,
       jugadores: {
         jugador1: {
           nombre: "",
@@ -42,6 +45,9 @@ const NuevaPartida = ({ navigation, route }) => {
       },
     },
     equipo2: {
+      puntosOro: 0,
+      breakPoints: 0,
+      breakPointsExito: 0,
       nombre: "Equipo B",
       position: false,
       jugadores: {
@@ -67,6 +73,7 @@ const NuevaPartida = ({ navigation, route }) => {
   const CreacionEquipo = async () => {
       const crearPartida = await addDoc(collection(database, "Partidas"), {
         usuario: route.params.user,
+        partidaTerminada: false,
 
       });
       navigation.navigate("partida", { partidaid: crearPartida.id,infoequipos: equipoObj });

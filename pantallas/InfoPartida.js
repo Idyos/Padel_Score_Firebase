@@ -28,6 +28,13 @@ const GraficoInfo = ({ matchData, matchFunc, match, value, setsLength }) => {
     if (value == 0) {
       matchFunc([
         {
+          name: "Puntos de Oro",
+          equipo1:
+            infoSets.set1.equipo1.puntosOro,
+            equipo2:
+            infoSets.set1.equipo2.puntosOro,
+        },
+        {
           name: "Winners",
           equipo1:
             infoMatchEquipo1.jugador1.winners +
