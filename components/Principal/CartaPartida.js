@@ -3,10 +3,23 @@ import React, { useEffect, useState } from "react";
 import { Surface } from "react-native-paper";
 import { Chip, Text } from "react-native-paper";
 import { withTheme } from "react-native-paper";
+import { doc, getDoc } from "firebase/firestore";
+import { database } from "../../src/config/fb";
 
 const windowHeight = Dimensions.get("window").height;
 
+
 const CartaPartida = ({ item, theme }) => {
+
+  const [partidaTerminada, setPartidaTerminada] = useState(true);
+
+const estadoPartida = async () => {
+  const partida = doc(database, `Partidas/${item[1]}`);
+  const partidaInfo = await getDoc(partida);
+  setPartidaTerminada(partidaInfo.data().partidaTerminada);
+}
+
+estadoPartida();
 
   const sets = item[2];
   const players = item[0];
@@ -18,7 +31,7 @@ const CartaPartida = ({ item, theme }) => {
           <View style={styles.setContainer}>
             <FlatList
             style={{flexDirection: 'row'}}
-              data={Object.keys(item[2])}
+              data={Object.keys(sets)}
               renderItem={({ item }) => <View style={styles.set}><Text style={{ color: theme.colors.primary }}>{sets[item].equipo1.games}</Text><Text style={{ color: theme.colors.primary }}>{sets[item].equipo2.games}</Text></View>}
             />
           </View>
@@ -29,7 +42,7 @@ const CartaPartida = ({ item, theme }) => {
           listKey={(item, index) => index.toString()}
         />
       </View>
-      {/* <Chip style={styles.partidoNoTerminado} icon="alert-circle-outline">Este partido no se ha terminado.</Chip>*/}
+      {partidaTerminada ? "" : <Chip elevated={true} elevation={1} style={[styles.partidoNoTerminado, {backgroundColor: theme.colors.errorContainer}]} textStyle={{color: theme.colors.onErrorContainer}} icon="alert-circle-outline">Este partido no se ha terminado.</Chip>}
     </Surface>
   );
 }

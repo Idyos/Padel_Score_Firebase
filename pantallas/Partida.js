@@ -10,6 +10,7 @@ import {
   arrayUnion,
   increment,
   getDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 import Contador from "../components/Partida/Contador";
@@ -18,11 +19,9 @@ import { combineTransition } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text, Portal, Dialog } from "react-native-paper";
 import SalirPartida from "../components/Partida/SalirPartida";
-import { StackActions } from '@react-navigation/native';
+import { StackActions } from "@react-navigation/native";
 
 async function crearPartida(partidaid, infoequipos) {
-
-
   try {
     const matchRef = doc(
       database,
@@ -44,19 +43,17 @@ async function crearPartida(partidaid, infoequipos) {
 }
 
 const Partida = ({ route, navigation }) => {
-
   const [atrasPartida, setAtrasPartida] = useState(false);
   // const hasUnsavedChanges = Boolean(text);
 
-  BackHandler.addEventListener('hardwareBackPress', () => {
-    navigation.addListener('beforeRemove', (e) => {
-
+  BackHandler.addEventListener("hardwareBackPress", () => {
+    navigation.addListener("beforeRemove", (e) => {
       // Prevent default behavior of leaving the screen
       e.preventDefault();
 
       // Prompt the user before leaving the screen
       setAtrasPartida(true);
-    })
+    });
   });
 
   const partidaid = route.params.partidaid;
@@ -109,9 +106,7 @@ const Partida = ({ route, navigation }) => {
     `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`
   );
 
-
   const terminarPartida = async () => {
-   /* const popAction = StackActions.pop(1);
 
     try {
       await setDoc(doc(database, `Partidas/${partidaid}`), { partidaTerminada: true }, {merge: true})
@@ -119,19 +114,21 @@ const Partida = ({ route, navigation }) => {
       console.log(error);
     }
     updateJuego("null");
-    updateSets(1);*/
-    navigation.dispatch(popAction);
-  }
-
+    updateSets(1);
+    navigation.navigate("tabbar");
+  };
 
   const updateJuego = async (team) => {
     puntosJuego.map(async (puntos, index) => {
-      index == puntosJuego.length - 1 && goldenPoint === true ? console.log("SON IGUALES") : console.log("NO");
+      index == puntosJuego.length - 1 && goldenPoint === true
+        ? console.log("SON IGUALES")
+        : console.log("NO");
       try {
         await setDoc(
           doc(
             database,
-            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${setsE1 + setsE2 + 1
+            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${
+              setsE1 + setsE2 + 1
             }/Juego${juegosE1 + juegosE2 + 1}`
           ),
           { winner: team }
@@ -139,7 +136,8 @@ const Partida = ({ route, navigation }) => {
         await setDoc(
           doc(
             database,
-            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${setsE1 + setsE2 + 1
+            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${
+              setsE1 + setsE2 + 1
             }/Juego${juegosE1 + juegosE2 + 1}/Puntos/Punto${index}`
           ),
           puntos
@@ -150,7 +148,10 @@ const Partida = ({ route, navigation }) => {
           {
             infoequipos: {
               ["equipo" + (puntos.team + 1)]: {
-                puntosOro: index == puntosJuego.length - 1 && goldenPoint === true ? increment(1) : increment(0),
+                puntosOro:
+                  index == puntosJuego.length - 1 && goldenPoint === true
+                    ? increment(1)
+                    : increment(0),
                 jugadores: {
                   ["jugador" + puntos.player]: { [puntos.point]: increment(1) },
                 },
@@ -159,7 +160,6 @@ const Partida = ({ route, navigation }) => {
           },
           { merge: true }
         );
-
       } catch (error) {
         console.log(error);
       }
@@ -179,15 +179,16 @@ const Partida = ({ route, navigation }) => {
       const matchInfo = await getDoc(
         doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`)
       );
+
       const equipo1info = matchInfo.data().infoequipos.equipo1.jugadores;
       const equipo2info = matchInfo.data().infoequipos.equipo2.jugadores;
-      console.log(equipo1info);
+
       try {
         await setDoc(
           setsDoc,
           {
             set: {
-              ["set" + (setsE1 + setsE2+value)]: {
+              ["set" + (setsE1 + setsE2 + value)]: {
                 equipo1: {
                   games: juegosE1,
                   puntosOro: matchInfo.data().infoequipos.equipo1.puntosOro,
@@ -339,7 +340,11 @@ const Partida = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={styles.pantalla}>
-      <SalirPartida visible={atrasPartida} setVisible={setAtrasPartida} terminarPartida={terminarPartida} />
+      <SalirPartida
+        visible={atrasPartida}
+        setVisible={setAtrasPartida}
+        terminarPartida={terminarPartida}
+      />
       <PointDetail
         visible={modalVisible}
         visibleFunc={setModalVisible}
@@ -388,15 +393,15 @@ const Partida = ({ route, navigation }) => {
               {infoSets[0] === undefined
                 ? ""
                 : infoSets[1] === undefined
-                  ? juegosE1
-                  : infoSets[1].equipo1}
+                ? juegosE1
+                : infoSets[1].equipo1}
             </Text>
             <Text style={styles.marcador}>
               {infoSets[0] === undefined
                 ? ""
                 : infoSets[1] === undefined
-                  ? juegosE2
-                  : infoSets[1].equipo2}
+                ? juegosE2
+                : infoSets[1].equipo2}
             </Text>
           </View>
           <View style={styles.set}>
@@ -404,15 +409,15 @@ const Partida = ({ route, navigation }) => {
               {infoSets[1] === undefined
                 ? ""
                 : infoSets[2] === undefined
-                  ? juegosE1
-                  : infoSets[2].equipo1}
+                ? juegosE1
+                : infoSets[2].equipo1}
             </Text>
             <Text style={styles.marcador}>
               {infoSets[1] === undefined
                 ? ""
                 : infoSets[2] === undefined
-                  ? juegosE2
-                  : infoSets[2].equipo2}
+                ? juegosE2
+                : infoSets[2].equipo2}
             </Text>
           </View>
         </View>
@@ -443,14 +448,13 @@ const Partida = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   pantalla: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
+    alignItems: "center",
+    justifyContent: "space-evenly",
   },
   equipo: {
-    alignItems: 'center',
+    alignItems: "center",
     width: "100%",
   },
-
 
   datosJugadores: {
     justifyContent: "space-between",
@@ -465,17 +469,17 @@ const styles = StyleSheet.create({
 
   marcadorSets: {
     width: "90%",
-    position: 'relative',
+    position: "relative",
     flexDirection: "row",
   },
 
   sets: {
     left: 0,
     right: 0,
-    justifyContent: 'center',
-    alignSelf: 'center',
-    flexDirection: 'row',
-    position: 'absolute',
+    justifyContent: "center",
+    alignSelf: "center",
+    flexDirection: "row",
+    position: "absolute",
     //backgroundColor: 'blue',
   },
 

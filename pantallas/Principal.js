@@ -23,6 +23,7 @@ import {
   where,
   getDocs,
   listcoll,
+  orderBy,
 } from "firebase/firestore";
 import CartaPartida from "../components/Principal/CartaPartida";
 import { NavigationContainer, useFocusEffect } from "@react-navigation/native";
@@ -87,7 +88,8 @@ const Principal = ({ navigation }) => {
     const getMatches = async () => {
       const q = query(
         collection(database, "Partidas"),
-        where("usuario", "==", user)
+        where("usuario", "==", user),
+        orderBy("creadoEn")
       );
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach(async (doc) => {
