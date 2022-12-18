@@ -108,14 +108,17 @@ const Partida = ({ route, navigation }) => {
 
   const terminarPartida = async () => {
 
+    console.log(navigation);
+
+
     try {
-      await setDoc(doc(database, `Partidas/${partidaid}`), { partidaTerminada: true }, {merge: true})
+      await setDoc(doc(database, `Partidas/${partidaid}`), { partidaTerminada: true }, {merge: true});
+      updateJuego("null");
+      updateSets(1);
+      navigation.popToTop();
     } catch (error) {
       console.log(error);
     }
-    updateJuego("null");
-    updateSets(1);
-    navigation.navigate("tabbar");
   };
 
   const updateJuego = async (team) => {

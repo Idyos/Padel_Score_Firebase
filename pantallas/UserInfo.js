@@ -2,14 +2,17 @@ import { StyleSheet, Text, View, Dimensions, Pressable, FlatList } from "react-n
 import React, { useEffect, useState } from "react";
 import { Surface } from "react-native-paper";
 import { Chip } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const windowHeight = Dimensions.get("window").height;
 
 const Profile = () => {
   return (
+    <SafeAreaView>
     <Surface style={styles.partidaInfo} elevation={1}>
-     <Text>HOLAAA</Text>
+     <Text>Cerrar Sesión</Text>
     </Surface>
+    </SafeAreaView>
   );
 }
 

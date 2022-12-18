@@ -42,7 +42,7 @@ estadoPartida();
           listKey={(item, index) => index.toString()}
         />
       </View>
-      {partidaTerminada ? "" : <Chip elevated={true} elevation={1} style={[styles.partidoNoTerminado, {backgroundColor: theme.colors.errorContainer}]} textStyle={{color: theme.colors.onErrorContainer}} icon="alert-circle-outline">Este partido no se ha terminado.</Chip>}
+      {partidaTerminada ? "" : <Chip elevated={true} elevation={1} style={styles.partidoNoTerminado} textStyle={{color: theme.colors.onErrorContainer}} icon="alert-circle-outline">Este partido no se ha terminado.</Chip>}
     </Surface>
   );
 }

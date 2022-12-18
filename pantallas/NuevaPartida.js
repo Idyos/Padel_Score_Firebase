@@ -7,13 +7,13 @@ import {
   View,
   Dimensions,
   Pressable,
-  TextInput,
   TouchableOpacity,
   DatePickerIOS,
 } from "react-native";
 import { database } from "../src/config/fb";
 import { collection, addDoc, setDoc, doc, now, serverTimestamp } from "firebase/firestore";
 import firebase from "firebase/app";
+import { TextInput } from "react-native-paper";
 
 
 const windowWidth = Dimensions.get("window").width;
@@ -89,6 +89,10 @@ const NuevaPartida = ({ navigation, route }) => {
             Introduce la información del primer equipo
           </Text>
           <TextInput
+               selectionColor="orange"
+               activeOutlineColor="orange"
+               mode="outlined"
+               label="Equipo 1"
             style={styles.inputTeam}
             onChangeText={(text) =>
               setEquipoObj({
@@ -339,10 +343,9 @@ const styles = StyleSheet.create({
   },
   inputTeam: {
     width: "85%",
+   // height: "12%",
     fontSize: 30,
-    borderWidth: 1,
-    borderRadius: 15,
-    padding: 15,
+    borderRadius: 2,
   },
   inputPlayer: {
     flex: 1,
