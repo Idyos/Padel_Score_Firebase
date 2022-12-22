@@ -1,25 +1,18 @@
-import { Pressable, StyleSheet, View, BackHandler, Alert } from "react-native";
+import { StyleSheet, View, BackHandler, TouchableOpacity } from "react-native";
 import { database } from "../src/config/fb";
 import {
-  collection,
-  getDocs,
   setDoc,
   doc,
-  addDoc,
-  updateDoc,
-  arrayUnion,
   increment,
   getDoc,
-  serverTimestamp,
 } from "firebase/firestore";
+import { Dialog, Portal, Text, Button, RadioButton, IconButton } from "react-native-paper";
 import { useEffect, useRef, useState } from "react";
 import Contador from "../components/Partida/Contador";
 import PointDetail from "../components/Partida/Popup";
-import { combineTransition } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Text, Portal, Dialog } from "react-native-paper";
 import SalirPartida from "../components/Partida/SalirPartida";
-import { StackActions } from "@react-navigation/native";
+import PartidaConfig from "../components/Partida/PartidaConfig";
 
 async function crearPartida(partidaid, infoequipos) {
   try {
@@ -61,9 +54,14 @@ const Partida = ({ route, navigation }) => {
 
   const [isTiebreak, setTiebreak] = useState(false);
   const [goldenPoint, setGoldenPoint] = useState(false);
-  const [serve, setServe] = useState(false);
+
+  //DEL SERVICIO
+  const [serve, setServe] = useState(undefined);
+
+
 
   const [infoSets, setInfoSets] = useState([]);
+
   //AÑADIR PUNTOS EN EL JUEGO
   const [punto, setPunto] = useState({});
   const [puntosJuego, setPuntosJuego] = useState([]);
@@ -73,8 +71,8 @@ const Partida = ({ route, navigation }) => {
   const [marcadorE2, setMarcadorE2] = useState(0);
 
   //JUEGOS DE CADA EQUIPO
-  const [juegosE1, setJuegosE1] = useState(5);
-  const [juegosE2, setJuegosE2] = useState(4);
+  const [juegosE1, setJuegosE1] = useState(0);
+  const [juegosE2, setJuegosE2] = useState(0);
 
   //SETS DE CADA EQUIPO
   const [setsE1, setSetsE1] = useState(0);
@@ -112,7 +110,7 @@ const Partida = ({ route, navigation }) => {
 
 
     try {
-      await setDoc(doc(database, `Partidas/${partidaid}`), { partidaTerminada: true }, {merge: true});
+      await setDoc(doc(database, `Partidas/${partidaid}`), { partidaTerminada: true }, { merge: true });
       updateJuego("null");
       updateSets(1);
       navigation.popToTop();
@@ -122,30 +120,48 @@ const Partida = ({ route, navigation }) => {
   };
 
   const updateJuego = async (team) => {
+    const serving = serve ? "equipo2" : "equipo1";
+    try {
+      await setDoc(
+        doc(
+          database,
+          `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${setsE1 + setsE2 + 1
+          }/Juego${juegosE1 + juegosE2 + 1}`
+        ),
+        { winner: team, serve: serving }
+      );
+
+    } catch (error) {
+      console.log(error);
+    }
     puntosJuego.map(async (puntos, index) => {
-      index == puntosJuego.length - 1 && goldenPoint === true
-        ? console.log("SON IGUALES")
-        : console.log("NO");
+      console.log(+puntos.serving !== puntos.team && puntos.breakChance == true);
       try {
         await setDoc(
           doc(
             database,
-            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${
-              setsE1 + setsE2 + 1
-            }/Juego${juegosE1 + juegosE2 + 1}`
-          ),
-          { winner: team }
-        );
-        await setDoc(
-          doc(
-            database,
-            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${
-              setsE1 + setsE2 + 1
+            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${setsE1 + setsE2 + 1
             }/Juego${juegosE1 + juegosE2 + 1}/Puntos/Punto${index}`
           ),
           puntos
         );
-
+        //TODO: Reparar orden de aparición de los datos de los breaks
+        if (puntos.breakChance == true){
+          await setDoc(
+            doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
+            {
+              infoequipos: {
+                equipo1: {
+                  breakPoints: isTiebreak == false && +puntos.serving == 1 ? increment(1) : increment(0),
+                },
+                equipo2: {
+                  breakPoints: isTiebreak == false && +puntos.serving == 0 ? increment(1) : increment(0),
+                },
+              },
+            },
+            { merge: true }
+          )
+        }
         await setDoc(
           doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
           {
@@ -155,6 +171,7 @@ const Partida = ({ route, navigation }) => {
                   index == puntosJuego.length - 1 && goldenPoint === true
                     ? increment(1)
                     : increment(0),
+                breakPointsExito: isTiebreak == false && index == puntosJuego.length - 1 && +puntos.serving !== puntos.team ? increment(1) : increment(0),
                 jugadores: {
                   ["jugador" + puntos.player]: { [puntos.point]: increment(1) },
                 },
@@ -165,10 +182,13 @@ const Partida = ({ route, navigation }) => {
         );
       } catch (error) {
         console.log(error);
+      } finally {
+
       }
       setGoldenPoint(false);
       setPuntosJuego([]);
     });
+    setServe(!serve);
   };
 
   const updateSets = async (value) => {
@@ -195,6 +215,8 @@ const Partida = ({ route, navigation }) => {
                 equipo1: {
                   games: juegosE1,
                   puntosOro: matchInfo.data().infoequipos.equipo1.puntosOro,
+                  breakPoints: matchInfo.data().infoequipos.equipo1.breakPoints,
+                  breakPointsExito: matchInfo.data().infoequipos.equipo1.breakPointsExito,
                   jugador1: {
                     winners: equipo1info.jugador1.winners,
                     smashes: equipo1info.jugador1.smashes,
@@ -211,6 +233,8 @@ const Partida = ({ route, navigation }) => {
                 equipo2: {
                   games: juegosE2,
                   puntosOro: matchInfo.data().infoequipos.equipo2.puntosOro,
+                  breakPoints: matchInfo.data().infoequipos.equipo2.breakPoints,
+                  breakPointsExito: matchInfo.data().infoequipos.equipo2.breakPointsExito,
                   jugador1: {
                     winners: equipo2info.jugador1.winners,
                     smashes: equipo2info.jugador1.smashes,
@@ -247,6 +271,9 @@ const Partida = ({ route, navigation }) => {
       }
     }
     if (isTiebreak == true) {
+      if ((contador1 + contador2) % 2 == 1) {
+        setServe(!serve);
+      }
       if (contador1 >= 7 && contador1 - contador2 >= 2) {
         setJuegosE1(juegosE1 + 1);
         setMarcadorE1(0);
@@ -341,8 +368,14 @@ const Partida = ({ route, navigation }) => {
     crearPartida(partidaid, infoequipos);
   }, []);
 
+
   return (
     <SafeAreaView style={styles.pantalla}>
+      <PartidaConfig
+        serve={serve}
+        setServe={setServe}
+        infoequipos={infoequipos}
+      />
       <SalirPartida
         visible={atrasPartida}
         setVisible={setAtrasPartida}
@@ -358,10 +391,14 @@ const Partida = ({ route, navigation }) => {
         setPunto={setPunto}
         setPuntosJuego={setPuntosJuego}
         tiebreak={isTiebreak}
+        serve={serve}
+        marcadorE2={marcadorE2}
+        marcadorE1={marcadorE1}
       />
       <View style={styles.equipo}>
         <View style={styles.datosJugadores}>
           <Text>{datos[0].nombre}</Text>
+          {serve ? "" : <IconButton icon="tennis-ball" />}
           <View style={styles.nombresJugadores}>
             <Text>{datos[0].jugadores.jugador1} / </Text>
             <Text>{datos[0].jugadores.jugador2}</Text>
@@ -396,15 +433,15 @@ const Partida = ({ route, navigation }) => {
               {infoSets[0] === undefined
                 ? ""
                 : infoSets[1] === undefined
-                ? juegosE1
-                : infoSets[1].equipo1}
+                  ? juegosE1
+                  : infoSets[1].equipo1}
             </Text>
             <Text style={styles.marcador}>
               {infoSets[0] === undefined
                 ? ""
                 : infoSets[1] === undefined
-                ? juegosE2
-                : infoSets[1].equipo2}
+                  ? juegosE2
+                  : infoSets[1].equipo2}
             </Text>
           </View>
           <View style={styles.set}>
@@ -412,15 +449,15 @@ const Partida = ({ route, navigation }) => {
               {infoSets[1] === undefined
                 ? ""
                 : infoSets[2] === undefined
-                ? juegosE1
-                : infoSets[2].equipo1}
+                  ? juegosE1
+                  : infoSets[2].equipo1}
             </Text>
             <Text style={styles.marcador}>
               {infoSets[1] === undefined
                 ? ""
                 : infoSets[2] === undefined
-                ? juegosE2
-                : infoSets[2].equipo2}
+                  ? juegosE2
+                  : infoSets[2].equipo2}
             </Text>
           </View>
         </View>
@@ -428,6 +465,7 @@ const Partida = ({ route, navigation }) => {
       <View style={styles.equipo}>
         <View style={styles.datosJugadores}>
           <Text>{datos[1].nombre}</Text>
+          {serve ? <IconButton icon="tennis-ball" /> : ""}
           <View style={styles.nombresJugadores}>
             <Text>{datos[1].jugadores.jugador1} / </Text>
             <Text>{datos[1].jugadores.jugador2}</Text>

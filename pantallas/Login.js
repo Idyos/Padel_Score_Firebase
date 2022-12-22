@@ -16,7 +16,6 @@ const Login = ({navigation}) => {
   const [correo, setCorreo] = useState("");
   const [pass, setPass] = useState("");
 
-
   const auth = getAuth();
   onAuthStateChanged(auth, (user) => {
     if (user) {

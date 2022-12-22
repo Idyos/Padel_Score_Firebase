@@ -1,69 +1,51 @@
-import { StyleSheet, Text, View, Dimensions, Pressable, FlatList } from "react-native";
+import { StyleSheet, View, Dimensions, Pressable, FlatList } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Surface } from "react-native-paper";
-import { Chip } from "react-native-paper";
+import { Button, IconButton, useTheme, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { TouchableOpacity } from "react-native";
+import { getAuth, signOut } from "firebase/auth";
+
 
 const windowHeight = Dimensions.get("window").height;
 
+const SalirSesion = () => {
+  const auth = getAuth();
+  signOut(auth)
+    .then(() => {
+      console.log("CHAU");
+    })
+    .catch((error) => {
+      // An error happened.
+    });
+};
+
 const Profile = () => {
+const theme= useTheme();
+
   return (
     <SafeAreaView>
-    <Surface style={styles.partidaInfo} elevation={1}>
-     <Text>Cerrar Sesión</Text>
-    </Surface>
+      <TouchableOpacity style={[styles.partidaInfo, {backgroundColor: theme.colors.primaryContainer}]} onPress={SalirSesion}>
+        <IconButton 
+        icon="logout"
+        iconColor={theme.colors.primary}
+        size={30}
+        />
+        <Text style={{fontSize: 15}}>Cerrar Sesión</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   partidaInfo: {
-    justifyContent: "space-between",
-    marginVertical: 10,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.36,
-    shadowRadius: 6.68,
-    elevation: 11,
-    borderRadius: 15,
-    alignItems: "center",
-    transform: [{ translateX: 8 }],
-    padding: 25,
-    width: "95%",
-    height: windowHeight / 4,
-    //backgroundColor: "#f0f8ff",
-  },
-  title: {
-    fontSize: 20,
-  },
-  partidaDetalles: {
-    position: 'relative',
-    width: "100%",
-    alignItems: 'center',
-    justifyContent: "space-between",
+    elevation: 3,
     flexDirection: 'row',
-  },
-  partidoNoTerminado: {
-    alignSelf: 'flex-end',
-    marginBottom: -15,
-    marginRight: -15,
-    marginTop: -15,
-    height: "30%",
-  },
-
-  setContainer: { 
-    flexDirection: "row", 
-    position: 'absolute', 
-    left: 0, 
-    right: 0, 
-    justifyContent: 'center',
-  },
-
-  set: {
-    marginHorizontal: 3,
+    alignSelf: 'center',
+    alignItems: 'center',
+    marginVertical: 10,
+    borderRadius: 15,
+    padding: 0,
+    width: "95%",
   },
 });
 

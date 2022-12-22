@@ -48,16 +48,6 @@ const Principal = ({ navigation }) => {
     }
   });
   const user = auth.currentUser.uid;
-  const SalirSesion = () => {
-    const auth = getAuth();
-    signOut(auth)
-      .then(() => {
-        console.log("CHAU");
-      })
-      .catch((error) => {
-        // An error happened.
-      });
-  };
 
   const onScroll = ({ nativeEvent }) => {
     const currentScrollPosition =
@@ -138,9 +128,6 @@ const Principal = ({ navigation }) => {
             keyExtractor={(item, index) => "key" + index}
           />
         )}
-        <Pressable onPress={SalirSesion} style={styles.cerrarSesiontext}>
-          <Text style={styles.cerrarSesion}>Cerrar Sesión</Text>
-        </Pressable>
       </SafeAreaView>
       <AnadirPartida
         navigation={navigation}
