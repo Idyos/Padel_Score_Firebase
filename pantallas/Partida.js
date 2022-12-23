@@ -6,8 +6,8 @@ import {
   increment,
   getDoc,
 } from "firebase/firestore";
-import { Dialog, Portal, Text, Button, RadioButton, IconButton } from "react-native-paper";
-import { useEffect, useRef, useState } from "react";
+import { Text, IconButton } from "react-native-paper";
+import { useEffect, useState } from "react";
 import Contador from "../components/Partida/Contador";
 import PointDetail from "../components/Partida/Popup";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,9 +22,7 @@ async function crearPartida(partidaid, infoequipos) {
     );
     const refSnap = await getDoc(matchRef);
     if (refSnap.exists()) {
-      console.log("Partida ya creada!");
     } else {
-      console.log("Voy a crear la partida!");
       await setDoc(
         doc(database, `Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
         { infoequipos }
@@ -57,9 +55,6 @@ const Partida = ({ route, navigation }) => {
 
   //DEL SERVICIO
   const [serve, setServe] = useState(undefined);
-
-
-
   const [infoSets, setInfoSets] = useState([]);
 
   //AÑADIR PUNTOS EN EL JUEGO
@@ -99,16 +94,7 @@ const Partida = ({ route, navigation }) => {
     },
   ];
 
-  const infoPlayers = doc(
-    database,
-    `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`
-  );
-
   const terminarPartida = async () => {
-
-    console.log(navigation);
-
-
     try {
       await setDoc(doc(database, `Partidas/${partidaid}`), { partidaTerminada: true }, { merge: true });
       updateJuego("null");
@@ -135,7 +121,6 @@ const Partida = ({ route, navigation }) => {
       console.log(error);
     }
     puntosJuego.map(async (puntos, index) => {
-      console.log(+puntos.serving !== puntos.team && puntos.breakChance == true);
       try {
         await setDoc(
           doc(
@@ -417,7 +402,7 @@ const Partida = ({ route, navigation }) => {
       </View>
       <View style={styles.marcadorSets}>
         <View>
-          <Text>PUNTO DE ORO</Text>
+          <Text></Text>
         </View>
         <View style={styles.sets}>
           <View style={styles.set}>
