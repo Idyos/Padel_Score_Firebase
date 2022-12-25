@@ -32,7 +32,7 @@ estadoPartida();
             <FlatList
             style={{flexDirection: 'row'}}
               data={Object.keys(sets)}
-              renderItem={({ item }) => <View style={styles.set}><Text style={{ color: theme.colors.primary }}>{sets[item].equipo1.games}</Text><Text style={{ color: theme.colors.primary }}>{sets[item].equipo2.games}</Text></View>}
+              renderItem={({ item }) => <View style={styles.set}><Text style={{ color: theme.colors.primary }}>{sets[item].datosJugadores.equipo1.games}</Text><Text style={{ color: theme.colors.primary }}>{sets[item].datosJugadores.equipo2.games}</Text></View>}
             />
           </View>
         <FlatList

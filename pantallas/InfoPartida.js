@@ -13,16 +13,16 @@ import {
 import { Divider, SegmentedButtons, Text, withTheme } from "react-native-paper";
 import { AuthErrorCodes } from "@firebase/auth";
 
-const GraficoInfo = ({ matchData, matchFunc, match, value, setsLength }) => {
+const GraficoInfo = ({ matchData, matchFunc, match, value, setSetData, setData}) => {
   const infoMatchEquipo1 = matchData.params[0].equipo1.jugadores;
   const infoMatchEquipo2 = matchData.params[0].equipo2.jugadores;
   const infoSets = matchData.params[2];
   const infoEquipo1 = matchData.params[0].equipo1;
   const infoEquipo2 = matchData.params[0].equipo2;
 
+
   useEffect(() => {
-    console.log(value);
-    if (value == 0) {
+      if (value == 0) {
       matchFunc([
         {
           name: "Break Points",
@@ -31,8 +31,8 @@ const GraficoInfo = ({ matchData, matchFunc, match, value, setsLength }) => {
         },
         {
           name: "Puntos de Oro",
-          equipo1: infoSets.set1.equipo1.puntosOro,
-          equipo2: infoSets.set1.equipo2.puntosOro,
+          equipo1: infoEquipo1.puntosOro,
+          equipo2: infoEquipo2.puntosOro,
         },
         {
           name: "Winners",
@@ -71,32 +71,32 @@ const GraficoInfo = ({ matchData, matchFunc, match, value, setsLength }) => {
         {
           name: "Winners",
           equipo1:
-            infoSets.set1.equipo1.jugador1.winners +
+            infoSets.set1.datosJugadores.equipo1.jugador1.winners +
             infoSets.set1.equipo1.jugador2.winners,
 
           equipo2:
-            infoSets.set1.equipo2.jugador1.winners +
-            infoSets.set1.equipo2.jugador2.winners,
+            infoSets.set1.datosJugadores.equipo2.jugador1.winners +
+            infoSets.set1.datosJugadores.equipo2.jugador2.winners,
         },
         {
           name: "Smashes",
           equipo1:
-            infoSets.set1.equipo1.jugador1.smashesExito +
-            infoSets.set1.equipo1.jugador2.smashesExito,
+            infoSets.set1.datosJugadores.equipo1.jugador1.smashesExito +
+            infoSets.set1.datosJugadores.equipo1.jugador2.smashesExito,
 
           equipo2:
-            infoSets.set1.equipo2.jugador1.smashesExito +
-            infoSets.set1.equipo2.jugador2.smashesExito,
+            infoSets.set1.datosJugadores.equipo2.jugador1.smashesExito +
+            infoSets.set1.datosJugadores.equipo2.jugador2.smashesExito,
         },
         {
           name: "Unforced Errors",
           equipo1:
-            infoSets.set1.equipo1.jugador1.unfError +
-            infoSets.set1.equipo1.jugador2.unfError,
+            infoSets.set1.datosJugadores.equipo1.jugador1.unfError +
+            infoSets.set1.datosJugadores.equipo1.jugador2.unfError,
 
           equipo2:
-            infoSets.set1.equipo2.jugador1.unfError +
-            infoSets.set1.equipo2.jugador2.unfError,
+            infoSets.set1.datosJugadores.equipo2.jugador1.unfError +
+            infoSets.set1.datosJugadores.equipo2.jugador2.unfError,
         },
       ]);
     }
@@ -242,6 +242,8 @@ const InfoPartida = ({ route, theme }) => {
   const [setsResults, setSetsResults] = useState([
     { value: "0", label: "Partida" },
   ]);
+  const [setData, setSetData] = useState([]);
+
 
   useEffect(() => {
     if (setsResults.length === 1) {
@@ -260,7 +262,7 @@ const InfoPartida = ({ route, theme }) => {
   const [infoMatch, setInfoMatch] = useState([]);
   const [value, setValue] = useState("0");
 
-  console.log(Object.keys(infoSets));
+
 
   return (
     <View
@@ -284,7 +286,7 @@ const InfoPartida = ({ route, theme }) => {
                 data={Object.keys(infoSets)}
                 renderItem={({ item }) => (
                   <Text style={styles.setResult}>
-                    {infoSets[item].equipo1.games}
+                    {infoSets[item].datosJugadores.equipo1.games}
                   </Text>
                 )}
               />
@@ -302,7 +304,7 @@ const InfoPartida = ({ route, theme }) => {
               data={Object.keys(infoSets)}
               renderItem={({ item }) => (
                 <Text style={styles.setResult}>
-                  {infoSets[item].equipo2.games}
+                  {infoSets[item].datosJugadores.equipo2.games}
                 </Text>
               )}
             />
@@ -331,7 +333,7 @@ const InfoPartida = ({ route, theme }) => {
               data={Object.keys(infoSets)}
               renderItem={({ item }) => (
                 <Text style={styles.setResult}>
-                  {infoSets[item].equipo1.games}-{infoSets[item].equipo2.games}
+                  {infoSets[item].datosJugadores.equipo1.games}-{infoSets[item].datosJugadores.equipo2.games}
                 </Text>
               )}
             />
@@ -354,7 +356,9 @@ const InfoPartida = ({ route, theme }) => {
         matchFunc={setInfoMatch}
         match={infoMatch}
         value={value}
-        setsLength={setsResults.length}
+        sets={setsResults}
+        setSetData={setSetData}
+        setData={setData}
       />
     </View>
   );

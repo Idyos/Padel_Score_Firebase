@@ -1,11 +1,6 @@
 import { StyleSheet, View, BackHandler, TouchableOpacity } from "react-native";
 import { database } from "../src/config/fb";
-import {
-  setDoc,
-  doc,
-  increment,
-  getDoc,
-} from "firebase/firestore";
+import { setDoc, doc, increment, getDoc } from "firebase/firestore";
 import { Text, IconButton } from "react-native-paper";
 import { useEffect, useState } from "react";
 import Contador from "../components/Partida/Contador";
@@ -53,6 +48,47 @@ const Partida = ({ route, navigation }) => {
   const [isTiebreak, setTiebreak] = useState(false);
   const [goldenPoint, setGoldenPoint] = useState(false);
 
+  const [datosJugadores, setDatosJugadores] = useState({
+    equipo1: {
+      games: 0,
+      puntosOro: 0,
+      breakPoints: 0,
+      breakPointsExito: 0,
+      jugador1: {
+        winners: 0,
+        smashes: 0,
+        smashesExito: 0,
+        unfError: 0,
+      },
+      jugador2: {
+        winners: 0,
+        smashes: 0,
+        smashesExito: 0,
+        unfError: 0,
+      },
+    },
+    equipo2: {
+      games: 0,
+      puntosOro: 0,
+      breakPoints: 0,
+      breakPointsExito: 0,
+      jugador1: {
+        winners: 0,
+        smashes: 0,
+        smashesExito: 0,
+        unfError: 0,
+      },
+      jugador2: {
+        winners: 0,
+        smashes: 0,
+        smashesExito: 0,
+        unfError: 0,
+      },
+    },
+  });
+
+  console.log(datosJugadores);
+
   //DEL SERVICIO
   const [serve, setServe] = useState(undefined);
   const [infoSets, setInfoSets] = useState([]);
@@ -66,8 +102,8 @@ const Partida = ({ route, navigation }) => {
   const [marcadorE2, setMarcadorE2] = useState(0);
 
   //JUEGOS DE CADA EQUIPO
-  const [juegosE1, setJuegosE1] = useState(0);
-  const [juegosE2, setJuegosE2] = useState(0);
+  const [juegosE1, setJuegosE1] = useState(5);
+  const [juegosE2, setJuegosE2] = useState(4);
 
   //SETS DE CADA EQUIPO
   const [setsE1, setSetsE1] = useState(0);
@@ -96,7 +132,11 @@ const Partida = ({ route, navigation }) => {
 
   const terminarPartida = async () => {
     try {
-      await setDoc(doc(database, `Partidas/${partidaid}`), { partidaTerminada: true }, { merge: true });
+      await setDoc(
+        doc(database, `Partidas/${partidaid}`),
+        { partidaTerminada: true },
+        { merge: true }
+      );
       updateJuego("null");
       updateSets(1);
       navigation.popToTop();
@@ -111,41 +151,79 @@ const Partida = ({ route, navigation }) => {
       await setDoc(
         doc(
           database,
-          `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${setsE1 + setsE2 + 1
+          `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${
+            setsE1 + setsE2 + 1
           }/Juego${juegosE1 + juegosE2 + 1}`
         ),
         { winner: team, serve: serving }
       );
-
     } catch (error) {
       console.log(error);
     }
+    console.log("-----------------------------------------------------------");
     puntosJuego.map(async (puntos, index) => {
+      setDatosJugadores({
+        ...datosJugadores,
+        ["equipo" + (puntos.team + 1)]: {
+          ...datosJugadores["equipo" + (puntos.team + 1)],
+          puntosOro:
+            index == puntosJuego.length - 1 && goldenPoint === true ? datosJugadores["equipo" + (puntos.team + 1)].puntosOro=datosJugadores["equipo" + (puntos.team + 1)].puntosOro+1
+            : datosJugadores["equipo" + (puntos.team + 1)].puntosOro,
+          breakPointsExito:
+            isTiebreak == false &&
+            index == puntosJuego.length - 1 &&
+            +puntos.serving !== puntos.team
+              ? datosJugadores["equipo" + (puntos.team + 1)].breakPointsExito=datosJugadores["equipo" + (puntos.team + 1)].breakPointsExito+1
+              : datosJugadores["equipo" + (puntos.team + 1)].breakPointsExito,
+          ["jugador" + puntos.player]: {
+            ...datosJugadores["equipo" + (puntos.team + 1)][
+              "jugador" + puntos.player
+            ],
+            ...(datosJugadores["equipo" + (puntos.team + 1)][
+              "jugador" + puntos.player
+            ][puntos.point] =
+              datosJugadores["equipo" + (puntos.team + 1)][
+                "jugador" + puntos.player
+              ][puntos.point] + 1),
+          },
+        },
+      });
+
       try {
         await setDoc(
           doc(
             database,
-            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${setsE1 + setsE2 + 1
+            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${
+              setsE1 + setsE2 + 1
             }/Juego${juegosE1 + juegosE2 + 1}/Puntos/Punto${index}`
           ),
           puntos
         );
         //TODO: Reparar orden de aparición de los datos de los breaks
-        if (puntos.breakChance == true){
+        if (puntos.breakChance == true) {
           await setDoc(
-            doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
+            doc(
+              database,
+              `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`
+            ),
             {
               infoequipos: {
                 equipo1: {
-                  breakPoints: isTiebreak == false && +puntos.serving == 1 ? increment(1) : increment(0),
+                  breakPoints:
+                    isTiebreak == false && +puntos.serving == 1
+                      ? increment(1)
+                      : increment(0),
                 },
                 equipo2: {
-                  breakPoints: isTiebreak == false && +puntos.serving == 0 ? increment(1) : increment(0),
+                  breakPoints:
+                    isTiebreak == false && +puntos.serving == 0
+                      ? increment(1)
+                      : increment(0),
                 },
               },
             },
             { merge: true }
-          )
+          );
         }
         await setDoc(
           doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
@@ -156,7 +234,12 @@ const Partida = ({ route, navigation }) => {
                   index == puntosJuego.length - 1 && goldenPoint === true
                     ? increment(1)
                     : increment(0),
-                breakPointsExito: isTiebreak == false && index == puntosJuego.length - 1 && +puntos.serving !== puntos.team ? increment(1) : increment(0),
+                breakPointsExito:
+                  isTiebreak == false &&
+                  index == puntosJuego.length - 1 &&
+                  +puntos.serving !== puntos.team
+                    ? increment(1)
+                    : increment(0),
                 jugadores: {
                   ["jugador" + puntos.player]: { [puntos.point]: increment(1) },
                 },
@@ -168,7 +251,6 @@ const Partida = ({ route, navigation }) => {
       } catch (error) {
         console.log(error);
       } finally {
-
       }
       setGoldenPoint(false);
       setPuntosJuego([]);
@@ -197,42 +279,7 @@ const Partida = ({ route, navigation }) => {
           {
             set: {
               ["set" + (setsE1 + setsE2 + value)]: {
-                equipo1: {
-                  games: juegosE1,
-                  puntosOro: matchInfo.data().infoequipos.equipo1.puntosOro,
-                  breakPoints: matchInfo.data().infoequipos.equipo1.breakPoints,
-                  breakPointsExito: matchInfo.data().infoequipos.equipo1.breakPointsExito,
-                  jugador1: {
-                    winners: equipo1info.jugador1.winners,
-                    smashes: equipo1info.jugador1.smashes,
-                    smashesExito: equipo1info.jugador1.smashesExito,
-                    unfError: equipo1info.jugador1.unfError,
-                  },
-                  jugador2: {
-                    winners: equipo1info.jugador2.winners,
-                    smashes: equipo1info.jugador2.smashes,
-                    smashesExito: equipo1info.jugador2.smashesExito,
-                    unfError: equipo1info.jugador2.unfError,
-                  },
-                },
-                equipo2: {
-                  games: juegosE2,
-                  puntosOro: matchInfo.data().infoequipos.equipo2.puntosOro,
-                  breakPoints: matchInfo.data().infoequipos.equipo2.breakPoints,
-                  breakPointsExito: matchInfo.data().infoequipos.equipo2.breakPointsExito,
-                  jugador1: {
-                    winners: equipo2info.jugador1.winners,
-                    smashes: equipo2info.jugador1.smashes,
-                    smashesExito: equipo2info.jugador1.smashesExito,
-                    unfError: equipo2info.jugador1.unfError,
-                  },
-                  jugador2: {
-                    winners: equipo2info.jugador2.winners,
-                    smashes: equipo2info.jugador2.smashes,
-                    smashesExito: equipo2info.jugador2.smashesExito,
-                    unfError: equipo2info.jugador2.unfError,
-                  },
-                },
+                datosJugadores: {...datosJugadores, equipo1: {...datosJugadores.equipo1, games: juegosE1 }, equipo2: {...datosJugadores.equipo2, games: juegosE2 }}
               },
             },
           },
@@ -242,6 +289,7 @@ const Partida = ({ route, navigation }) => {
         console.log(error);
       }
     }, 1500);
+    datosJugadores(datosJugadores);
   };
 
   useEffect(() => {
@@ -353,7 +401,6 @@ const Partida = ({ route, navigation }) => {
     crearPartida(partidaid, infoequipos);
   }, []);
 
-
   return (
     <SafeAreaView style={styles.pantalla}>
       <PartidaConfig
@@ -418,15 +465,15 @@ const Partida = ({ route, navigation }) => {
               {infoSets[0] === undefined
                 ? ""
                 : infoSets[1] === undefined
-                  ? juegosE1
-                  : infoSets[1].equipo1}
+                ? juegosE1
+                : infoSets[1].equipo1}
             </Text>
             <Text style={styles.marcador}>
               {infoSets[0] === undefined
                 ? ""
                 : infoSets[1] === undefined
-                  ? juegosE2
-                  : infoSets[1].equipo2}
+                ? juegosE2
+                : infoSets[1].equipo2}
             </Text>
           </View>
           <View style={styles.set}>
@@ -434,15 +481,15 @@ const Partida = ({ route, navigation }) => {
               {infoSets[1] === undefined
                 ? ""
                 : infoSets[2] === undefined
-                  ? juegosE1
-                  : infoSets[2].equipo1}
+                ? juegosE1
+                : infoSets[2].equipo1}
             </Text>
             <Text style={styles.marcador}>
               {infoSets[1] === undefined
                 ? ""
                 : infoSets[2] === undefined
-                  ? juegosE2
-                  : infoSets[2].equipo2}
+                ? juegosE2
+                : infoSets[2].equipo2}
             </Text>
           </View>
         </View>
