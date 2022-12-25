@@ -160,7 +160,7 @@ const Partida = ({ route, navigation }) => {
     } catch (error) {
       console.log(error);
     }
-    console.log("-----------------------------------------------------------");
+
     puntosJuego.map(async (puntos, index) => {
       setDatosJugadores({
         ...datosJugadores,
