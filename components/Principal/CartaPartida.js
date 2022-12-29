@@ -31,13 +31,13 @@ estadoPartida();
           <View style={styles.setContainer}>
             <FlatList
             style={{flexDirection: 'row'}}
-              data={Object.keys(sets)}
+              data={Object.getOwnPropertyNames(sets)}
               renderItem={({ item }) => <View style={styles.set}><Text style={{ color: theme.colors.primary }}>{sets[item].datosJugadores.equipo1.games}</Text><Text style={{ color: theme.colors.primary }}>{sets[item].datosJugadores.equipo2.games}</Text></View>}
             />
           </View>
         <FlatList
           style={{ flexDirection: 'row', justifyContent: 'space-between', width: "100%" }}
-          data={Object.keys(item[0])}
+          data={Object.getOwnPropertyNames(item[0])}
           renderItem={({ item, index }) => <View><Text style={index == 1 ? { textAlign: 'right', color: theme.colors.primary } : { textAlign: 'auto', color: theme.colors.primary }}>{players[item].jugadores.jugador1.nombre}</Text><Text style={index == 1 ? { textAlign: 'right', color: theme.colors.primary } : { textAlign: 'auto', color: theme.colors.primary }}>{players[item].jugadores.jugador2.nombre}</Text></View>}
           listKey={(item, index) => index.toString()}
         />

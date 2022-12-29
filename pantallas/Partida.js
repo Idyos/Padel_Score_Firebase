@@ -87,8 +87,6 @@ const Partida = ({ route, navigation }) => {
     },
   });
 
-  console.log(datosJugadores);
-
   //DEL SERVICIO
   const [serve, setServe] = useState(undefined);
   const [infoSets, setInfoSets] = useState([]);
@@ -137,12 +135,12 @@ const Partida = ({ route, navigation }) => {
         { partidaTerminada: true },
         { merge: true }
       );
-      updateJuego("null");
-      updateSets(1);
-      navigation.popToTop();
     } catch (error) {
       console.log(error);
     }
+    updateJuego("null");
+    updateSets(1);
+    navigation.popToTop();
   };
 
   const updateJuego = async (team) => {
@@ -167,19 +165,24 @@ const Partida = ({ route, navigation }) => {
         ["equipo" + (puntos.team + 1)]: {
           ...datosJugadores["equipo" + (puntos.team + 1)],
           puntosOro:
-            index == puntosJuego.length - 1 && goldenPoint === true ? datosJugadores["equipo" + (puntos.team + 1)].puntosOro=datosJugadores["equipo" + (puntos.team + 1)].puntosOro+1
-            : datosJugadores["equipo" + (puntos.team + 1)].puntosOro,
+            index == puntosJuego.length - 1 && goldenPoint === true
+              ? (datosJugadores["equipo" + (puntos.team + 1)].puntosOro =
+                  datosJugadores["equipo" + (puntos.team + 1)].puntosOro + 1)
+              : datosJugadores["equipo" + (puntos.team + 1)].puntosOro,
           breakPointsExito:
             isTiebreak == false &&
             index == puntosJuego.length - 1 &&
             +puntos.serving !== puntos.team
-              ? datosJugadores["equipo" + (puntos.team + 1)].breakPointsExito=datosJugadores["equipo" + (puntos.team + 1)].breakPointsExito+1
+              ? (datosJugadores["equipo" + (puntos.team + 1)].breakPointsExito =
+                  datosJugadores["equipo" + (puntos.team + 1)]
+                    .breakPointsExito + 1)
               : datosJugadores["equipo" + (puntos.team + 1)].breakPointsExito,
           ["jugador" + puntos.player]: {
             ...datosJugadores["equipo" + (puntos.team + 1)][
               "jugador" + puntos.player
             ],
-            ...(datosJugadores["equipo" + (puntos.team + 1)][
+            [puntos.point]:
+              (datosJugadores["equipo" + (puntos.team + 1)][
               "jugador" + puntos.player
             ][puntos.point] =
               datosJugadores["equipo" + (puntos.team + 1)][
@@ -250,12 +253,12 @@ const Partida = ({ route, navigation }) => {
         );
       } catch (error) {
         console.log(error);
-      } finally {
-      }
+      } 
       setGoldenPoint(false);
       setPuntosJuego([]);
     });
     setServe(!serve);
+    console.log(datosJugadores);
   };
 
   const updateSets = async (value) => {
@@ -266,12 +269,6 @@ const Partida = ({ route, navigation }) => {
 
     //TODO: No hacer que se añada la info del set con un timeout, sino que se añada cuando se termine de añadir en el sets results
     setTimeout(async () => {
-      const matchInfo = await getDoc(
-        doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`)
-      );
-
-      const equipo1info = matchInfo.data().infoequipos.equipo1.jugadores;
-      const equipo2info = matchInfo.data().infoequipos.equipo2.jugadores;
 
       try {
         await setDoc(
@@ -279,7 +276,11 @@ const Partida = ({ route, navigation }) => {
           {
             set: {
               ["set" + (setsE1 + setsE2 + value)]: {
-                datosJugadores: {...datosJugadores, equipo1: {...datosJugadores.equipo1, games: juegosE1 }, equipo2: {...datosJugadores.equipo2, games: juegosE2 }}
+                datosJugadores: {
+                  ...datosJugadores,
+                  equipo1: { ...datosJugadores.equipo1, games: juegosE1 },
+                  equipo2: { ...datosJugadores.equipo2, games: juegosE2 },
+                },
               },
             },
           },
@@ -287,9 +288,47 @@ const Partida = ({ route, navigation }) => {
         );
       } catch (error) {
         console.log(error);
+      }finally {
+        setDatosJugadores({
+          equipo1: {
+            games: 0,
+            puntosOro: 0,
+            breakPoints: 0,
+            breakPointsExito: 0,
+            jugador1: {
+              winners: 0,
+              smashes: 0,
+              smashesExito: 0,
+              unfError: 0,
+            },
+            jugador2: {
+              winners: 0,
+              smashes: 0,
+              smashesExito: 0,
+              unfError: 0,
+            },
+          },
+          equipo2: {
+            games: 0,
+            puntosOro: 0,
+            breakPoints: 0,
+            breakPointsExito: 0,
+            jugador1: {
+              winners: 0,
+              smashes: 0,
+              smashesExito: 0,
+              unfError: 0,
+            },
+            jugador2: {
+              winners: 0,
+              smashes: 0,
+              smashesExito: 0,
+              unfError: 0,
+            },
+          },
+        });
       }
     }, 1500);
-    datosJugadores(datosJugadores);
   };
 
   useEffect(() => {

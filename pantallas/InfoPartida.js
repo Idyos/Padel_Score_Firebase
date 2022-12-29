@@ -1,28 +1,26 @@
-import { StyleSheet, View, FlatList, BackHandler } from "react-native";
+import { StyleSheet, View, FlatList, BackHandler, Animated} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import React, { useEffect, useState } from "react";
-import { database } from "../src/config/fb";
-import {
-  collection,
-  query,
-  where,
-  doc,
-  getDocs,
-  listcoll,
-} from "firebase/firestore";
+import React, { useEffect, useState, useRef } from "react";
 import { Divider, SegmentedButtons, Text, withTheme } from "react-native-paper";
 import { AuthErrorCodes } from "@firebase/auth";
+import { Easing } from "react-native-reanimated";
 
-const GraficoInfo = ({ matchData, matchFunc, match, value, setSetData, setData}) => {
+const GraficoInfo = ({
+  matchData,
+  matchFunc,
+  match,
+  value,
+  setSetData,
+  setData,
+}) => {
   const infoMatchEquipo1 = matchData.params[0].equipo1.jugadores;
   const infoMatchEquipo2 = matchData.params[0].equipo2.jugadores;
   const infoSets = matchData.params[2];
   const infoEquipo1 = matchData.params[0].equipo1;
   const infoEquipo2 = matchData.params[0].equipo2;
 
-
   useEffect(() => {
-      if (value == 0) {
+    if (value == 0) {
       matchFunc([
         {
           name: "Break Points",
@@ -66,127 +64,132 @@ const GraficoInfo = ({ matchData, matchFunc, match, value, setSetData, setData})
         },
       ]);
     }
-    if (value == 1) {
-      matchFunc([
-        {
-          name: "Winners",
-          equipo1:
-            infoSets.set1.datosJugadores.equipo1.jugador1.winners +
-            infoSets.set1.equipo1.jugador2.winners,
+    for (let i = 1; i <= Object.keys(infoSets).length; i++) {
+      if (value == i) {
+        matchFunc([
+          {
+            name: "Break Points",
+            equipo1: infoSets["set" + value].datosJugadores.equipo1.breakPointsExito,
+            equipo2: infoSets["set" + value].datosJugadores.equipo2.breakPointsExito,
+          },
+          {
+            name: "Puntos de Oro",
+            equipo1: infoSets["set" + value].datosJugadores.equipo1.puntosOro,
+            equipo2: infoSets["set" + value].datosJugadores.equipo2.puntosOro,
+          },
+          {
+            name: "Winners",
+            equipo1:
+              infoSets["set" + value].datosJugadores.equipo1.jugador1.winners +
+              infoSets["set" + value].datosJugadores.equipo1.jugador2.winners,
 
-          equipo2:
-            infoSets.set1.datosJugadores.equipo2.jugador1.winners +
-            infoSets.set1.datosJugadores.equipo2.jugador2.winners,
-        },
-        {
-          name: "Smashes",
-          equipo1:
-            infoSets.set1.datosJugadores.equipo1.jugador1.smashesExito +
-            infoSets.set1.datosJugadores.equipo1.jugador2.smashesExito,
+            equipo2:
+              infoSets["set" + value].datosJugadores.equipo2.jugador1.winners +
+              infoSets["set" + value].datosJugadores.equipo2.jugador2.winners,
+          },
+          {
+            name: "Smashes",
+            equipo1:
+              infoSets["set" + value].datosJugadores.equipo1.jugador1
+                .smashesExito +
+              infoSets["set" + value].datosJugadores.equipo1.jugador2
+                .smashesExito,
 
-          equipo2:
-            infoSets.set1.datosJugadores.equipo2.jugador1.smashesExito +
-            infoSets.set1.datosJugadores.equipo2.jugador2.smashesExito,
-        },
-        {
-          name: "Unforced Errors",
-          equipo1:
-            infoSets.set1.datosJugadores.equipo1.jugador1.unfError +
-            infoSets.set1.datosJugadores.equipo1.jugador2.unfError,
+            equipo2:
+              infoSets["set" + value].datosJugadores.equipo2.jugador1
+                .smashesExito +
+              infoSets["set" + value].datosJugadores.equipo2.jugador2
+                .smashesExito,
+          },
+          {
+            name: "Unforced Errors",
+            equipo1:
+              infoSets["set" + value].datosJugadores.equipo1.jugador1.unfError +
+              infoSets["set" + value].datosJugadores.equipo1.jugador2.unfError,
 
-          equipo2:
-            infoSets.set1.datosJugadores.equipo2.jugador1.unfError +
-            infoSets.set1.datosJugadores.equipo2.jugador2.unfError,
-        },
-      ]);
-    }
-    if (value == 2) {
-      matchFunc([
-        {
-          name: "Winners",
-          equipo1:
-            infoSets.set2.equipo1.jugador1.winners +
-            infoSets.set2.equipo1.jugador2.winners -
-            (infoSets.set1.equipo1.jugador1.winners +
-              infoSets.set1.equipo1.jugador2.winners),
-
-          equipo2:
-            infoSets.set2.equipo2.jugador1.winners +
-            infoSets.set2.equipo2.jugador2.winners -
-            (infoSets.set1.equipo2.jugador1.winners +
-              infoSets.set1.equipo2.jugador2.winners),
-        },
-        {
-          name: "Smashes",
-          equipo1:
-            infoSets.set2.equipo1.jugador1.smashesExito +
-            infoSets.set2.equipo1.jugador2.smashesExito -
-            (infoSets.set1.equipo1.jugador1.smashesExito +
-              infoSets.set1.equipo1.jugador2.smashesExito),
-
-          equipo2:
-            infoSets.set2.equipo2.jugador1.smashesExito +
-            infoSets.set2.equipo2.jugador2.smashesExito -
-            (infoSets.set1.equipo2.jugador1.smashesExito +
-              infoSets.set1.equipo2.jugador2.smashesExito),
-        },
-        {
-          name: "Unforced Errors",
-          equipo1:
-            infoSets.set2.equipo1.jugador1.unfError +
-            infoSets.set2.equipo1.jugador2.unfError -
-            (infoSets.set1.equipo1.jugador1.unfError +
-              infoSets.set1.equipo1.jugador2.unfError),
-
-          equipo2:
-            infoSets.set2.equipo2.jugador1.unfError +
-            infoSets.set2.equipo2.jugador2.unfError -
-            (infoSets.set1.equipo2.jugador1.unfError +
-              infoSets.set1.equipo2.jugador2.unfError),
-        },
-      ]);
+            equipo2:
+              infoSets["set" + value].datosJugadores.equipo2.jugador1.unfError +
+              infoSets["set" + value].datosJugadores.equipo2.jugador2.unfError,
+          },
+        ]);
+      }
     }
   }, [value]);
+
+  const animation = useRef(new Animated.Value(0)).current;
+
+  
+
+
+
+  useEffect(() => {
+    animation.setValue(0);
+    Animated.timing(animation, {
+      toValue: 1,
+      duration: 1500,
+      useNativeDriver: false,
+      easing: Easing.bezierFn(.32,-0.01,.27,1),
+    }).start();
+   
+  }, [value])
+
+  
+
   return (
     <View style={styles.graficosContainer}>
       <FlatList
         data={match}
         renderItem={({ item }) =>
+       
           item.name == "Break Points" ? (
             <View style={styles.Graficos}>
               <View style={styles.grafico}>
                 <View style={styles.graficoInfo}>
-                  <Text style={{ marginLeft: 6 }}>{item.equipo1}</Text>
+                  <Text style={{ marginLeft: 13 }}>{item.equipo1}</Text>
                   <Text>{item.name}</Text>
-                  <Text style={{ marginRight: 6 }}>{item.equipo2}</Text>
+                  <Text style={{ marginRight: 13 }}>{item.equipo2}</Text>
                 </View>
                 <View style={styles.grafico1}>
-                  <View
+                  <Animated.View
                     style={{
                       marginLeft: 1,
-                      borderTopEndRadius: 7,
-                      borderBottomEndRadius: 7,
-                      width: `${
-                        (item.equipo1 * 100) / (item.equipo1 + item.equipo2)
-                      }%`,
+                      borderTopEndRadius: animation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, item.equipo1==0 ? 0 : (item.equipo1*100)/(item.equipo1+item.equipo2)/5.5]  
+                      }),
+                      borderBottomEndRadius: animation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, item.equipo1==0 ? 0 : (item.equipo1*100)/(item.equipo1+item.equipo2)/5.5]  
+                      }),
+                      width: animation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ["0%", item.equipo1==0 ? "0%" : (item.equipo1*100)/(item.equipo1+item.equipo2)+"%"]  
+                    }),
                       height: "100%",
                       backgroundColor: "green",
                     }}
-                  ></View>
+                  ></Animated.View>
                 </View>
                 <View style={styles.grafico2}>
-                  <View
+                  <Animated.View
                     style={{
                       marginLeft: 1,
-                      borderTopEndRadius: 7,
-                      borderBottomEndRadius: 7,
+                      borderTopEndRadius: animation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, item.equipo2==0 ? 0 : (item.equipo2*100)/(item.equipo1+item.equipo2)/5.5]  
+                      }),
+                      borderBottomEndRadius: animation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, item.equipo2==0 ? 0 : (item.equipo2*100)/(item.equipo1+item.equipo2)/5.5]  
+                      }),
                       height: "100%",
-                      width: `${
-                        (item.equipo2 * 100) / (item.equipo1 + item.equipo2)
-                      }%`,
+                      width: animation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ["0%", item.equipo2==0 ? "0%" : (item.equipo2*100)/(item.equipo1+item.equipo2)+"%"]  
+                      }),
                       backgroundColor: "orange",
                     }}
-                  ></View>
+                  ></Animated.View>
                 </View>
               </View>
             </View>
@@ -194,37 +197,51 @@ const GraficoInfo = ({ matchData, matchFunc, match, value, setSetData, setData})
             <View style={styles.Graficos}>
               <View style={styles.grafico}>
                 <View style={styles.graficoInfo}>
-                  <Text style={{ marginLeft: 6 }}>{item.equipo1}</Text>
+                  <Text style={{ marginLeft: 13 }}>{item.equipo1}</Text>
                   <Text>{item.name}</Text>
-                  <Text style={{ marginRight: 6 }}>{item.equipo2}</Text>
+                  <Text style={{ marginRight: 13 }}>{item.equipo2}</Text>
                 </View>
                 <View style={styles.grafico1}>
-                  <View
-                    style={{
+                  <Animated.View
+                    style={{ 
                       marginLeft: 1,
-                      borderTopEndRadius: 7,
-                      borderBottomEndRadius: 7,
-                      width: `${
-                        (item.equipo1 * 100) / (item.equipo1 + item.equipo2)
-                      }%`,
+                      borderTopEndRadius: animation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, item.equipo1==0 ? 0 : (item.equipo1*100)/(item.equipo1+item.equipo2)/5.5]  
+                      }),
+                      borderBottomEndRadius: animation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, item.equipo1==0 ? 0 : (item.equipo1*100)/(item.equipo1+item.equipo2)/5.5]  
+                      }),
+                      width: animation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ["0%", item.equipo1==0 ? "0%" : (item.equipo1*100)/(item.equipo1+item.equipo2)+"%"]  
+                    }),
                       height: "100%",
                       backgroundColor: "green",
                     }}
-                  ></View>
+                  ></Animated.View>
                 </View>
                 <View style={styles.grafico2}>
-                  <View
+                  <Animated.View
                     style={{
                       marginLeft: 1,
-                      borderTopEndRadius: 7,
-                      borderBottomEndRadius: 7,
+                      borderTopEndRadius: animation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, item.equipo2==0 ? 0 : (item.equipo2*100)/(item.equipo1+item.equipo2)/5.5]  
+                      }),
+                      borderBottomEndRadius: animation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, item.equipo2==0 ? 0 : (item.equipo2*100)/(item.equipo1+item.equipo2)/5.5]  
+                      }),
                       height: "100%",
-                      width: `${
-                        (item.equipo2 * 100) / (item.equipo1 + item.equipo2)
-                      }%`,
+                      width: animation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ["0%", item.equipo2==0 ? "0%" : (item.equipo2*100)/(item.equipo1+item.equipo2)+"%"]  
+                      }),
                       backgroundColor: "orange",
                     }}
-                  ></View>
+                  ></Animated.View>
                 </View>
               </View>
             </View>
@@ -244,7 +261,6 @@ const InfoPartida = ({ route, theme }) => {
   ]);
   const [setData, setSetData] = useState([]);
 
-
   useEffect(() => {
     if (setsResults.length === 1) {
       Object.keys(infoSets).map((item, index) => {
@@ -261,8 +277,6 @@ const InfoPartida = ({ route, theme }) => {
 
   const [infoMatch, setInfoMatch] = useState([]);
   const [value, setValue] = useState("0");
-
-
 
   return (
     <View
@@ -333,7 +347,8 @@ const InfoPartida = ({ route, theme }) => {
               data={Object.keys(infoSets)}
               renderItem={({ item }) => (
                 <Text style={styles.setResult}>
-                  {infoSets[item].datosJugadores.equipo1.games}-{infoSets[item].datosJugadores.equipo2.games}
+                  {infoSets[item].datosJugadores.equipo1.games}-
+                  {infoSets[item].datosJugadores.equipo2.games}
                 </Text>
               )}
             />
@@ -430,15 +445,15 @@ const styles = StyleSheet.create({
     alignSelf: "center",
 
     alignItems: "center",
-    height: 30,
+    height: 35,
     width: "110%",
     position: "relative",
     justifyContent: "space-between",
     flexDirection: "row",
   },
   grafico1: {
-    borderEndWidth: 1,
-    borderRadius: 7,
+    borderEndWidth: 2,
+    borderRadius: 30,
     transform: [{ rotateY: "180deg" }],
     position: "absolute",
     height: "100%",
@@ -446,8 +461,8 @@ const styles = StyleSheet.create({
   },
 
   grafico2: {
-    borderEndWidth: 1,
-    borderRadius: 7,
+    borderEndWidth: 2,
+    borderRadius: 30,
     left: "50%",
     position: "absolute",
     height: "100%",
