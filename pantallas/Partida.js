@@ -100,8 +100,8 @@ const Partida = ({ route, navigation }) => {
   const [marcadorE2, setMarcadorE2] = useState(0);
 
   //JUEGOS DE CADA EQUIPO
-  const [juegosE1, setJuegosE1] = useState(5);
-  const [juegosE2, setJuegosE2] = useState(4);
+  const [juegosE1, setJuegosE1] = useState(0);
+  const [juegosE2, setJuegosE2] = useState(0);
 
   //SETS DE CADA EQUIPO
   const [setsE1, setSetsE1] = useState(0);

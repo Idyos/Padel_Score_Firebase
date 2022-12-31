@@ -1,7 +1,7 @@
-import { StyleSheet, View, FlatList, BackHandler, Animated} from "react-native";
+import { StyleSheet, View, FlatList, BackHandler, Animated } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useEffect, useState, useRef } from "react";
-import { Divider, SegmentedButtons, Text, withTheme } from "react-native-paper";
+import { Chip, Divider, IconButton, Menu, SegmentedButtons, Text, withTheme } from "react-native-paper";
 import { AuthErrorCodes } from "@firebase/auth";
 import { Easing } from "react-native-reanimated";
 
@@ -10,6 +10,8 @@ const GraficoInfo = ({
   matchFunc,
   match,
   value,
+  dataType,
+  tipoJugadores,
   setSetData,
   setData,
 }) => {
@@ -19,8 +21,9 @@ const GraficoInfo = ({
   const infoEquipo1 = matchData.params[0].equipo1;
   const infoEquipo2 = matchData.params[0].equipo2;
 
+
   useEffect(() => {
-    if (value == 0) {
+    if (dataType == false && value == 0) {
       matchFunc([
         {
           name: "Break Points",
@@ -64,8 +67,36 @@ const GraficoInfo = ({
         },
       ]);
     }
+    if (dataType == true && value == 0) {
+      matchFunc([
+        {
+          name: "Winners",
+          equipo1:
+            tipoJugadores == false ? infoMatchEquipo1.jugador1.winners : infoMatchEquipo1.jugador2.winners,
+
+          equipo2:
+            tipoJugadores == false ? infoMatchEquipo2.jugador1.winners : infoMatchEquipo2.jugador2.winners,
+        },
+        {
+          name: "Smashes",
+          equipo1:
+            tipoJugadores == false ? infoMatchEquipo1.jugador1.smashesExito : infoMatchEquipo1.jugador2.smashesExito,
+
+          equipo2:
+            tipoJugadores == false ? infoMatchEquipo2.jugador1.smashesExito : infoMatchEquipo2.jugador2.smashesExito,
+        },
+        {
+          name: "Unforced Errors",
+          equipo1:
+            tipoJugadores == false ? infoMatchEquipo1.jugador1.unfError : infoMatchEquipo1.jugador2.unfError,
+
+          equipo2:
+            tipoJugadores == false ? infoMatchEquipo2.jugador1.unfError : infoMatchEquipo2.jugador2.unfError,
+        },
+      ]);
+    }
     for (let i = 1; i <= Object.keys(infoSets).length; i++) {
-      if (value == i) {
+      if (dataType == false && value == i) {
         matchFunc([
           {
             name: "Break Points",
@@ -113,12 +144,46 @@ const GraficoInfo = ({
           },
         ]);
       }
+      if (dataType == true && value == i) {
+        matchFunc([
+          {
+            name: "Winners",
+            equipo1:
+              tipoJugadores == false ? infoSets["set" + value].datosJugadores.equipo1.jugador1.winners :
+                infoSets["set" + value].datosJugadores.equipo1.jugador2.winners,
+
+            equipo2:
+              tipoJugadores == false ? infoSets["set" + value].datosJugadores.equipo2.jugador1.winners :
+                infoSets["set" + value].datosJugadores.equipo2.jugador2.winners,
+          },
+          {
+            name: "Smashes",
+            equipo1:
+              tipoJugadores == false ? infoSets["set" + value].datosJugadores.equipo1.jugador1.smashesExito :
+                infoSets["set" + value].datosJugadores.equipo1.jugador2.smashesExito,
+
+            equipo2:
+              tipoJugadores == false ? infoSets["set" + value].datosJugadores.equipo2.jugador1.smashesExito :
+                infoSets["set" + value].datosJugadores.equipo2.jugador2.smashesExito,
+          },
+          {
+            name: "Unforced Errors",
+            equipo1:
+              tipoJugadores == false ? infoSets["set" + value].datosJugadores.equipo1.jugador1.unfError :
+                infoSets["set" + value].datosJugadores.equipo1.jugador2.unfError,
+
+            equipo2:
+              tipoJugadores == false ? infoSets["set" + value].datosJugadores.equipo2.jugador1.unfError :
+                infoSets["set" + value].datosJugadores.equipo2.jugador2.unfError,
+          },
+        ]);
+      }
     }
-  }, [value]);
+  }, [value, tipoJugadores, dataType]);
 
   const animation = useRef(new Animated.Value(0)).current;
 
-  
+
 
 
 
@@ -128,19 +193,19 @@ const GraficoInfo = ({
       toValue: 1,
       duration: 1500,
       useNativeDriver: false,
-      easing: Easing.bezierFn(.32,-0.01,.27,1),
+      easing: Easing.bezierFn(.32, -0.01, .27, 1),
     }).start();
-   
+
   }, [value])
 
-  
+
 
   return (
     <View style={styles.graficosContainer}>
       <FlatList
         data={match}
         renderItem={({ item }) =>
-       
+
           item.name == "Break Points" ? (
             <View style={styles.Graficos}>
               <View style={styles.grafico}>
@@ -155,16 +220,16 @@ const GraficoInfo = ({
                       marginLeft: 1,
                       borderTopEndRadius: animation.interpolate({
                         inputRange: [0, 1],
-                        outputRange: [0, item.equipo1==0 ? 0 : (item.equipo1*100)/(item.equipo1+item.equipo2)/5.5]  
+                        outputRange: [0, item.equipo1 == 0 ? 0 : (item.equipo1 * 100) / (item.equipo1 + item.equipo2) / 5.5]
                       }),
                       borderBottomEndRadius: animation.interpolate({
                         inputRange: [0, 1],
-                        outputRange: [0, item.equipo1==0 ? 0 : (item.equipo1*100)/(item.equipo1+item.equipo2)/5.5]  
+                        outputRange: [0, item.equipo1 == 0 ? 0 : (item.equipo1 * 100) / (item.equipo1 + item.equipo2) / 5.5]
                       }),
                       width: animation.interpolate({
                         inputRange: [0, 1],
-                        outputRange: ["0%", item.equipo1==0 ? "0%" : (item.equipo1*100)/(item.equipo1+item.equipo2)+"%"]  
-                    }),
+                        outputRange: ["0%", item.equipo1 == 0 ? "0%" : (item.equipo1 * 100) / (item.equipo1 + item.equipo2) + "%"]
+                      }),
                       height: "100%",
                       backgroundColor: "green",
                     }}
@@ -176,16 +241,16 @@ const GraficoInfo = ({
                       marginLeft: 1,
                       borderTopEndRadius: animation.interpolate({
                         inputRange: [0, 1],
-                        outputRange: [0, item.equipo2==0 ? 0 : (item.equipo2*100)/(item.equipo1+item.equipo2)/5.5]  
+                        outputRange: [0, item.equipo2 == 0 ? 0 : (item.equipo2 * 100) / (item.equipo1 + item.equipo2) / 5.5]
                       }),
                       borderBottomEndRadius: animation.interpolate({
                         inputRange: [0, 1],
-                        outputRange: [0, item.equipo2==0 ? 0 : (item.equipo2*100)/(item.equipo1+item.equipo2)/5.5]  
+                        outputRange: [0, item.equipo2 == 0 ? 0 : (item.equipo2 * 100) / (item.equipo1 + item.equipo2) / 5.5]
                       }),
                       height: "100%",
                       width: animation.interpolate({
                         inputRange: [0, 1],
-                        outputRange: ["0%", item.equipo2==0 ? "0%" : (item.equipo2*100)/(item.equipo1+item.equipo2)+"%"]  
+                        outputRange: ["0%", item.equipo2 == 0 ? "0%" : (item.equipo2 * 100) / (item.equipo1 + item.equipo2) + "%"]
                       }),
                       backgroundColor: "orange",
                     }}
@@ -203,20 +268,20 @@ const GraficoInfo = ({
                 </View>
                 <View style={styles.grafico1}>
                   <Animated.View
-                    style={{ 
+                    style={{
                       marginLeft: 1,
                       borderTopEndRadius: animation.interpolate({
                         inputRange: [0, 1],
-                        outputRange: [0, item.equipo1==0 ? 0 : (item.equipo1*100)/(item.equipo1+item.equipo2)/5.5]  
+                        outputRange: [0, item.equipo1 == 0 ? 0 : (item.equipo1 * 100) / (item.equipo1 + item.equipo2) / 5.5]
                       }),
                       borderBottomEndRadius: animation.interpolate({
                         inputRange: [0, 1],
-                        outputRange: [0, item.equipo1==0 ? 0 : (item.equipo1*100)/(item.equipo1+item.equipo2)/5.5]  
+                        outputRange: [0, item.equipo1 == 0 ? 0 : (item.equipo1 * 100) / (item.equipo1 + item.equipo2) / 5.5]
                       }),
                       width: animation.interpolate({
                         inputRange: [0, 1],
-                        outputRange: ["0%", item.equipo1==0 ? "0%" : (item.equipo1*100)/(item.equipo1+item.equipo2)+"%"]  
-                    }),
+                        outputRange: ["0%", item.equipo1 == 0 ? "0%" : (item.equipo1 * 100) / (item.equipo1 + item.equipo2) + "%"]
+                      }),
                       height: "100%",
                       backgroundColor: "green",
                     }}
@@ -228,16 +293,16 @@ const GraficoInfo = ({
                       marginLeft: 1,
                       borderTopEndRadius: animation.interpolate({
                         inputRange: [0, 1],
-                        outputRange: [0, item.equipo2==0 ? 0 : (item.equipo2*100)/(item.equipo1+item.equipo2)/5.5]  
+                        outputRange: [0, item.equipo2 == 0 ? 0 : (item.equipo2 * 100) / (item.equipo1 + item.equipo2) / 5.5]
                       }),
                       borderBottomEndRadius: animation.interpolate({
                         inputRange: [0, 1],
-                        outputRange: [0, item.equipo2==0 ? 0 : (item.equipo2*100)/(item.equipo1+item.equipo2)/5.5]  
+                        outputRange: [0, item.equipo2 == 0 ? 0 : (item.equipo2 * 100) / (item.equipo1 + item.equipo2) / 5.5]
                       }),
                       height: "100%",
                       width: animation.interpolate({
                         inputRange: [0, 1],
-                        outputRange: ["0%", item.equipo2==0 ? "0%" : (item.equipo2*100)/(item.equipo1+item.equipo2)+"%"]  
+                        outputRange: ["0%", item.equipo2 == 0 ? "0%" : (item.equipo2 * 100) / (item.equipo1 + item.equipo2) + "%"]
                       }),
                       backgroundColor: "orange",
                     }}
@@ -260,6 +325,14 @@ const InfoPartida = ({ route, theme }) => {
     { value: "0", label: "Partida" },
   ]);
   const [setData, setSetData] = useState([]);
+  const [visible, setVisible] = useState(false);
+  const [dataType, setDataType] = useState(false);
+  const [tipoJugadores, setTipoJugadores] = useState(false);
+
+
+  console.log(tipoJugadores, infoTeam.equipo1.position);
+
+  //if position = false > JUGADOR1 = REVÉS
 
   useEffect(() => {
     if (setsResults.length === 1) {
@@ -333,12 +406,43 @@ const InfoPartida = ({ route, theme }) => {
           buttons={setsResults}
         />
       </SafeAreaView>
-      <View style={styles.infoPorSets}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginHorizontal: 15 }}>
+        {dataType == false ? "" : <View style={{ flexDirection: 'row' }}>
+          <Chip style={styles.chipJugadores} showSelectedOverlay={true} selected={tipoJugadores == true ? true : false} compact={true} onPress={() => setTipoJugadores(true)}>De Revés</Chip>
+          <Chip style={styles.chipJugadores} showSelectedOverlay={true} selected={tipoJugadores == false ? true : false} compact={true} onPress={() => setTipoJugadores(false)}>De Drive</Chip>
+        </View>}
+
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text>Ordenar Por: </Text>
+          <Menu
+            visible={visible}
+            onDismiss={() => setVisible(false)}
+            anchor={<IconButton
+              icon="order-bool-descending"
+              size={20}
+              onPress={() => setVisible(true)}
+            />}>
+            <Menu.Item trailingIcon="account-group" onPress={() => { setDataType(false), setVisible(false) }} title="Equipos" />
+            <Menu.Item trailingIcon="account" onPress={() => { setDataType(true), setVisible(false) }} title="Jugadores" />
+          </Menu>
+        </View>
+      </View>
+      <View style={[styles.infoPorSets, dataType == true ? { marginTop: 15, marginBottom: 20 } : { marginTop: 7, marginBottom: 20 }]}>
+
+
         <View style={styles.teamUnder}>
-          <View>
-            <Text>{infoTeam.equipo1.jugadores.jugador1.nombre}</Text>
-            <Text>{infoTeam.equipo1.jugadores.jugador2.nombre}</Text>
-          </View>
+        {dataType == false ? <View><Text>{infoTeam.equipo1.jugadores.jugador1.nombre}</Text>
+            <Text>{infoTeam.equipo1.jugadores.jugador2.nombre}</Text></View> :
+            tipoJugadores == false ?
+              infoTeam.equipo1.position == false ?
+                <Text>{infoTeam.equipo1.jugadores.jugador2.nombre}</Text>
+              :
+                <Text>{infoTeam.equipo1.jugadores.jugador1.nombre}</Text>
+            :
+                infoTeam.equipo1.position == true ?
+                <Text>{infoTeam.equipo1.jugadores.jugador2.nombre}</Text> :
+                <Text>{infoTeam.equipo1.jugadores.jugador1.nombre}</Text>}
+
         </View>
         <View style={styles.setsPerTeam}>
           <Text>
@@ -356,14 +460,18 @@ const InfoPartida = ({ route, theme }) => {
         </View>
 
         <View style={styles.teamUnder}>
-          <View>
-            <Text style={{ textAlign: "right" }}>
-              {infoTeam.equipo2.jugadores.jugador1.nombre}
-            </Text>
-            <Text style={{ textAlign: "right" }}>
-              {infoTeam.equipo2.jugadores.jugador2.nombre}
-            </Text>
-          </View>
+          {dataType == false ? <View><Text>{infoTeam.equipo2.jugadores.jugador1.nombre}</Text>
+            <Text>{infoTeam.equipo2.jugadores.jugador2.nombre}</Text></View> :
+            tipoJugadores == false ?
+              infoTeam.equipo2.position == false ?
+                <Text>{infoTeam.equipo2.jugadores.jugador2.nombre}</Text>
+              :
+                <Text>{infoTeam.equipo2.jugadores.jugador1.nombre}</Text>
+            :
+                infoTeam.equipo2.position == true ?
+                <Text>{infoTeam.equipo2.jugadores.jugador2.nombre}</Text> :
+                <Text>{infoTeam.equipo2.jugadores.jugador1.nombre}</Text>}
+
         </View>
       </View>
       <GraficoInfo
@@ -374,6 +482,8 @@ const InfoPartida = ({ route, theme }) => {
         sets={setsResults}
         setSetData={setSetData}
         setData={setData}
+        tipoJugadores={tipoJugadores}
+        dataType={dataType}
       />
     </View>
   );
@@ -392,8 +502,14 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
 
+  chipJugadores: {
+    marginHorizontal: 5,
+    borderRadius: 30,
+    height: "80%",
+  },
+
   container: {
-    padding: 20,
+    paddingHorizontal: 20,
     alignItems: "center",
   },
   team: {
@@ -407,7 +523,6 @@ const styles = StyleSheet.create({
 
   teamUnder: {
     //marginBottom: 15,
-    flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
@@ -467,9 +582,5 @@ const styles = StyleSheet.create({
     position: "absolute",
     height: "100%",
     width: "50%",
-  },
-
-  graficosContainer: {
-    marginVertical: 25,
   },
 });
