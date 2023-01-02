@@ -149,8 +149,7 @@ const Partida = ({ route, navigation }) => {
       await setDoc(
         doc(
           database,
-          `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${
-            setsE1 + setsE2 + 1
+          `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${setsE1 + setsE2 + 1
           }/Juego${juegosE1 + juegosE2 + 1}`
         ),
         { winner: team, serve: serving }
@@ -160,6 +159,21 @@ const Partida = ({ route, navigation }) => {
     }
 
     puntosJuego.map(async (puntos, index) => {
+      if (puntos.point == "unfError") {
+        let equipoError = puntos.team == 0 ? "equipo2" : "equipo1";
+        setDatosJugadores({
+          ...datosJugadores,
+          [equipoError]: {
+            ...datosJugadores[equipoError],
+            ["jugador" + puntos.player]: {
+              ...datosJugadores[equipoError]["jugador" + puntos.player],
+              [puntos.point]:
+                (datosJugadores[equipoError]["jugador" + puntos.player][puntos.point] =
+                  datosJugadores[equipoError]["jugador" + puntos.player][puntos.point] + 1),
+            },
+          },
+        });
+      }
       setDatosJugadores({
         ...datosJugadores,
         ["equipo" + (puntos.team + 1)]: {
@@ -167,27 +181,33 @@ const Partida = ({ route, navigation }) => {
           puntosOro:
             index == puntosJuego.length - 1 && goldenPoint === true
               ? (datosJugadores["equipo" + (puntos.team + 1)].puntosOro =
-                  datosJugadores["equipo" + (puntos.team + 1)].puntosOro + 1)
+                datosJugadores["equipo" + (puntos.team + 1)].puntosOro + 1)
               : datosJugadores["equipo" + (puntos.team + 1)].puntosOro,
           breakPointsExito:
             isTiebreak == false &&
-            index == puntosJuego.length - 1 &&
-            +puntos.serving !== puntos.team
+              index == puntosJuego.length - 1 &&
+              +puntos.serving !== puntos.team
               ? (datosJugadores["equipo" + (puntos.team + 1)].breakPointsExito =
-                  datosJugadores["equipo" + (puntos.team + 1)]
-                    .breakPointsExito + 1)
+                datosJugadores["equipo" + (puntos.team + 1)]
+                  .breakPointsExito + 1)
               : datosJugadores["equipo" + (puntos.team + 1)].breakPointsExito,
           ["jugador" + puntos.player]: {
             ...datosJugadores["equipo" + (puntos.team + 1)][
-              "jugador" + puntos.player
+            "jugador" + puntos.player
             ],
             [puntos.point]:
-              (datosJugadores["equipo" + (puntos.team + 1)][
-              "jugador" + puntos.player
-            ][puntos.point] =
-              datosJugadores["equipo" + (puntos.team + 1)][
+              puntos.point == "unfError" ?  (datosJugadores["equipo" + (puntos.team + 1)][
                 "jugador" + puntos.player
-              ][puntos.point] + 1),
+              ][puntos.point] =
+                datosJugadores["equipo" + (puntos.team + 1)][
+                "jugador" + puntos.player
+                ][puntos.point]) :
+                (datosJugadores["equipo" + (puntos.team + 1)][
+                  "jugador" + puntos.player
+                ][puntos.point] =
+                  datosJugadores["equipo" + (puntos.team + 1)][
+                  "jugador" + puntos.player
+                  ][puntos.point] + 1),
           },
         },
       });
@@ -196,8 +216,7 @@ const Partida = ({ route, navigation }) => {
         await setDoc(
           doc(
             database,
-            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${
-              setsE1 + setsE2 + 1
+            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${setsE1 + setsE2 + 1
             }/Juego${juegosE1 + juegosE2 + 1}/Puntos/Punto${index}`
           ),
           puntos
@@ -210,7 +229,7 @@ const Partida = ({ route, navigation }) => {
               ...datosJugadores.equipo1,
               breakPoints:
                 isTiebreak == false && +puntos.serving == 1
-                  ? datosJugadores.equipo1.breakPoints=
+                  ? datosJugadores.equipo1.breakPoints =
                   datosJugadores.equipo1.breakPoints + 1
                   : datosJugadores.equipo1.breakPoints,
             },
@@ -218,7 +237,7 @@ const Partida = ({ route, navigation }) => {
               ...datosJugadores.equipo2,
               breakPoints:
                 isTiebreak == false && +puntos.serving == 0
-                  ? datosJugadores.equipo2.breakPoints=
+                  ? datosJugadores.equipo2.breakPoints =
                   datosJugadores.equipo2.breakPoints + 1
                   : datosJugadores.equipo2.breakPoints,
             }
@@ -248,6 +267,21 @@ const Partida = ({ route, navigation }) => {
             { merge: true }
           );
         }
+        if(puntos.point=="unfError"){
+          await setDoc(
+            doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
+            {
+              infoequipos: {
+                [puntos.team==0 ? "equipo2" : "equipo1"]: {
+                  jugadores: {
+                    ["jugador" + puntos.player]: { [puntos.point]: increment(1) },
+                  },
+                },
+              },
+            },
+            { merge: true }
+          );
+        }
         await setDoc(
           doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
           {
@@ -259,12 +293,12 @@ const Partida = ({ route, navigation }) => {
                     : increment(0),
                 breakPointsExito:
                   isTiebreak == false &&
-                  index == puntosJuego.length - 1 &&
-                  +puntos.serving !== puntos.team
+                    index == puntosJuego.length - 1 &&
+                    +puntos.serving !== puntos.team
                     ? increment(1)
                     : increment(0),
                 jugadores: {
-                  ["jugador" + puntos.player]: { [puntos.point]: increment(1) },
+                  ["jugador" + puntos.player]: { [puntos.point]: puntos.point == "unfError" ? increment(0) : increment(1) },
                 },
               },
             },
@@ -273,7 +307,7 @@ const Partida = ({ route, navigation }) => {
         );
       } catch (error) {
         console.log(error);
-      } 
+      }
       setGoldenPoint(false);
       setPuntosJuego([]);
     });
@@ -307,7 +341,7 @@ const Partida = ({ route, navigation }) => {
         );
       } catch (error) {
         console.log(error);
-      }finally {
+      } finally {
         setDatosJugadores({
           equipo1: {
             games: 0,
@@ -523,15 +557,15 @@ const Partida = ({ route, navigation }) => {
               {infoSets[0] === undefined
                 ? ""
                 : infoSets[1] === undefined
-                ? juegosE1
-                : infoSets[1].equipo1}
+                  ? juegosE1
+                  : infoSets[1].equipo1}
             </Text>
             <Text style={styles.marcador}>
               {infoSets[0] === undefined
                 ? ""
                 : infoSets[1] === undefined
-                ? juegosE2
-                : infoSets[1].equipo2}
+                  ? juegosE2
+                  : infoSets[1].equipo2}
             </Text>
           </View>
           <View style={styles.set}>
@@ -539,15 +573,15 @@ const Partida = ({ route, navigation }) => {
               {infoSets[1] === undefined
                 ? ""
                 : infoSets[2] === undefined
-                ? juegosE1
-                : infoSets[2].equipo1}
+                  ? juegosE1
+                  : infoSets[2].equipo1}
             </Text>
             <Text style={styles.marcador}>
               {infoSets[1] === undefined
                 ? ""
                 : infoSets[2] === undefined
-                ? juegosE2
-                : infoSets[2].equipo2}
+                  ? juegosE2
+                  : infoSets[2].equipo2}
             </Text>
           </View>
         </View>
