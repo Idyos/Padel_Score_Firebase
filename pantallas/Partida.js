@@ -100,8 +100,8 @@ const Partida = ({ route, navigation }) => {
   const [marcadorE2, setMarcadorE2] = useState(0);
 
   //JUEGOS DE CADA EQUIPO
-  const [juegosE1, setJuegosE1] = useState(0);
-  const [juegosE2, setJuegosE2] = useState(0);
+  const [juegosE1, setJuegosE1] = useState(5);
+  const [juegosE2, setJuegosE2] = useState(4);
 
   //SETS DE CADA EQUIPO
   const [setsE1, setSetsE1] = useState(0);
@@ -204,6 +204,26 @@ const Partida = ({ route, navigation }) => {
         );
         //TODO: Reparar orden de aparición de los datos de los breaks
         if (puntos.breakChance == true) {
+          setDatosJugadores({
+            ...datosJugadores,
+            equipo1: {
+              ...datosJugadores.equipo1,
+              breakPoints:
+                isTiebreak == false && +puntos.serving == 1
+                  ? datosJugadores.equipo1.breakPoints=
+                  datosJugadores.equipo1.breakPoints + 1
+                  : datosJugadores.equipo1.breakPoints,
+            },
+            equipo2: {
+              ...datosJugadores.equipo2,
+              breakPoints:
+                isTiebreak == false && +puntos.serving == 0
+                  ? datosJugadores.equipo2.breakPoints=
+                  datosJugadores.equipo2.breakPoints + 1
+                  : datosJugadores.equipo2.breakPoints,
+            }
+          });
+
           await setDoc(
             doc(
               database,
@@ -258,7 +278,6 @@ const Partida = ({ route, navigation }) => {
       setPuntosJuego([]);
     });
     setServe(!serve);
-    console.log(datosJugadores);
   };
 
   const updateSets = async (value) => {
@@ -343,9 +362,6 @@ const Partida = ({ route, navigation }) => {
       }
     }
     if (isTiebreak == true) {
-      if ((contador1 + contador2) % 2 == 1) {
-        setServe(!serve);
-      }
       if (contador1 >= 7 && contador1 - contador2 >= 2) {
         setJuegosE1(juegosE1 + 1);
         setMarcadorE1(0);
@@ -359,6 +375,9 @@ const Partida = ({ route, navigation }) => {
         setMarcadorE2(0);
         updateJuego("equipo2");
         setTiebreak(false);
+      }
+      if ((contador1 + contador2) % 2 == 1) {
+        setServe(!serve);
       }
     } else {
       if (contador1 === 3 && contador2 === 3) {
@@ -396,7 +415,7 @@ const Partida = ({ route, navigation }) => {
 
   useEffect(() => {
     for (let i = 1; i <= 3; i++) {
-      if (setsE1 + setsE2 === i) {
+      if (setsE1 || setsE2 === i) {
       }
     }
     ///EQUIPO 1
