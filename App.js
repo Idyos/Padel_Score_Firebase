@@ -77,7 +77,7 @@ export default function App() {
           <Stack.Screen name="registrarse" component={Registrarse} options={{headerShown: false}}/>
           <Stack.Screen name="partida" component={Partida} options={{ headerShown: false }} />
           <Stack.Screen name="info-partida" component={InfoPartida} />
-          <Stack.Screen name="nueva-partida" component={NuevaPartida} />
+          <Stack.Screen name="Nueva Partida" component={NuevaPartida} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>

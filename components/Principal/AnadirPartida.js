@@ -38,7 +38,7 @@ const AnadirPartida = ({
         icon={'plus'}
         label={'Nueva Partida'}
         extended={isExtended}
-        onPress={() => navigation.navigate('nueva-partida', {user: user})}
+        onPress={() => navigation.navigate('Nueva Partida', {user: user})}
         visible={visible}
         animateFrom={'right'}
         iconMode={'static'}

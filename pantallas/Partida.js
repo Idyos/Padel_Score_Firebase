@@ -2,7 +2,7 @@ import { StyleSheet, View, BackHandler, TouchableOpacity } from "react-native";
 import { database } from "../src/config/fb";
 import { setDoc, doc, increment, getDoc } from "firebase/firestore";
 import { Text, IconButton } from "react-native-paper";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import Contador from "../components/Partida/Contador";
 import PointDetail from "../components/Partida/Popup";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -52,14 +52,14 @@ const Partida = ({ route, navigation }) => {
         { partidaTerminada: true },
         { merge: true }
       );
-      
+
     } catch (error) {
       console.log(error);
     }
     navigation.navigate("login");
     updateJuego("null");
     updateSets(1);
-    
+
   };
 
   const partidaid = route.params.partidaid;
@@ -201,7 +201,7 @@ const Partida = ({ route, navigation }) => {
             "jugador" + puntos.player
             ],
             [puntos.point]:
-              puntos.point == "unfError" ?  (datosJugadores["equipo" + (puntos.team + 1)][
+              puntos.point == "unfError" ? (datosJugadores["equipo" + (puntos.team + 1)][
                 "jugador" + puntos.player
               ][puntos.point] =
                 datosJugadores["equipo" + (puntos.team + 1)][
@@ -272,12 +272,12 @@ const Partida = ({ route, navigation }) => {
             { merge: true }
           );
         }
-        if(puntos.point=="unfError"){
+        if (puntos.point == "unfError") {
           await setDoc(
             doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
             {
               infoequipos: {
-                [puntos.team==0 ? "equipo2" : "equipo1"]: {
+                [puntos.team == 0 ? "equipo2" : "equipo1"]: {
                   jugadores: {
                     ["jugador" + puntos.player]: { [puntos.point]: increment(1) },
                   },
@@ -319,7 +319,8 @@ const Partida = ({ route, navigation }) => {
     setServe(!serve);
   };
 
-  const updateSets = async (value) => {
+
+  const updateSets = async (value = 0) => {
     const setsDoc = doc(
       database,
       `/Partidas/${partidaid}/PartidoCompleto/SetsResults`
@@ -438,8 +439,8 @@ const Partida = ({ route, navigation }) => {
   }, [puntosJuego]);
 
   useEffect(() => {
+    console.log("JUEGOS: " + juegosE1, juegosE2);
     if (juegosE1 === 6 && juegosE2 === 6) {
-      alert("TIEBREAK");
       setTiebreak(true);
       return;
     }
@@ -452,19 +453,17 @@ const Partida = ({ route, navigation }) => {
     }
   }, [juegosE1 === 6, juegosE2 === 6]);
 
-  useEffect(() => {
-    for (let i = 1; i <= 3; i++) {
-      if (setsE1 || setsE2 === i) {
-      }
-    }
-    ///EQUIPO 1
+
+
+  useLayoutEffect(() => {
+    console.log("DENTRO DEL CALLBACK")
     if (setsE1 === 2) {
       alert("SE HA TERMINADO EL PARTIDO, GANADOR: " + datos[0].nombre);
       setInfoSets((current) => [
         ...current,
         { equipo1: juegosE1, equipo2: juegosE2 },
       ]);
-      updateSets(0);
+      updateSets();
     }
     if (setsE2 === 2) {
       alert("SE HA TERMINADO EL PARTIDO, GANADOR: " + datos[1].nombre);
@@ -472,7 +471,7 @@ const Partida = ({ route, navigation }) => {
         ...current,
         { equipo1: juegosE1, equipo2: juegosE2 },
       ]);
-      updateSets(0);
+      updateSets();
     }
     if (setsE1 + setsE2 === 1) {
       setInfoSets((current) => [
@@ -481,7 +480,7 @@ const Partida = ({ route, navigation }) => {
       ]);
       setJuegosE1(0);
       setJuegosE2(0);
-      updateSets(0);
+      updateSets();
     }
     if (setsE1 + setsE2 === 2) {
       setInfoSets((current) => [
@@ -490,8 +489,20 @@ const Partida = ({ route, navigation }) => {
       ]);
       setJuegosE1(0);
       setJuegosE2(0);
-      updateSets(0);
+      updateSets();
     }
+  }, [setsE1, setsE2])
+
+
+  useEffect(() => {
+    console.log("DENTRO DEL USEEFFECT");
+    for (let i = 1; i <= 3; i++) {
+      if (setsE1 || setsE2 == i) {
+      }
+    }
+
+    ///EQUIPO 1
+
   }, [setsE1, setsE2]);
 
   useEffect(() => {
