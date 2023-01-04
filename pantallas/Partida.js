@@ -28,6 +28,8 @@ async function crearPartida(partidaid, infoequipos) {
   }
 }
 
+
+
 const Partida = ({ route, navigation }) => {
   const [atrasPartida, setAtrasPartida] = useState(false);
   // const hasUnsavedChanges = Boolean(text);
@@ -41,6 +43,24 @@ const Partida = ({ route, navigation }) => {
       setAtrasPartida(true);
     });
   });
+
+  const terminarPartida = async () => {
+    console.log(navigation.navigate("principal"));
+    try {
+      await setDoc(
+        doc(database, `Partidas/${partidaid}`),
+        { partidaTerminada: true },
+        { merge: true }
+      );
+      
+    } catch (error) {
+      console.log(error);
+    }
+    navigation.navigate("login");
+    updateJuego("null");
+    updateSets(1);
+    
+  };
 
   const partidaid = route.params.partidaid;
   const infoequipos = route.params.infoequipos;
@@ -127,21 +147,6 @@ const Partida = ({ route, navigation }) => {
       position: infoequipos.equipo2.position,
     },
   ];
-
-  const terminarPartida = async () => {
-    try {
-      await setDoc(
-        doc(database, `Partidas/${partidaid}`),
-        { partidaTerminada: true },
-        { merge: true }
-      );
-    } catch (error) {
-      console.log(error);
-    }
-    updateJuego("null");
-    updateSets(1);
-    navigation.popToTop();
-  };
 
   const updateJuego = async (team) => {
     const serving = serve ? "equipo2" : "equipo1";

@@ -89,10 +89,12 @@ const NuevaPartida = ({ navigation, route }) => {
             Introduce la información del primer equipo
           </Text>
           <TextInput
+          outlineStyle={{borderRadius: 25}}
                selectionColor="orange"
                activeOutlineColor="orange"
                mode="outlined"
-               label="Equipo 1"
+               label={<Text>Equipo1</Text>}
+               right={<TextInput.Affix textStyle={{fontSize: 15}} text={equipoObj.equipo1.nombre.length+"/20"}/>}
             style={styles.inputTeam}
             onChangeText={(text) =>
               setEquipoObj({
@@ -102,14 +104,26 @@ const NuevaPartida = ({ navigation, route }) => {
             }
             value={equipoObj.equipo1.nombre}
             maxLength={20}
-            placeholder="Equipo A"
           />
 
           <View style={styles.playerSection}>
             <TextInput
+            autoComplete='off'
+              mode="flat"
+              label="Jugador 1"
               style={styles.inputPlayer}
-              placeholder="Jugador 1"
               value={equipoObj.equipo1.jugadores.jugador1.nombre}
+              right={<TextInput.Icon  onPress={() =>
+                setEquipoObj({
+                  ...equipoObj,
+                  equipo1: {
+                    ...equipoObj.equipo1,
+                    position: !equipoObj.equipo1.position,
+                  },
+                })
+              } icon={({ size, color, direction }) => (
+                <Text style={{fontSize: 25, fontWeight: 'bold'}}>{equipoObj.equipo1.position == true ? "D" : "R"}</Text>
+              )}/>}
               onChangeText={(text) =>
                 setEquipoObj({
                   ...equipoObj,
@@ -129,8 +143,16 @@ const NuevaPartida = ({ navigation, route }) => {
                 })
               }
             />
-            <Pressable
-              onPress={() =>
+          </View>
+
+          <View style={styles.playerSection}>
+            <TextInput
+            autoComplete='off'
+              mode="flat"
+              label="Jugador 2"
+              style={styles.inputPlayer}
+              value={equipoObj.equipo1.jugadores.jugador2.nombre}
+              right={<TextInput.Icon  onPress={() =>
                 setEquipoObj({
                   ...equipoObj,
                   equipo1: {
@@ -138,19 +160,9 @@ const NuevaPartida = ({ navigation, route }) => {
                     position: !equipoObj.equipo1.position,
                   },
                 })
-              }
-            >
-              <Text style={styles.playerPosition}>
-                {equipoObj.equipo1.position == true ? "D" : "R"}
-              </Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.playerSection}>
-            <TextInput
-              style={styles.inputPlayer}
-              placeholder="Jugador 2"
-              value={equipoObj.equipo1.jugadores.jugador2.nombre}
+              } icon={({ size, color, direction }) => (
+                <Text style={{fontSize: 25, fontWeight: 'bold'}}>{equipoObj.equipo1.position == true ? "R" : "D"}</Text>
+              )}/>}
               onChangeText={(text) => {
                 setEquipoObj({
                   ...equipoObj,
@@ -170,21 +182,6 @@ const NuevaPartida = ({ navigation, route }) => {
                 });
               }}
             />
-            <Pressable
-              onPress={() =>
-                setEquipoObj({
-                  ...equipoObj,
-                  equipo1: {
-                    ...equipoObj.equipo1,
-                    position: !equipoObj.equipo1.position,
-                  },
-                })
-              }
-            >
-              <Text style={styles.playerPosition}>
-                {equipoObj.equipo1.position == true ? "R" : "D"}
-              </Text>
-            </Pressable>
           </View>
           <TouchableOpacity
             style={styles.siguiente}
@@ -311,6 +308,7 @@ const NuevaPartida = ({ navigation, route }) => {
 
 const styles = StyleSheet.create({
   pantalla: {
+    position: 'relative',
     height: "100%",
     //flex: 1,
     backgroundColor: "white",
@@ -323,7 +321,6 @@ const styles = StyleSheet.create({
     margin: 10,
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderWidth: 1,
     borderRadius: 15,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -342,20 +339,20 @@ const styles = StyleSheet.create({
     marginVertical: 30,
   },
   inputTeam: {
+    justifyContent: 'center',
     width: "85%",
-   // height: "12%",
+    paddingHorizontal: 10,
+    paddingVertical: 10,
     fontSize: 30,
-    borderRadius: 2,
   },
   inputPlayer: {
     flex: 1,
     fontSize: 20,
-    paddingTop: 10,
-    paddingRight: 10,
-    paddingBottom: 10,
+    height: 70,
+    //paddingTop: 10,
+    //paddingBottom: 10,
     paddingLeft: 0,
-    backgroundColor: "#fff",
-    color: "#424242",
+    backgroundColor: 'rgba(255, 0, 255, 0.0)',
   },
   siguiente: {
     shadowColor: "#000",

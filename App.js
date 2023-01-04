@@ -72,9 +72,9 @@ export default function App() {
     <PaperProvider theme={theme}>
       <NavigationContainer>
         <Stack.Navigator>
-          <Stack.Screen name="login" component={Login} />
+          <Stack.Screen name="login" component={Login} options={{headerShown: false}} />
           <Stack.Screen name="tabbar" component={Home} options={{ headerShown: false }} />
-          <Stack.Screen name="registrarse" component={Registrarse} />
+          <Stack.Screen name="registrarse" component={Registrarse} options={{headerShown: false}}/>
           <Stack.Screen name="partida" component={Partida} options={{ headerShown: false }} />
           <Stack.Screen name="info-partida" component={InfoPartida} />
           <Stack.Screen name="nueva-partida" component={NuevaPartida} />
