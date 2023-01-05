@@ -69,6 +69,7 @@ const NuevaPartida = ({ navigation, route }) => {
       },
     },
   });
+  const [normas, setNormas] = useState({});
   const [equipo, setEquipo] = useState(0);
   const [setAmmount, setSetAmmount] = useState(3);
   const [puntoDeOro, setPuntoDeOro] = useState(true);
@@ -80,7 +81,7 @@ const NuevaPartida = ({ navigation, route }) => {
       creadoEn: serverTimestamp(),
 
     });
-    navigation.navigate("partida", { partidaid: crearPartida.id, infoequipos: equipoObj });
+    navigation.navigate("partida", { partidaid: crearPartida.id, infoequipos: equipoObj, sets: setAmmount, pOro: puntoDeOro });
 
   };
 
@@ -313,21 +314,22 @@ const NuevaPartida = ({ navigation, route }) => {
           <Surface style={styles.configureSection}>
             <Text style={{ fontSize: 20 }}>Al mejor de </Text>
             <View style={{ flexDirection: 'row' }}>
-              <IconButton icon="minus" disabled={setAmmount == 1 ? true : false} onPress={() => setSetAmmount(setAmmount - 2)} />
+              <IconButton icon="minus" disabled={setAmmount == 1 ? true : false} onPress={() => {setSetAmmount(setAmmount - 2), setNormas({...normas, sets: setAmmount})}} />
               <TextInput style={{ backgroundColor: 'rgba(0,0,0,0)', textAlign: 'center', fontSize: 20 }} mode='flat' editable={false} value={setAmmount.toString()}></TextInput>
-              <IconButton icon="plus" disabled={setAmmount == 9 ? true : false} onPress={() => setSetAmmount(setAmmount + 2)} />
+              <IconButton icon="plus" disabled={setAmmount == 9 ? true : false} onPress={() => {setSetAmmount(setAmmount + 2),setNormas({...normas, sets: setAmmount})}} />
             </View>
             <Text style={{ fontSize: 20 }}>{setAmmount == 1 ? "set" : "sets"}</Text>
           </Surface>
           <Surface style={styles.configureSection} >
           <TouchableOpacity style={{ justifyContent: "space-between", flexDirection: 'row', alignItems: 'center', width: "100%", overflow: 'visible' }} activeOpacity={.5}>
               <Text style={{ fontSize: 20 }}>Punto de oro: </Text>
-              <Switch disabled={false} value={puntoDeOro} onValueChange={() => setPuntoDeOro(!puntoDeOro)} />
+              <Switch disabled={true} value={puntoDeOro} onValueChange={() => {setPuntoDeOro(!puntoDeOro), setNormas({...normas, puntoDeOro: puntoDeOro})}} />
           </TouchableOpacity>
           </Surface>
           <TouchableOpacity
             style={styles.siguiente}
             onPress={() => {
+              setNormas({...normas, sets: setAmmount, puntoDeOro: puntoDeOro});
               CreacionEquipo();
             }}
           >
