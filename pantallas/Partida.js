@@ -20,7 +20,6 @@ import PointDetail from "../components/Partida/Popup";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SalirPartida from "../components/Partida/SalirPartida";
 import PartidaConfig from "../components/Partida/PartidaConfig";
-import { combineTransition } from "react-native-reanimated";
 
 async function crearPartida(partidaid, infoequipos, sets, pOro) {
   const normas = { sets: sets, pOro: pOro };
@@ -80,6 +79,7 @@ const Partida = ({ route, navigation }) => {
 
   const [isTiebreak, setTiebreak] = useState(false);
   const [goldenPoint, setGoldenPoint] = useState(false);
+  const finish = useRef(false);
 
   const [datosJugadores, setDatosJugadores] = useState({
     equipo1: {
@@ -137,7 +137,7 @@ const Partida = ({ route, navigation }) => {
   const [juegosE2, setJuegosE2] = useState(5);
 
   //SETS DE CADA EQUIPO
-  const [setsE1, setSetsE1] = useState(1);
+  const [setsE1, setSetsE1] = useState(0);
   const [setsE2, setSetsE2] = useState(0);
 
   const [puntoEquipo, setPuntoEquipo] = useState();
@@ -167,8 +167,7 @@ const Partida = ({ route, navigation }) => {
       await setDoc(
         doc(
           database,
-          `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${
-            setsE1 + setsE2 + 1
+          `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${setsE1 + setsE2 + 1
           }/Juego${juegosE1 + juegosE2 + 1}`
         ),
         { winner: team, serve: serving }
@@ -190,7 +189,7 @@ const Partida = ({ route, navigation }) => {
                 "jugador" + puntos.player
               ][puntos.point] =
                 datosJugadores[equipoError]["jugador" + puntos.player][
-                  puntos.point
+                puntos.point
                 ] + 1),
             },
           },
@@ -203,34 +202,34 @@ const Partida = ({ route, navigation }) => {
           puntosOro:
             index == puntosJuego.length - 1 && goldenPoint === true
               ? (datosJugadores["equipo" + (puntos.team + 1)].puntosOro =
-                  datosJugadores["equipo" + (puntos.team + 1)].puntosOro + 1)
+                datosJugadores["equipo" + (puntos.team + 1)].puntosOro + 1)
               : datosJugadores["equipo" + (puntos.team + 1)].puntosOro,
           breakPointsExito:
             isTiebreak == false &&
-            index == puntosJuego.length - 1 &&
-            +puntos.serving !== puntos.team
+              index == puntosJuego.length - 1 &&
+              +puntos.serving !== puntos.team
               ? (datosJugadores["equipo" + (puntos.team + 1)].breakPointsExito =
-                  datosJugadores["equipo" + (puntos.team + 1)]
-                    .breakPointsExito + 1)
+                datosJugadores["equipo" + (puntos.team + 1)]
+                  .breakPointsExito + 1)
               : datosJugadores["equipo" + (puntos.team + 1)].breakPointsExito,
           ["jugador" + puntos.player]: {
             ...datosJugadores["equipo" + (puntos.team + 1)][
-              "jugador" + puntos.player
+            "jugador" + puntos.player
             ],
             [puntos.point]:
               puntos.point == "unfError"
                 ? (datosJugadores["equipo" + (puntos.team + 1)][
-                    "jugador" + puntos.player
-                  ][puntos.point] =
-                    datosJugadores["equipo" + (puntos.team + 1)][
-                      "jugador" + puntos.player
-                    ][puntos.point])
+                  "jugador" + puntos.player
+                ][puntos.point] =
+                  datosJugadores["equipo" + (puntos.team + 1)][
+                  "jugador" + puntos.player
+                  ][puntos.point])
                 : (datosJugadores["equipo" + (puntos.team + 1)][
-                    "jugador" + puntos.player
-                  ][puntos.point] =
-                    datosJugadores["equipo" + (puntos.team + 1)][
-                      "jugador" + puntos.player
-                    ][puntos.point] + 1),
+                  "jugador" + puntos.player
+                ][puntos.point] =
+                  datosJugadores["equipo" + (puntos.team + 1)][
+                  "jugador" + puntos.player
+                  ][puntos.point] + 1),
           },
         },
       });
@@ -239,8 +238,7 @@ const Partida = ({ route, navigation }) => {
         await setDoc(
           doc(
             database,
-            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${
-              setsE1 + setsE2 + 1
+            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${setsE1 + setsE2 + 1
             }/Juego${juegosE1 + juegosE2 + 1}/Puntos/Punto${index}`
           ),
           puntos
@@ -254,7 +252,7 @@ const Partida = ({ route, navigation }) => {
               breakPoints:
                 isTiebreak == false && +puntos.serving == 1
                   ? (datosJugadores.equipo1.breakPoints =
-                      datosJugadores.equipo1.breakPoints + 1)
+                    datosJugadores.equipo1.breakPoints + 1)
                   : datosJugadores.equipo1.breakPoints,
             },
             equipo2: {
@@ -262,7 +260,7 @@ const Partida = ({ route, navigation }) => {
               breakPoints:
                 isTiebreak == false && +puntos.serving == 0
                   ? (datosJugadores.equipo2.breakPoints =
-                      datosJugadores.equipo2.breakPoints + 1)
+                    datosJugadores.equipo2.breakPoints + 1)
                   : datosJugadores.equipo2.breakPoints,
             },
           });
@@ -322,8 +320,8 @@ const Partida = ({ route, navigation }) => {
                     : increment(0),
                 breakPointsExito:
                   isTiebreak == false &&
-                  index == puntosJuego.length - 1 &&
-                  +puntos.serving !== puntos.team
+                    index == puntosJuego.length - 1 &&
+                    +puntos.serving !== puntos.team
                     ? increment(1)
                     : increment(0),
                 jugadores: {
@@ -415,6 +413,26 @@ const Partida = ({ route, navigation }) => {
     }, 1500);
   };
 
+
+  //PROCESOS AL TERMINAR LA PARTIDA
+  useEffect(() => {
+    const setsDoc = doc(
+      database,
+      `/Partidas/${partidaid}/PartidoCompleto/SetsResults`
+    );
+    const finishMatch = async () => {
+      if (finish.current == true) {
+        console.log("SE ACABÓ")
+        console.log(infoSets);
+        await setDoc(setsDoc, { infoSets }, { merge: true })
+        await setDoc(doc(database, `Partidas/${partidaid}`),{ partidaTerminada: true },{ merge: true });
+      }
+    }
+    finishMatch();
+  }, [infoSets])
+
+
+  //CONTADOR DE PUNTOS POR JUEGOS
   useEffect(() => {
     let contador1 = 0;
     let contador2 = 0;
@@ -463,50 +481,59 @@ const Partida = ({ route, navigation }) => {
     }
   }, [puntosJuego]);
 
+
+
+  //CONTADOR DE JUEGOS POR SET
   useEffect(() => {
     if (juegosE1 === 6 && juegosE2 === 6) {
       setTiebreak(true);
       return;
     }
     //EQUIPO 1
-    if ((juegosE1 >= 6 && juegosE1 - juegosE2 >= 2) || juegosE1 === 7) {
-      setSetsE1(setsE1 + 1);
-      updateSet.current = true;
-    }
-    if ((juegosE2 >= 6 && juegosE2 - juegosE1 >= 2) || juegosE2 === 7) {
-      setSetsE2(setsE2 + 1);
-      updateSet.current = true;
+    if (finish.current == false) {
+      if ((juegosE1 >= 6 && juegosE1 - juegosE2 >= 2) || juegosE1 === 7) {
+        setSetsE1(setsE1 + 1);
+        updateSet.current = true;
+      }
+      if ((juegosE2 >= 6 && juegosE2 - juegosE1 >= 2) || juegosE2 === 7) {
+        setSetsE2(setsE2 + 1);
+        updateSet.current = true;
+      }
     }
   }, [juegosE1 === 6, juegosE2 === 6]);
 
+
+  //CONTADOR DE SETS POR PARTIDA
   useEffect(() => {
-    console.log("USEEFFECT DE LOS SETS");
-    console.log(setsE1);
-    console.log(sets);
-    console.log(setsE1 > sets / 2);
-    if (setsE1 > sets / 2) {
-      alert("SE HA TERMINADO EL PARTIDO, GANADOR: " + datos[0].nombre);
-      if(updateSet.current==true){
-      setInfoSets((current) => [
-        ...current,
-        { equipo1: juegosE1, equipo2: juegosE2 },
-      ]);
-    }
-      updateSets();
-      updateSet.current = false;
-      return;
-    }
-    if (setsE2 > sets / 2) {
-      alert("SE HA TERMINADO EL PARTIDO, GANADOR: " + datos[1].nombre);
-      if(updateSet.current==true){
-      setInfoSets((current) => [
-        ...current,
-        { equipo1: juegosE1, equipo2: juegosE2 },
-      ]);
-    }
-      updateSets();
-      updateSet.current = false;
-      return;
+    if (finish.current == false) {
+      if (setsE1 > sets / 2) {
+        alert("SE HA TERMINADO EL PARTIDO, GANADOR: " + datos[0].nombre);
+        if (updateSet.current == true) {
+          setInfoSets((current) => [
+            ...current,
+            { equipo1: juegosE1, equipo2: juegosE2 },
+          ]);
+        }
+        updateSets(0);
+        updateSet.current = false;
+        finish.current = true;
+        console.log(finish);
+        return;
+      }
+      if (setsE2 > sets / 2) {
+        alert("SE HA TERMINADO EL PARTIDO, GANADOR: " + datos[1].nombre);
+        if (updateSet.current == true) {
+          setInfoSets((current) => [
+            ...current,
+            { equipo1: juegosE1, equipo2: juegosE2 },
+          ]);
+        }
+        updateSets();
+        updateSet.current = false;
+        finish.current = true;
+        console.log(finish);
+        return;
+      }
     }
     if (updateSet.current == true) {
       console.log("AÑADIR SIMPLEMENTE UN SET");
@@ -519,8 +546,11 @@ const Partida = ({ route, navigation }) => {
       updateSets();
       updateSet.current = false;
     }
+
   }, [setsE1, setsE2]);
 
+
+  //CREAR LA PARTIDA LA PRIMERA VEZ QUE SE INICIA EL ARCHIVO
   useEffect(() => {
     crearPartida(partidaid, infoequipos, sets, pOro);
   }, []);
@@ -588,22 +618,22 @@ console.log(infoSets);
           </View>
           <View style={styles.set}>
             <FlatList
-            contentContainerStyle={{flexDirection: 'row'}}
+              contentContainerStyle={{ flexDirection: 'row' }}
               data={infoSets}
               renderItem={({ item, index }) => (
-                <View style={{flexDirection: 'row'}}>
+                <View style={{ flexDirection: 'row' }}>
                   <View style={styles.set}>
                     <Text style={styles.marcador}>{item.equipo1}</Text>
                     <Text style={styles.marcador}>{item.equipo2}</Text>
                   </View>
                   <View style={styles.set}>
                     <Text style={styles.marcador}>
-                      {infoSets[index+1] === undefined
+                      {finish.current==true ? "" : infoSets[index + 1] === undefined
                         ? juegosE1
                         : ""}
                     </Text>
                     <Text style={styles.marcador}>
-                      {infoSets[index+1] === undefined
+                      {finish.current==true ? "" : infoSets[index + 1] === undefined
                         ? juegosE2
                         : ""}
                     </Text>

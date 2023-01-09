@@ -14,6 +14,7 @@ import Registrarse from "./pantallas/Registrarse";
 import Profile from "./pantallas/UserInfo";
 import { DefaultTheme, MD3DarkTheme, MD3LightTheme, Provider as PaperProvider } from "react-native-paper";
 import InfoPartida from "./pantallas/InfoPartida";
+import { useReducer, useRef, useState } from "react";
 
 const Stack = createNativeStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
@@ -60,10 +61,9 @@ export default function App() {
   //  <StatusBar style="auto" />
 
 
-
-
+const oscuro=useRef(MD3LightTheme);
   const theme = {
-    ...MD3LightTheme,
+    ...oscuro.current,
     version: 3,
     dark: true,
   };

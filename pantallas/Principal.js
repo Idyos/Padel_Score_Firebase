@@ -15,7 +15,7 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { faFloppyDisk } from "@fortawesome/free-solid-svg-icons";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import AnadirPartida from "../components/Principal/AnadirPartida";
-import { useTheme, withTheme } from "react-native-paper";
+import { ActivityIndicator, useTheme, withTheme } from "react-native-paper";
 import { database } from "../src/config/fb";
 import {
   collection,
@@ -33,6 +33,9 @@ const Principal = ({ navigation }) => {
   const [partidas, setPartidas] = useState([]);
   const [isExtended, setIsExtended] = useState(true);
   const [setsMatch, setSets] = useState();
+  const [hasLoaded, setHasLoaded]=useState(false);
+
+  //console.log(hasLoaded);
 
   const theme = useTheme();
   const auth = getAuth();
@@ -81,33 +84,42 @@ const Principal = ({ navigation }) => {
         where("usuario", "==", user),
         orderBy("creadoEn")
       );
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach(async (doc) => {
-        const q = collection(database, `Partidas/${doc.id}/PartidoCompleto`);
+      try {
         const querySnapshot = await getDocs(q);
-        let equipos={};
-        let sets={};
-        querySnapshot.forEach(async (match) => {
-          match.data().infoequipos===undefined ? ""  : equipos = match.data().infoequipos;
-          match.data().set===undefined ? ""  : sets = match.data().set;
-          match.data().set===undefined ? "" : setPartidas((current) => [...current, [equipos, doc.id, sets]]);
-          
-          //setPartidas((current) => [...current, [match.data(), doc.id]]);
-      
-        });
-      });
+        querySnapshot.forEach(async (doc) => {
+          const q = collection(database, `Partidas/${doc.id}/PartidoCompleto`);
+          const querySnapshot = await getDocs(q);
+          let equipos={};
+          let sets={};
+          let setsData=[];
+          querySnapshot.forEach(async (match) => {
+            match.data().infoequipos===undefined ? ""  : equipos = match.data().infoequipos;
+            match.data().set===undefined ? ""  : sets = match.data().set;
+            match.data().infoSets===undefined ? "" : setsData=match.data().infoSets; 
+            match.data().set===undefined ? "" : setPartidas((current) => [...current, [equipos, doc.id, sets, setsData]]);
+            //setPartidas((current) => [...current, [match.data(), doc.id]]);
+        
+          });
+          setHasLoaded(true);  
+        });      
+      } catch (error) {
+        console.log(error);
+      }finally{
+        
+      }
+
     };
     getMatches();
   }, []);
 
-//console.log(partidas);
+
 
   return (
     <>
       <SafeAreaView
         style={[styles.principal, { backgroundColor: theme.colors.background }]}
       >
-        {partidas.length === 0 ? (
+        {hasLoaded==false ? <ActivityIndicator style={{flex: 1}} size="large" animating={true}/> : partidas.length === 0 ? (
           <Text style={styles.noMatches}>No hay partidas... Por ahora.</Text>
         ) : (
           <FlatList

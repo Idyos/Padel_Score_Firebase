@@ -20,10 +20,7 @@ const estadoPartida = async () => {
 }
 
 estadoPartida();
-
-  const sets = item[2];
   const players = item[0];
-
   return (
     <Surface style={[styles.partidaInfo, { backgroundColor: theme.colors.primaryContainer }]} elevation={1}>
       <Text style={[styles.title, { color: theme.colors.primary, }]}> {item[0] === undefined ? "" : item[0].equipo1.nombre} / {item[0] === undefined ? "" : item[0].equipo2.nombre}</Text>
@@ -31,8 +28,8 @@ estadoPartida();
           <View style={styles.setContainer}>
             <FlatList
             style={{flexDirection: 'row'}}
-              data={Object.getOwnPropertyNames(sets)}
-              renderItem={({ item }) => <View style={styles.set}><Text style={{ color: theme.colors.primary }}>{sets[item].datosJugadores.equipo1.games}</Text><Text style={{ color: theme.colors.primary }}>{sets[item].datosJugadores.equipo2.games}</Text></View>}
+              data={item[3]}
+              renderItem={({ item }) => <View style={styles.set}><Text style={{ color: theme.colors.primary }}>{item.equipo1}</Text><Text style={{ color: theme.colors.primary }}>{item.equipo2}</Text></View>}
             />
           </View>
         <FlatList

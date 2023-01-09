@@ -5,6 +5,7 @@ import {
   Text,
   Button,
   View,
+  BackHandler,
   Dimensions,
   Pressable,
   TouchableOpacity,
@@ -14,12 +15,16 @@ import { database } from "../src/config/fb";
 import { collection, addDoc, setDoc, doc, now, serverTimestamp } from "firebase/firestore";
 import firebase from "firebase/app";
 import { HelperText, IconButton, Surface, Switch, TextInput, useTheme } from "react-native-paper";
+import { eq } from "react-native-reanimated";
 
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 const NuevaPartida = ({ navigation, route }) => {
+
+
+
   const theme = useTheme();
   const [equipoObj, setEquipoObj] = useState({
     equipo1: {
@@ -73,6 +78,7 @@ const NuevaPartida = ({ navigation, route }) => {
   const [equipo, setEquipo] = useState(0);
   const [setAmmount, setSetAmmount] = useState(3);
   const [puntoDeOro, setPuntoDeOro] = useState(true);
+console.log(equipo);
 
   const CreacionEquipo = async () => {
     const crearPartida = await addDoc(collection(database, "Partidas"), {

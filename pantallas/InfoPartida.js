@@ -519,6 +519,7 @@ const GraficoInfo = ({
 const InfoPartida = ({ route, theme }) => {
   const infoTeam = route.params[0];
   const infoSets = route.params[2];
+  const sets=route.params[3];
   const [setsResults, setSetsResults] = useState([
     { value: "0", label: "Partida" },
   ]);
@@ -565,10 +566,10 @@ const InfoPartida = ({ route, theme }) => {
             <View>
               <FlatList
                 contentContainerStyle={styles.setsPerTeam}
-                data={Object.keys(infoSets)}
+                data={sets}
                 renderItem={({ item }) => (
                   <Text style={styles.setResult}>
-                    {infoSets[item].datosJugadores.equipo1.games}
+                    {item.equipo1}
                   </Text>
                 )}
               />
@@ -583,10 +584,10 @@ const InfoPartida = ({ route, theme }) => {
           <View>
             <FlatList
               contentContainerStyle={styles.setsPerTeam}
-              data={Object.keys(infoSets)}
+              data={sets}
               renderItem={({ item }) => (
                 <Text style={styles.setResult}>
-                  {infoSets[item].datosJugadores.equipo2.games}
+                  {item.equipo2}
                 </Text>
               )}
             />
@@ -694,11 +695,11 @@ const InfoPartida = ({ route, theme }) => {
           <Text>
             <FlatList
               contentContainerStyle={styles.setsPerTeam}
-              data={Object.keys(infoSets)}
+              data={sets}
               renderItem={({ item }) => (
                 <Text style={styles.setResult}>
-                  {infoSets[item].datosJugadores.equipo1.games}-
-                  {infoSets[item].datosJugadores.equipo2.games}
+                  {item.equipo1}-
+                  {item.equipo2}
                 </Text>
               )}
             />
