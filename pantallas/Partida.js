@@ -423,7 +423,6 @@ const Partida = ({ route, navigation }) => {
     const finishMatch = async () => {
       if (finish.current == true) {
         console.log("SE ACABÓ")
-        console.log(infoSets);
         await setDoc(setsDoc, { infoSets }, { merge: true })
         await setDoc(doc(database, `Partidas/${partidaid}`),{ partidaTerminada: true },{ merge: true });
       }

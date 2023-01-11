@@ -7,15 +7,18 @@ import {
   TouchableOpacity,
   DatePickerIOS,
   Animated,
+  Button
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { Component, useEffect, useRef, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { faFloppyDisk } from "@fortawesome/free-solid-svg-icons";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import AnadirPartida from "../components/Principal/AnadirPartida";
-import { ActivityIndicator, useTheme, withTheme } from "react-native-paper";
+import {
+  ActivityIndicator,
+  useTheme,
+  withTheme,
+  Menu,
+} from "react-native-paper";
 import { database } from "../src/config/fb";
 import {
   collection,
@@ -26,16 +29,18 @@ import {
   orderBy,
 } from "firebase/firestore";
 import CartaPartida from "../components/Principal/CartaPartida";
-import { NavigationContainer, useFocusEffect } from "@react-navigation/native";
 import { Easing } from "react-native-reanimated";
+import BorrarPartida from "../components/Principal/BorrarPartida";
+import { useClock } from 'react-native-timer-hooks';
 
 const Principal = ({ navigation }) => {
   const [partidas, setPartidas] = useState([]);
   const [isExtended, setIsExtended] = useState(true);
-  const [setsMatch, setSets] = useState();
-  const [hasLoaded, setHasLoaded]=useState(false);
-
-  //console.log(hasLoaded);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const [options, setOptions] = useState(false);
+  const [optionsPosition, setOptionsPosition] = useState({ x: 0, y: 0 });
+  const [deleteDialog, setDeleteDialog] = useState(false);
+  const longPress = useRef(false);
 
   const theme = useTheme();
   const auth = getAuth();
@@ -70,11 +75,9 @@ const Principal = ({ navigation }) => {
       toValue: 0,
       delay: 500,
       duration: 800,
-      useNativeDriver: true, 
+      useNativeDriver: true,
     }).start();
-  }, [])
-    
-  
+  }, []);
 
   useEffect(() => {
     setPartidas([]);
@@ -89,37 +92,81 @@ const Principal = ({ navigation }) => {
         querySnapshot.forEach(async (doc) => {
           const q = collection(database, `Partidas/${doc.id}/PartidoCompleto`);
           const querySnapshot = await getDocs(q);
-          let equipos={};
-          let sets={};
-          let setsData=[];
+          let equipos = {};
+          let sets = {};
+          let setsData = [];
           querySnapshot.forEach(async (match) => {
-            match.data().infoequipos===undefined ? ""  : equipos = match.data().infoequipos;
-            match.data().set===undefined ? ""  : sets = match.data().set;
-            match.data().infoSets===undefined ? "" : setsData=match.data().infoSets; 
-            match.data().set===undefined ? "" : setPartidas((current) => [...current, [equipos, doc.id, sets, setsData]]);
-            //setPartidas((current) => [...current, [match.data(), doc.id]]);
-        
+            match.data().infoequipos === undefined
+              ? ""
+              : (equipos = match.data().infoequipos);
+            match.data().set === undefined ? "" : (sets = match.data().set);
+            match.data().infoSets === undefined
+              ? ""
+              : (setsData = match.data().infoSets);
+            match.data().set === undefined
+              ? ""
+              : setPartidas((current) => [
+                  ...current,
+                  [equipos, doc.id, sets, setsData],
+                ]);
           });
-          setHasLoaded(true);  
-        });      
+          setHasLoaded(true);
+        });
       } catch (error) {
         console.log(error);
-      }finally{
-        
+      } finally {
       }
-
     };
     getMatches();
   }, []);
 
+  const progress = useRef(new Animated.Value(0)).current;
 
+  const LogOutAnimation = (type) => {
+    if (type == true) {
+      
+        Animated.timing(progress, {
+          toValue: 1,
+          duration: 900,
+          useNativeDriver: false,
+          easing: Easing.bezierFn(0.32, -0.01, 0.27, 1),
+        }).start();
+  
+    } else {
+      Animated.timing(progress, {
+        toValue: 0,
+        duration: 1200,
+        useNativeDriver: false,
+        easing: Easing.bezierFn(0.1,  0.2, 0.27, 1),
+      }).start();
+    }
+  };
 
+  const handleLongPress = (e) => {
+   console.log("LARGO PRESS");
+  };
+
+  const deleteMatch = () => {
+    console.log("LA BORRO");
+  };
   return (
     <>
+     
+      <BorrarPartida
+        visible={deleteDialog}
+        setVisible={setDeleteDialog}
+        borrar={deleteMatch}
+      />
       <SafeAreaView
         style={[styles.principal, { backgroundColor: theme.colors.background }]}
       >
-        {hasLoaded==false ? <ActivityIndicator style={{flex: 1}} size="large" animating={true}/> : partidas.length === 0 ? (
+        {hasLoaded == false ? (
+          <ActivityIndicator
+            style={{ flex: 1 }}
+            size="large"
+            animating={true}
+          />
+        ) : partidas.length === 0 ? (
           <Text style={styles.noMatches}>No hay partidas... Por ahora.</Text>
         ) : (
           <FlatList
@@ -130,10 +177,25 @@ const Principal = ({ navigation }) => {
             data={partidas}
             renderItem={({ item }) => (
               <TouchableOpacity
-                onPress={() => navigation.navigate("info-partida", item)}
+                activeOpacity={0.8}
+                delayLongPress={800}
+                delayPressIn={150}
+                onPressIn={() => {LogOutAnimation(true), setTimeout(() => {
+                  longPress.current=true;
+                  console.log(longPress);
+                }, 100)}}
+
+                onPressOut={() => {LogOutAnimation(false), setTimeout(() => {
+                  longPress.current=false;
+                  console.log(longPress);
+                }, 100)}}
+                onLongPress={(e) => {
+                  setDeleteDialog(true), handleLongPress(e);
+                }}
+                onPress={() => longPress.current==false ? navigation.navigate("info-partida", item) : ""}
               >
-                <Animated.View style={{transform: [{translateX: fadeAnim}]}}>
-                <CartaPartida item={item} />
+                <Animated.View style={{ transform: [{ translateX: fadeAnim }]}}>
+                  <CartaPartida item={item} animation={progress}/>
                 </Animated.View>
               </TouchableOpacity>
             )}
@@ -151,11 +213,16 @@ const Principal = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  listaPartidasContainer: {
+    overflow: 'hidden'
+  },
+
   principal: {
     height: "100%",
     flex: 1,
     alignItems: "center",
   },
+
   partidaNueva: {
     shadowColor: "#000",
     shadowOffset: {
@@ -223,9 +290,8 @@ const styles = StyleSheet.create({
 
   listaPartidas: {
     width: "100%",
+    overflow: "hidden",
   },
-
-  listaPartidasContainer: {},
 });
 
 export default withTheme(Principal);

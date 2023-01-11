@@ -78,7 +78,6 @@ const NuevaPartida = ({ navigation, route }) => {
   const [equipo, setEquipo] = useState(0);
   const [setAmmount, setSetAmmount] = useState(3);
   const [puntoDeOro, setPuntoDeOro] = useState(true);
-console.log(equipo);
 
   const CreacionEquipo = async () => {
     const crearPartida = await addDoc(collection(database, "Partidas"), {
