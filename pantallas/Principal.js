@@ -106,9 +106,9 @@ const Principal = ({ navigation }) => {
             match.data().set === undefined
               ? ""
               : setPartidas((current) => [
-                  ...current,
-                  [equipos, doc.id, sets, setsData],
-                ]);
+                ...current,
+                [equipos, doc.id, sets, setsData],
+              ]);
           });
           setHasLoaded(true);
         });
@@ -120,38 +120,13 @@ const Principal = ({ navigation }) => {
     getMatches();
   }, []);
 
-  const progress = useRef(new Animated.Value(0)).current;
-
-  const LogOutAnimation = (type) => {
-    if (type == true) {
-      
-        Animated.timing(progress, {
-          toValue: 1,
-          duration: 900,
-          useNativeDriver: false,
-          easing: Easing.bezierFn(0.32, -0.01, 0.27, 1),
-        }).start();
-  
-    } else {
-      Animated.timing(progress, {
-        toValue: 0,
-        duration: 1200,
-        useNativeDriver: false,
-        easing: Easing.bezierFn(0.1,  0.2, 0.27, 1),
-      }).start();
-    }
-  };
-
-  const handleLongPress = (e) => {
-   console.log("LARGO PRESS");
-  };
 
   const deleteMatch = () => {
     console.log("LA BORRO");
   };
   return (
     <>
-     
+
       <BorrarPartida
         visible={deleteDialog}
         setVisible={setDeleteDialog}
@@ -176,26 +151,9 @@ const Principal = ({ navigation }) => {
             contentContainerStyle={styles.listaPartidasContainer}
             data={partidas}
             renderItem={({ item }) => (
-              <TouchableOpacity
-                activeOpacity={0.8}
-                delayLongPress={800}
-                delayPressIn={150}
-                onPressIn={() => {LogOutAnimation(true), setTimeout(() => {
-                  longPress.current=true;
-                  console.log(longPress);
-                }, 100)}}
-
-                onPressOut={() => {LogOutAnimation(false), setTimeout(() => {
-                  longPress.current=false;
-                  console.log(longPress);
-                }, 100)}}
-                onLongPress={(e) => {
-                  setDeleteDialog(true), handleLongPress(e);
-                }}
-                onPress={() => longPress.current==false ? navigation.navigate("info-partida", item) : ""}
-              >
-                <Animated.View style={{ transform: [{ translateX: fadeAnim }]}}>
-                  <CartaPartida item={item} animation={progress}/>
+              <TouchableOpacity>
+                <Animated.View style={{ transform: [{ translateX: fadeAnim }] }}>
+                  <CartaPartida item={item} setDeleteDialog={setDeleteDialog} longPress={longPress} navigation={navigation} />
                 </Animated.View>
               </TouchableOpacity>
             )}

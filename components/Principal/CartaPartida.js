@@ -5,8 +5,9 @@ import {
   Pressable,
   FlatList,
   Animated,
+  TouchableOpacity,
 } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Surface } from "react-native-paper";
 import { Chip, Text } from "react-native-paper";
 import { withTheme } from "react-native-paper";
@@ -17,7 +18,8 @@ import { Easing } from "react-native-reanimated";
 
 const windowHeight = Dimensions.get("window").height;
 
-const CartaPartida = ({ item, theme, animation }) => {
+const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation }) => {
+  const [logout, setLogout] = useState(false);
   const [partidaTerminada, setPartidaTerminada] = useState(true);
 
   const estadoPartida = async () => {
@@ -25,12 +27,53 @@ const CartaPartida = ({ item, theme, animation }) => {
     const partidaInfo = await getDoc(partida);
     setPartidaTerminada(partidaInfo.data().partidaTerminada);
   };
-
-
-
   estadoPartida();
   const players = item[0];
+
+  const progress = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (logout == true) {
+
+      Animated.timing(progress, {
+        toValue: 1,
+        duration: 900,
+        useNativeDriver: false,
+        easing: Easing.bezierFn(0.32, -0.01, 0.27, 1),
+      }).start(({ finished }) => {
+        if(finished==false){
+          Animated.timing(progress, {
+            toValue: 0,
+            duration: 900,
+            useNativeDriver: false,
+            easing: Easing.bezierFn(0.32, -0.01, 0.27, 1),
+          }).start();      
+        }
+      });
+    } else {
+      Animated.timing(progress).stop();
+    }
+
+  }, [logout])
+
   return (
+    <TouchableOpacity
+      delayLongPress={800}
+      delayPressIn={150}
+      onPressIn={() => {
+        setLogout(true), setTimeout(() => {
+          longPress.current = true;
+        }, 100)
+      }}
+
+      onPressOut={() => {
+        setLogout(false), setTimeout(() => {
+          longPress.current = false;
+        }, 100)
+      }}
+      onLongPress={() => {setDeleteDialog(true)}}
+      onPress={() => longPress.current == false ? navigation.navigate("info-partida", item) : ""}
+    >
       <Surface
         style={[
           styles.partidaInfo,
@@ -106,18 +149,19 @@ const CartaPartida = ({ item, theme, animation }) => {
           </Chip>
         )}
         <Animated.View
-                  style={[
-                    styles.barraDeCarga,
-                    {
-                      backgroundColor: theme.colors.error,
-                      width: animation.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: ["0%", "117%"],
-                      }),
-                    },
-                  ]}
-                ></Animated.View>
+          style={[
+            styles.barraDeCarga,
+            {
+              backgroundColor: theme.colors.error,
+              width: progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: ["0%", "117%"],
+              }),
+            },
+          ]}
+        ></Animated.View>
       </Surface>
+    </TouchableOpacity>
   );
 };
 
