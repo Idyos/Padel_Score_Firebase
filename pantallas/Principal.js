@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { Component, useEffect, useRef, useState } from "react";
-import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { confirmPasswordReset, getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import AnadirPartida from "../components/Principal/AnadirPartida";
 import {
   ActivityIndicator,
@@ -27,6 +27,8 @@ import {
   getDocs,
   listcoll,
   orderBy,
+  deleteDoc,
+  doc
 } from "firebase/firestore";
 import CartaPartida from "../components/Principal/CartaPartida";
 import { Easing } from "react-native-reanimated";
@@ -37,10 +39,9 @@ const Principal = ({ navigation }) => {
   const [partidas, setPartidas] = useState([]);
   const [isExtended, setIsExtended] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
-  const [options, setOptions] = useState(false);
-  const [optionsPosition, setOptionsPosition] = useState({ x: 0, y: 0 });
-  const [deleteDialog, setDeleteDialog] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState({visible: false, id: 5});
   const longPress = useRef(false);
+  const cancelarBorrar = useRef(false);
 
   const theme = useTheme();
   const auth = getAuth();
@@ -121,16 +122,18 @@ const Principal = ({ navigation }) => {
   }, []);
 
 
-  const deleteMatch = () => {
-    console.log("LA BORRO");
+
+  const deleteMatch = async (id) => {
+    console.log(id);
+    await deleteDoc(doc(database, `Partidas/${id}`));
   };
   return (
     <>
-
       <BorrarPartida
         visible={deleteDialog}
         setVisible={setDeleteDialog}
         borrar={deleteMatch}
+        cancelarBorrar={cancelarBorrar}
       />
       <SafeAreaView
         style={[styles.principal, { backgroundColor: theme.colors.background }]}
@@ -153,7 +156,7 @@ const Principal = ({ navigation }) => {
             renderItem={({ item }) => (
               <TouchableOpacity>
                 <Animated.View style={{ transform: [{ translateX: fadeAnim }] }}>
-                  <CartaPartida item={item} setDeleteDialog={setDeleteDialog} longPress={longPress} navigation={navigation} />
+                  <CartaPartida item={item} setDeleteDialog={setDeleteDialog} longPress={longPress} navigation={navigation} cancelarBorrar={cancelarBorrar}/>
                 </Animated.View>
               </TouchableOpacity>
             )}

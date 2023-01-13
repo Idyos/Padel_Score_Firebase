@@ -35,6 +35,8 @@ const GraficoInfo = ({
   const infoEquipo1 = matchData.params[0].equipo1;
   const infoEquipo2 = matchData.params[0].equipo2;
   
+  console.log(infoEquipo1.position);
+
   useEffect(() => {
     if (dataType == false && value == 0) {
       matchFunc([
@@ -86,37 +88,34 @@ const GraficoInfo = ({
           name: "Winners",
           equipo1:
             tipoJugadores == false
-              ? infoMatchEquipo1.jugador1.winners
-              : infoMatchEquipo1.jugador2.winners,
-
+            ? infoEquipo1.position==false ? infoMatchEquipo1.jugador2.winners : infoMatchEquipo1.jugador1.winners
+            : infoEquipo1.position==true ?  infoMatchEquipo1.jugador2.winners : infoMatchEquipo1.jugador1.winners,
           equipo2:
             tipoJugadores == false
-              ? infoMatchEquipo2.jugador1.winners
-              : infoMatchEquipo2.jugador2.winners,
+            ? infoEquipo2.position==false ? infoMatchEquipo2.jugador2.winners : infoMatchEquipo2.jugador1.winners
+            : infoEquipo2.position==true ?  infoMatchEquipo2.jugador2.winners : infoMatchEquipo2.jugador1.winners,
         },
         {
           name: "Smashes",
           equipo1:
             tipoJugadores == false
-              ? infoMatchEquipo1.jugador1.smashesExito
-              : infoMatchEquipo1.jugador2.smashesExito,
-
+            ? infoEquipo1.position==false ? infoMatchEquipo1.jugador2.smashesExito : infoMatchEquipo1.jugador1.smashesExito
+            : infoEquipo1.position==true ?  infoMatchEquipo1.jugador2.smashesExito : infoMatchEquipo1.jugador1.smashesExito,
           equipo2:
             tipoJugadores == false
-              ? infoMatchEquipo2.jugador1.smashesExito
-              : infoMatchEquipo2.jugador2.smashesExito,
+            ? infoEquipo2.position==false ? infoMatchEquipo2.jugador2.smashesExito : infoMatchEquipo2.jugador1.smashesExito
+            : infoEquipo2.position==true ?  infoMatchEquipo2.jugador2.smashesExito : infoMatchEquipo2.jugador1.smashesExito,
         },
         {
           name: "Unforced Errors",
           equipo1:
-            tipoJugadores == false
-              ? infoMatchEquipo1.jugador1.unfError
-              : infoMatchEquipo1.jugador2.unfError,
-
-          equipo2:
-            tipoJugadores == false
-              ? infoMatchEquipo2.jugador1.unfError
-              : infoMatchEquipo2.jugador2.unfError,
+          tipoJugadores == false
+          ? infoEquipo1.position==false ? infoMatchEquipo1.jugador2.unfError : infoMatchEquipo1.jugador1.unfError
+          : infoEquipo1.position==true ?  infoMatchEquipo1.jugador2.unfError : infoMatchEquipo1.jugador1.unfError,
+        equipo2:
+          tipoJugadores == false
+          ? infoEquipo2.position==false ? infoMatchEquipo2.jugador2.unfError : infoMatchEquipo2.jugador1.unfError
+          : infoEquipo2.position==true ?  infoMatchEquipo2.jugador2.unfError : infoMatchEquipo2.jugador1.unfError,
         },
       ]);
     }
@@ -176,49 +175,37 @@ const GraficoInfo = ({
             name: "Winners",
             equipo1:
               tipoJugadores == false
-                ? infoSets["set" + value].datosJugadores.equipo1.jugador1
-                    .winners
-                : infoSets["set" + value].datosJugadores.equipo1.jugador2
-                    .winners,
+                ? infoEquipo1.position==false ? infoSets["set" + value].datosJugadores.equipo1.jugador2.winners : infoSets["set" + value].datosJugadores.equipo1.jugador1.winners
+                : infoEquipo1.position==true ?  infoSets["set" + value].datosJugadores.equipo1.jugador2.winners : infoSets["set" + value].datosJugadores.equipo1.jugador1.winners,
 
             equipo2:
               tipoJugadores == false
-                ? infoSets["set" + value].datosJugadores.equipo2.jugador1
-                    .winners
-                : infoSets["set" + value].datosJugadores.equipo2.jugador2
-                    .winners,
+              ? infoEquipo2.position==false ? infoSets["set" + value].datosJugadores.equipo2.jugador2.winners : infoSets["set" + value].datosJugadores.equipo2.jugador1.winners
+              : infoEquipo2.position==true ?  infoSets["set" + value].datosJugadores.equipo2.jugador2.winners : infoSets["set" + value].datosJugadores.equipo2.jugador1.winners,
           },
           {
             name: "Smashes",
             equipo1:
               tipoJugadores == false
-                ? infoSets["set" + value].datosJugadores.equipo1.jugador1
-                    .smashesExito
-                : infoSets["set" + value].datosJugadores.equipo1.jugador2
-                    .smashesExito,
+                ? infoEquipo1.position==false ? infoSets["set" + value].datosJugadores.equipo1.jugador2.smashesExito : infoSets["set" + value].datosJugadores.equipo1.jugador1.smashesExito
+                : infoEquipo1.position==true ?  infoSets["set" + value].datosJugadores.equipo1.jugador2.smashesExito : infoSets["set" + value].datosJugadores.equipo1.jugador1.smashesExito,
 
             equipo2:
               tipoJugadores == false
-                ? infoSets["set" + value].datosJugadores.equipo2.jugador1
-                    .smashesExito
-                : infoSets["set" + value].datosJugadores.equipo2.jugador2
-                    .smashesExito,
+              ? infoEquipo2.position==false ? infoSets["set" + value].datosJugadores.equipo2.jugador2.smashesExito : infoSets["set" + value].datosJugadores.equipo2.jugador1.smashesExito
+              : infoEquipo2.position==true ?  infoSets["set" + value].datosJugadores.equipo2.jugador2.smashesExito : infoSets["set" + value].datosJugadores.equipo2.jugador1.smashesExito,
           },
           {
             name: "Unforced Errors",
             equipo1:
-              tipoJugadores == false
-                ? infoSets["set" + value].datosJugadores.equipo1.jugador1
-                    .unfError
-                : infoSets["set" + value].datosJugadores.equipo1.jugador2
-                    .unfError,
+            tipoJugadores == false
+              ? infoEquipo1.position==false ? infoSets["set" + value].datosJugadores.equipo1.jugador2.unfError : infoSets["set" + value].datosJugadores.equipo1.jugador1.unfError
+              : infoEquipo1.position==true ?  infoSets["set" + value].datosJugadores.equipo1.jugador2.unfError : infoSets["set" + value].datosJugadores.equipo1.jugador1.unfError,
 
-            equipo2:
-              tipoJugadores == false
-                ? infoSets["set" + value].datosJugadores.equipo2.jugador1
-                    .unfError
-                : infoSets["set" + value].datosJugadores.equipo2.jugador2
-                    .unfError,
+          equipo2:
+            tipoJugadores == false
+            ? infoEquipo2.position==false ? infoSets["set" + value].datosJugadores.equipo2.jugador2.unfError : infoSets["set" + value].datosJugadores.equipo2.jugador1.unfError
+            : infoEquipo2.position==true ?  infoSets["set" + value].datosJugadores.equipo2.jugador2.unfError : infoSets["set" + value].datosJugadores.equipo2.jugador1.unfError,
           },
         ]);
       }

@@ -2,7 +2,6 @@ import {
   StyleSheet,
   View,
   Dimensions,
-  Pressable,
   FlatList,
   Animated,
   TouchableOpacity,
@@ -18,7 +17,7 @@ import { Easing } from "react-native-reanimated";
 
 const windowHeight = Dimensions.get("window").height;
 
-const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation }) => {
+const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation, cancelarBorrar }) => {
   const [logout, setLogout] = useState(false);
   const [partidaTerminada, setPartidaTerminada] = useState(true);
 
@@ -29,11 +28,10 @@ const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation }) =
   };
   estadoPartida();
   const players = item[0];
-
   const progress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (logout == true) {
+    if (logout == true && cancelarBorrar.current==false) {
 
       Animated.timing(progress, {
         toValue: 1,
@@ -41,20 +39,33 @@ const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation }) =
         useNativeDriver: false,
         easing: Easing.bezierFn(0.32, -0.01, 0.27, 1),
       }).start(({ finished }) => {
+        console.log(finished);
         if(finished==false){
           Animated.timing(progress, {
             toValue: 0,
             duration: 900,
             useNativeDriver: false,
             easing: Easing.bezierFn(0.32, -0.01, 0.27, 1),
-          }).start();      
+          }).start();
+               
         }
       });
     } else {
       Animated.timing(progress).stop();
     }
+    if(cancelarBorrar.current==true){
+      cancelarBorrar.current=false;
+      console.log("hola");
+      Animated.timing(progress, {
+        toValue: 0,
+        duration: 900,
+        useNativeDriver: false,
+        easing: Easing.bezierFn(0.32, -0.01, 0.27, 1),
+      }).start();
+     
+    }
 
-  }, [logout])
+  }, [logout, cancelarBorrar.current])
 
   return (
     <TouchableOpacity
@@ -71,7 +82,7 @@ const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation }) =
           longPress.current = false;
         }, 100)
       }}
-      onLongPress={() => {setDeleteDialog(true)}}
+      onLongPress={() => {setDeleteDialog({visible: true, id: item[1]})}}
       onPress={() => longPress.current == false ? navigation.navigate("info-partida", item) : ""}
     >
       <Surface
