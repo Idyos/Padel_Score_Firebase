@@ -63,7 +63,7 @@ export default function App() {
 
 const oscuro=useRef(MD3LightTheme);
   const theme = {
-    ...oscuro.current,
+    ...MD3LightTheme,
     version: 3,
     dark: true,
   };

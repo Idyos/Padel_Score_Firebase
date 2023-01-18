@@ -16,7 +16,6 @@ import {
   Text,
   withTheme,
 } from "react-native-paper";
-import { AuthErrorCodes } from "@firebase/auth";
 import { Easing } from "react-native-reanimated";
 
 const GraficoInfo = ({
@@ -26,16 +25,12 @@ const GraficoInfo = ({
   value,
   dataType,
   tipoJugadores,
-  setSetData,
-  setData,
 }) => {
   const infoMatchEquipo1 = matchData.params[0].equipo1.jugadores;
   const infoMatchEquipo2 = matchData.params[0].equipo2.jugadores;
   const infoSets = matchData.params[2];
   const infoEquipo1 = matchData.params[0].equipo1;
   const infoEquipo2 = matchData.params[0].equipo2;
-  
-  console.log(infoEquipo1.position);
 
   useEffect(() => {
     if (dataType == false && value == 0) {
@@ -514,8 +509,6 @@ const InfoPartida = ({ route, theme }) => {
   const [visible, setVisible] = useState(false);
   const [dataType, setDataType] = useState(false);
   const [tipoJugadores, setTipoJugadores] = useState(false);
-
-  //if position = false > JUGADOR1 = REVÉS
 
   useEffect(() => {
     if (setsResults.length === 1) {

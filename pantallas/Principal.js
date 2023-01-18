@@ -111,11 +111,10 @@ const Principal = ({ navigation }) => {
                 [equipos, doc.id, sets, setsData],
               ]);
           });
-          setHasLoaded(true);
         });
+        setHasLoaded(true);
       } catch (error) {
         console.log(error);
-      } finally {
       }
     };
     getMatches();

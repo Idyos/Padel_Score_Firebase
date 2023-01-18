@@ -56,6 +56,7 @@ const Partida = ({ route, navigation }) => {
   });
 
   const terminarPartida = async () => {
+    updateSet.current=true;
     try {
       await setDoc(
         doc(database, `Partidas/${partidaid}`),
@@ -67,9 +68,8 @@ const Partida = ({ route, navigation }) => {
     }
     navigation.navigate("login");
     updateJuego("null");
-    if (juegosE1 && juegosE2 == 0) {
-      updateSets(1);
-    }
+    updateSets(1);
+    finish.current=true;
   };
 
   const partidaid = route.params.partidaid;
@@ -345,11 +345,7 @@ const Partida = ({ route, navigation }) => {
   };
 
   const updateSets = async (value = 0) => {
-    const setsDoc = doc(
-      database,
-      `/Partidas/${partidaid}/PartidoCompleto/SetsResults`
-    );
-
+    const setsDoc = doc(database,`/Partidas/${partidaid}/PartidoCompleto/SetsResults`);
     //TODO: No hacer que se añada la info del set con un timeout, sino que se añada cuando se termine de añadir en el sets results
     setTimeout(async () => {
       try {
@@ -423,7 +419,7 @@ const Partida = ({ route, navigation }) => {
     const finishMatch = async () => {
       if (finish.current == true) {
         console.log("SE ACABÓ")
-        await setDoc(setsDoc, { infoSets }, { merge: true })
+        await setDoc(setsDoc, { infoSets  }, { merge: true })
         await setDoc(doc(database, `Partidas/${partidaid}`),{ partidaTerminada: true },{ merge: true });
       }
     }
@@ -516,7 +512,6 @@ const Partida = ({ route, navigation }) => {
         updateSets(0);
         updateSet.current = false;
         finish.current = true;
-        console.log(finish);
         return;
       }
       if (setsE2 > sets / 2) {
@@ -546,7 +541,7 @@ const Partida = ({ route, navigation }) => {
       updateSet.current = false;
     }
 
-  }, [setsE1, setsE2]);
+  }, [setsE1, setsE2, updateSet.current]);
 
 
   //CREAR LA PARTIDA LA PRIMERA VEZ QUE SE INICIA EL ARCHIVO
