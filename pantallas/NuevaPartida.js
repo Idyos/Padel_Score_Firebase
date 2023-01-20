@@ -10,21 +10,33 @@ import {
   Pressable,
   TouchableOpacity,
   DatePickerIOS,
+  TouchableHighlight,
 } from "react-native";
 import { database } from "../src/config/fb";
-import { collection, addDoc, setDoc, doc, now, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  setDoc,
+  doc,
+  now,
+  serverTimestamp,
+} from "firebase/firestore";
 import firebase from "firebase/app";
-import { HelperText, IconButton, Surface, Switch, TextInput, useTheme } from "react-native-paper";
+import {
+  HelperText,
+  IconButton,
+  Menu,
+  Surface,
+  Switch,
+  TextInput,
+  useTheme,
+} from "react-native-paper";
 import { eq } from "react-native-reanimated";
-
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 const NuevaPartida = ({ navigation, route }) => {
-
-
-
   const theme = useTheme();
   const [equipoObj, setEquipoObj] = useState({
     equipo1: {
@@ -78,16 +90,22 @@ const NuevaPartida = ({ navigation, route }) => {
   const [equipo, setEquipo] = useState(0);
   const [setAmmount, setSetAmmount] = useState(3);
   const [puntoDeOro, setPuntoDeOro] = useState(true);
+  const [aTiempo, setATiempo] = useState(false);
+  const [tipo, setTipo] = useState(false);
 
   const CreacionEquipo = async () => {
     const crearPartida = await addDoc(collection(database, "Partidas"), {
       usuario: route.params.user,
       partidaTerminada: false,
       creadoEn: serverTimestamp(),
-
     });
-    navigation.navigate("partida", { partidaid: crearPartida.id, infoequipos: equipoObj, sets: setAmmount, pOro: puntoDeOro });
-
+    navigation.navigate("partida", {
+      partidaid: crearPartida.id,
+      infoequipos: equipoObj,
+      sets: setAmmount,
+      pOro: puntoDeOro,
+      aTiempo: aTiempo,
+    });
   };
 
   switch (equipo) {
@@ -101,7 +119,12 @@ const NuevaPartida = ({ navigation, route }) => {
             outlineStyle={{ borderRadius: 25 }}
             mode="outlined"
             label={<Text>Equipo 1</Text>}
-            right={<TextInput.Affix textStyle={{ fontSize: 15 }} text={equipoObj.equipo1.nombre.length + "/20"} />}
+            right={
+              <TextInput.Affix
+                textStyle={{ fontSize: 15 }}
+                text={equipoObj.equipo1.nombre.length + "/20"}
+              />
+            }
             style={styles.inputTeam}
             onChangeText={(text) =>
               setEquipoObj({
@@ -114,22 +137,29 @@ const NuevaPartida = ({ navigation, route }) => {
           />
           <View style={styles.playerSection}>
             <TextInput
-              autoComplete='off'
+              autoComplete="off"
               mode="flat"
               label="Jugador 1"
               style={styles.inputPlayer}
               value={equipoObj.equipo1.jugadores.jugador1.nombre}
-              right={<TextInput.Icon onPress={() =>
-                setEquipoObj({
-                  ...equipoObj,
-                  equipo1: {
-                    ...equipoObj.equipo1,
-                    position: !equipoObj.equipo1.position,
-                  },
-                })
-              } icon={({ size, color, direction }) => (
-                <Text style={{ fontSize: 25, fontWeight: 'bold' }}>{equipoObj.equipo1.position == true ? "D" : "R"}</Text>
-              )} />}
+              right={
+                <TextInput.Icon
+                  onPress={() =>
+                    setEquipoObj({
+                      ...equipoObj,
+                      equipo1: {
+                        ...equipoObj.equipo1,
+                        position: !equipoObj.equipo1.position,
+                      },
+                    })
+                  }
+                  icon={({ size, color, direction }) => (
+                    <Text style={{ fontSize: 25, fontWeight: "bold" }}>
+                      {equipoObj.equipo1.position == true ? "D" : "R"}
+                    </Text>
+                  )}
+                />
+              }
               onChangeText={(text) =>
                 setEquipoObj({
                   ...equipoObj,
@@ -153,22 +183,29 @@ const NuevaPartida = ({ navigation, route }) => {
 
           <View style={styles.playerSection}>
             <TextInput
-              autoComplete='off'
+              autoComplete="off"
               mode="flat"
               label="Jugador 2"
               style={styles.inputPlayer}
               value={equipoObj.equipo1.jugadores.jugador2.nombre}
-              right={<TextInput.Icon onPress={() =>
-                setEquipoObj({
-                  ...equipoObj,
-                  equipo1: {
-                    ...equipoObj.equipo1,
-                    position: !equipoObj.equipo1.position,
-                  },
-                })
-              } icon={({ size, color, direction }) => (
-                <Text style={{ fontSize: 25, fontWeight: 'bold' }}>{equipoObj.equipo1.position == true ? "R" : "D"}</Text>
-              )} />}
+              right={
+                <TextInput.Icon
+                  onPress={() =>
+                    setEquipoObj({
+                      ...equipoObj,
+                      equipo1: {
+                        ...equipoObj.equipo1,
+                        position: !equipoObj.equipo1.position,
+                      },
+                    })
+                  }
+                  icon={({ size, color, direction }) => (
+                    <Text style={{ fontSize: 25, fontWeight: "bold" }}>
+                      {equipoObj.equipo1.position == true ? "R" : "D"}
+                    </Text>
+                  )}
+                />
+              }
               onChangeText={(text) => {
                 setEquipoObj({
                   ...equipoObj,
@@ -209,7 +246,12 @@ const NuevaPartida = ({ navigation, route }) => {
             outlineStyle={{ borderRadius: 25 }}
             mode="outlined"
             label={<Text>Equipo 2</Text>}
-            right={<TextInput.Affix textStyle={{ fontSize: 15 }} text={equipoObj.equipo2.nombre.length + "/20"} />}
+            right={
+              <TextInput.Affix
+                textStyle={{ fontSize: 15 }}
+                text={equipoObj.equipo2.nombre.length + "/20"}
+              />
+            }
             style={styles.inputTeam}
             onChangeText={(text) =>
               setEquipoObj({
@@ -223,21 +265,28 @@ const NuevaPartida = ({ navigation, route }) => {
 
           <View style={styles.playerSection}>
             <TextInput
-              autoComplete='off'
+              autoComplete="off"
               mode="flat"
               label="Jugador 1"
               value={equipoObj.equipo2.jugadores.jugador1.nombre}
-              right={<TextInput.Icon onPress={() =>
-                setEquipoObj({
-                  ...equipoObj,
-                  equipo2: {
-                    ...equipoObj.equipo2,
-                    position: !equipoObj.equipo2.position,
-                  },
-                })
-              } icon={({ size, color, direction }) => (
-                <Text style={{ fontSize: 25, fontWeight: 'bold' }}>{equipoObj.equipo2.position == true ? "D" : "R"}</Text>
-              )} />}
+              right={
+                <TextInput.Icon
+                  onPress={() =>
+                    setEquipoObj({
+                      ...equipoObj,
+                      equipo2: {
+                        ...equipoObj.equipo2,
+                        position: !equipoObj.equipo2.position,
+                      },
+                    })
+                  }
+                  icon={({ size, color, direction }) => (
+                    <Text style={{ fontSize: 25, fontWeight: "bold" }}>
+                      {equipoObj.equipo2.position == true ? "D" : "R"}
+                    </Text>
+                  )}
+                />
+              }
               style={styles.inputPlayer}
               onChangeText={(text) =>
                 setEquipoObj({
@@ -261,22 +310,29 @@ const NuevaPartida = ({ navigation, route }) => {
           </View>
           <View style={styles.playerSection}>
             <TextInput
-              autoComplete='off'
+              autoComplete="off"
               mode="flat"
               label="Jugador 2"
               style={styles.inputPlayer}
               value={equipoObj.equipo2.jugadores.jugador2.nombre}
-              right={<TextInput.Icon onPress={() =>
-                setEquipoObj({
-                  ...equipoObj,
-                  equipo2: {
-                    ...equipoObj.equipo2,
-                    position: !equipoObj.equipo2.position,
-                  },
-                })
-              } icon={({ size, color, direction }) => (
-                <Text style={{ fontSize: 25, fontWeight: 'bold' }}>{equipoObj.equipo2.position == true ? "R" : "D"}</Text>
-              )} />}
+              right={
+                <TextInput.Icon
+                  onPress={() =>
+                    setEquipoObj({
+                      ...equipoObj,
+                      equipo2: {
+                        ...equipoObj.equipo2,
+                        position: !equipoObj.equipo2.position,
+                      },
+                    })
+                  }
+                  icon={({ size, color, direction }) => (
+                    <Text style={{ fontSize: 25, fontWeight: "bold" }}>
+                      {equipoObj.equipo2.position == true ? "R" : "D"}
+                    </Text>
+                  )}
+                />
+              }
               onChangeText={(text) => {
                 setEquipoObj({
                   ...equipoObj,
@@ -301,7 +357,6 @@ const NuevaPartida = ({ navigation, route }) => {
             style={styles.siguiente}
             onPress={() => {
               setEquipo(equipo + 1);
-
             }}
           >
             <Text style={styles.siguienteTexto}>Siguiente</Text>
@@ -311,30 +366,115 @@ const NuevaPartida = ({ navigation, route }) => {
     case 2:
       return (
         <View style={styles.pantalla}>
-          <Text style={styles.title}>
-            Configuración de la partida
-          </Text>
-          <Text>Añadir Imagen: </Text>
+          <Text style={styles.title}>Configuración de la partida</Text>
+          <Surface style={[styles.configureSection, {justifyContent: 'space-between'}]}>
+            <Text style={{fontSize: 20}}>Añadir Imagen: </Text>
+            <Text style={{color: 'red'}}>Función aún no disponible.</Text>
+          </Surface>
+
+          <Surface
+            style={[
+              styles.configureSection,
+              { justifyContent: "space-between" },
+            ]}
+          >
+            <Text style={{ fontSize: 20 }}>Partido jugado a:</Text>
+            <Menu
+              visible={tipo}
+              onDismiss={() => setTipo(false)}
+              anchor={
+                <TouchableOpacity onPress={() => setTipo(true)} style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Text style={{ fontSize: 20 }}>
+                    {aTiempo == false ? "Sets" : "Tiempo"}
+                  </Text>
+                  <IconButton icon="menu-down" />
+                </TouchableOpacity>
+              }
+            >
+              <Menu.Item
+                onPress={() => {
+                  setATiempo(false), setTipo(false), setNormas({ ...normas, aTiempo: aTiempo, });
+                }}
+                title="Sets"
+              />
+              <Menu.Item
+                onPress={() => {
+                  setATiempo(true), setTipo(false), setNormas({ ...normas, aTiempo: aTiempo, });
+                }}
+                title="Tiempo"
+              />
+            </Menu>
+          </Surface>
+          {aTiempo == false ? (
+            <Surface style={styles.configureSection}>
+              <Text style={{ fontSize: 20 }}>Al mejor de </Text>
+              <View style={{ flexDirection: "row" }}>
+                <IconButton
+                  icon="minus"
+                  disabled={setAmmount == 1 ? true : false}
+                  onPress={() => {
+                    setSetAmmount(setAmmount - 2),
+                      setNormas({ ...normas, sets: setAmmount });
+                  }}
+                />
+                <TextInput
+                  style={{
+                    backgroundColor: "rgba(0,0,0,0)",
+                    textAlign: "center",
+                    fontSize: 20,
+                  }}
+                  mode="flat"
+                  editable={false}
+                  value={setAmmount.toString()}
+                ></TextInput>
+                <IconButton
+                  icon="plus"
+                  disabled={setAmmount == 9 ? true : false}
+                  onPress={() => {
+                    setSetAmmount(setAmmount + 2),
+                      setNormas({ ...normas, sets: setAmmount });
+                  }}
+                />
+              </View>
+              <Text style={{ fontSize: 20 }}>
+                {setAmmount == 1 ? "set" : "sets"}
+              </Text>
+            </Surface>
+          ) : (
+            ""
+          )}
 
           <Surface style={styles.configureSection}>
-            <Text style={{ fontSize: 20 }}>Al mejor de </Text>
-            <View style={{ flexDirection: 'row' }}>
-              <IconButton icon="minus" disabled={setAmmount == 1 ? true : false} onPress={() => {setSetAmmount(setAmmount - 2), setNormas({...normas, sets: setAmmount})}} />
-              <TextInput style={{ backgroundColor: 'rgba(0,0,0,0)', textAlign: 'center', fontSize: 20 }} mode='flat' editable={false} value={setAmmount.toString()}></TextInput>
-              <IconButton icon="plus" disabled={setAmmount == 9 ? true : false} onPress={() => {setSetAmmount(setAmmount + 2),setNormas({...normas, sets: setAmmount})}} />
-            </View>
-            <Text style={{ fontSize: 20 }}>{setAmmount == 1 ? "set" : "sets"}</Text>
-          </Surface>
-          <Surface style={styles.configureSection} >
-          <TouchableOpacity style={{ justifyContent: "space-between", flexDirection: 'row', alignItems: 'center', width: "100%", overflow: 'visible' }} activeOpacity={.5}>
+            <TouchableOpacity
+              style={{
+                justifyContent: "space-between",
+                flexDirection: "row",
+                alignItems: "center",
+                width: "100%",
+                overflow: "visible",
+              }}
+              activeOpacity={0.5}
+            >
               <Text style={{ fontSize: 20 }}>Punto de oro: </Text>
-              <Switch disabled={true} value={puntoDeOro} onValueChange={() => {setPuntoDeOro(!puntoDeOro), setNormas({...normas, puntoDeOro: puntoDeOro})}} />
-          </TouchableOpacity>
+              <Switch
+                disabled={true}
+                value={puntoDeOro}
+                onValueChange={() => {
+                  setPuntoDeOro(!puntoDeOro),
+                    setNormas({ ...normas, puntoDeOro: puntoDeOro });
+                }}
+              />
+            </TouchableOpacity>
           </Surface>
           <TouchableOpacity
             style={styles.siguiente}
             onPress={() => {
-              setNormas({...normas, sets: setAmmount, puntoDeOro: puntoDeOro});
+              setNormas({
+                ...normas,
+                sets: setAmmount,
+                puntoDeOro: puntoDeOro,
+                aTiempo: aTiempo,
+              });
               CreacionEquipo();
             }}
           >
@@ -347,7 +487,7 @@ const NuevaPartida = ({ navigation, route }) => {
 
 const styles = StyleSheet.create({
   pantalla: {
-    position: 'relative',
+    position: "relative",
     height: "100%",
     //flex: 1,
     backgroundColor: "white",
@@ -389,7 +529,7 @@ const styles = StyleSheet.create({
     marginVertical: 30,
   },
   inputTeam: {
-    justifyContent: 'center',
+    justifyContent: "center",
     width: "85%",
     paddingHorizontal: 10,
     paddingVertical: 10,
@@ -402,7 +542,7 @@ const styles = StyleSheet.create({
     //paddingTop: 10,
     //paddingBottom: 10,
     paddingLeft: 0,
-    backgroundColor: 'rgba(255, 0, 255, 0.0)',
+    backgroundColor: "rgba(255, 0, 255, 0.0)",
   },
   siguiente: {
     shadowColor: "#000",

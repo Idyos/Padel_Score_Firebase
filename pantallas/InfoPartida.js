@@ -83,34 +83,58 @@ const GraficoInfo = ({
           name: "Winners",
           equipo1:
             tipoJugadores == false
-            ? infoEquipo1.position==false ? infoMatchEquipo1.jugador2.winners : infoMatchEquipo1.jugador1.winners
-            : infoEquipo1.position==true ?  infoMatchEquipo1.jugador2.winners : infoMatchEquipo1.jugador1.winners,
+              ? infoEquipo1.position == false
+                ? infoMatchEquipo1.jugador2.winners
+                : infoMatchEquipo1.jugador1.winners
+              : infoEquipo1.position == true
+              ? infoMatchEquipo1.jugador2.winners
+              : infoMatchEquipo1.jugador1.winners,
           equipo2:
             tipoJugadores == false
-            ? infoEquipo2.position==false ? infoMatchEquipo2.jugador2.winners : infoMatchEquipo2.jugador1.winners
-            : infoEquipo2.position==true ?  infoMatchEquipo2.jugador2.winners : infoMatchEquipo2.jugador1.winners,
+              ? infoEquipo2.position == false
+                ? infoMatchEquipo2.jugador2.winners
+                : infoMatchEquipo2.jugador1.winners
+              : infoEquipo2.position == true
+              ? infoMatchEquipo2.jugador2.winners
+              : infoMatchEquipo2.jugador1.winners,
         },
         {
           name: "Smashes",
           equipo1:
             tipoJugadores == false
-            ? infoEquipo1.position==false ? infoMatchEquipo1.jugador2.smashesExito : infoMatchEquipo1.jugador1.smashesExito
-            : infoEquipo1.position==true ?  infoMatchEquipo1.jugador2.smashesExito : infoMatchEquipo1.jugador1.smashesExito,
+              ? infoEquipo1.position == false
+                ? infoMatchEquipo1.jugador2.smashesExito
+                : infoMatchEquipo1.jugador1.smashesExito
+              : infoEquipo1.position == true
+              ? infoMatchEquipo1.jugador2.smashesExito
+              : infoMatchEquipo1.jugador1.smashesExito,
           equipo2:
             tipoJugadores == false
-            ? infoEquipo2.position==false ? infoMatchEquipo2.jugador2.smashesExito : infoMatchEquipo2.jugador1.smashesExito
-            : infoEquipo2.position==true ?  infoMatchEquipo2.jugador2.smashesExito : infoMatchEquipo2.jugador1.smashesExito,
+              ? infoEquipo2.position == false
+                ? infoMatchEquipo2.jugador2.smashesExito
+                : infoMatchEquipo2.jugador1.smashesExito
+              : infoEquipo2.position == true
+              ? infoMatchEquipo2.jugador2.smashesExito
+              : infoMatchEquipo2.jugador1.smashesExito,
         },
         {
           name: "Unforced Errors",
           equipo1:
-          tipoJugadores == false
-          ? infoEquipo1.position==false ? infoMatchEquipo1.jugador2.unfError : infoMatchEquipo1.jugador1.unfError
-          : infoEquipo1.position==true ?  infoMatchEquipo1.jugador2.unfError : infoMatchEquipo1.jugador1.unfError,
-        equipo2:
-          tipoJugadores == false
-          ? infoEquipo2.position==false ? infoMatchEquipo2.jugador2.unfError : infoMatchEquipo2.jugador1.unfError
-          : infoEquipo2.position==true ?  infoMatchEquipo2.jugador2.unfError : infoMatchEquipo2.jugador1.unfError,
+            tipoJugadores == false
+              ? infoEquipo1.position == false
+                ? infoMatchEquipo1.jugador2.unfError
+                : infoMatchEquipo1.jugador1.unfError
+              : infoEquipo1.position == true
+              ? infoMatchEquipo1.jugador2.unfError
+              : infoMatchEquipo1.jugador1.unfError,
+          equipo2:
+            tipoJugadores == false
+              ? infoEquipo2.position == false
+                ? infoMatchEquipo2.jugador2.unfError
+                : infoMatchEquipo2.jugador1.unfError
+              : infoEquipo2.position == true
+              ? infoMatchEquipo2.jugador2.unfError
+              : infoMatchEquipo2.jugador1.unfError,
         },
       ]);
     }
@@ -119,9 +143,15 @@ const GraficoInfo = ({
         matchFunc([
           {
             name: "Break Points",
-            equipo1: [infoSets["set" + value].datosJugadores.equipo1.breakPointsExito, infoSets["set" + value].datosJugadores.equipo1.breakPoints],
-              
-            equipo2: [infoSets["set" + value].datosJugadores.equipo2.breakPointsExito, infoSets["set" + value].datosJugadores.equipo2.breakPoints],
+            equipo1: [
+              infoSets["set" + value].datosJugadores.equipo1.breakPointsExito,
+              infoSets["set" + value].datosJugadores.equipo1.breakPoints,
+            ],
+
+            equipo2: [
+              infoSets["set" + value].datosJugadores.equipo2.breakPointsExito,
+              infoSets["set" + value].datosJugadores.equipo2.breakPoints,
+            ],
           },
           {
             name: "Puntos de Oro",
@@ -170,37 +200,85 @@ const GraficoInfo = ({
             name: "Winners",
             equipo1:
               tipoJugadores == false
-                ? infoEquipo1.position==false ? infoSets["set" + value].datosJugadores.equipo1.jugador2.winners : infoSets["set" + value].datosJugadores.equipo1.jugador1.winners
-                : infoEquipo1.position==true ?  infoSets["set" + value].datosJugadores.equipo1.jugador2.winners : infoSets["set" + value].datosJugadores.equipo1.jugador1.winners,
+                ? infoEquipo1.position == false
+                  ? infoSets["set" + value].datosJugadores.equipo1.jugador2
+                      .winners
+                  : infoSets["set" + value].datosJugadores.equipo1.jugador1
+                      .winners
+                : infoEquipo1.position == true
+                ? infoSets["set" + value].datosJugadores.equipo1.jugador2
+                    .winners
+                : infoSets["set" + value].datosJugadores.equipo1.jugador1
+                    .winners,
 
             equipo2:
               tipoJugadores == false
-              ? infoEquipo2.position==false ? infoSets["set" + value].datosJugadores.equipo2.jugador2.winners : infoSets["set" + value].datosJugadores.equipo2.jugador1.winners
-              : infoEquipo2.position==true ?  infoSets["set" + value].datosJugadores.equipo2.jugador2.winners : infoSets["set" + value].datosJugadores.equipo2.jugador1.winners,
+                ? infoEquipo2.position == false
+                  ? infoSets["set" + value].datosJugadores.equipo2.jugador2
+                      .winners
+                  : infoSets["set" + value].datosJugadores.equipo2.jugador1
+                      .winners
+                : infoEquipo2.position == true
+                ? infoSets["set" + value].datosJugadores.equipo2.jugador2
+                    .winners
+                : infoSets["set" + value].datosJugadores.equipo2.jugador1
+                    .winners,
           },
           {
             name: "Smashes",
             equipo1:
               tipoJugadores == false
-                ? infoEquipo1.position==false ? infoSets["set" + value].datosJugadores.equipo1.jugador2.smashesExito : infoSets["set" + value].datosJugadores.equipo1.jugador1.smashesExito
-                : infoEquipo1.position==true ?  infoSets["set" + value].datosJugadores.equipo1.jugador2.smashesExito : infoSets["set" + value].datosJugadores.equipo1.jugador1.smashesExito,
+                ? infoEquipo1.position == false
+                  ? infoSets["set" + value].datosJugadores.equipo1.jugador2
+                      .smashesExito
+                  : infoSets["set" + value].datosJugadores.equipo1.jugador1
+                      .smashesExito
+                : infoEquipo1.position == true
+                ? infoSets["set" + value].datosJugadores.equipo1.jugador2
+                    .smashesExito
+                : infoSets["set" + value].datosJugadores.equipo1.jugador1
+                    .smashesExito,
 
             equipo2:
               tipoJugadores == false
-              ? infoEquipo2.position==false ? infoSets["set" + value].datosJugadores.equipo2.jugador2.smashesExito : infoSets["set" + value].datosJugadores.equipo2.jugador1.smashesExito
-              : infoEquipo2.position==true ?  infoSets["set" + value].datosJugadores.equipo2.jugador2.smashesExito : infoSets["set" + value].datosJugadores.equipo2.jugador1.smashesExito,
+                ? infoEquipo2.position == false
+                  ? infoSets["set" + value].datosJugadores.equipo2.jugador2
+                      .smashesExito
+                  : infoSets["set" + value].datosJugadores.equipo2.jugador1
+                      .smashesExito
+                : infoEquipo2.position == true
+                ? infoSets["set" + value].datosJugadores.equipo2.jugador2
+                    .smashesExito
+                : infoSets["set" + value].datosJugadores.equipo2.jugador1
+                    .smashesExito,
           },
           {
             name: "Unforced Errors",
             equipo1:
-            tipoJugadores == false
-              ? infoEquipo1.position==false ? infoSets["set" + value].datosJugadores.equipo1.jugador2.unfError : infoSets["set" + value].datosJugadores.equipo1.jugador1.unfError
-              : infoEquipo1.position==true ?  infoSets["set" + value].datosJugadores.equipo1.jugador2.unfError : infoSets["set" + value].datosJugadores.equipo1.jugador1.unfError,
+              tipoJugadores == false
+                ? infoEquipo1.position == false
+                  ? infoSets["set" + value].datosJugadores.equipo1.jugador2
+                      .unfError
+                  : infoSets["set" + value].datosJugadores.equipo1.jugador1
+                      .unfError
+                : infoEquipo1.position == true
+                ? infoSets["set" + value].datosJugadores.equipo1.jugador2
+                    .unfError
+                : infoSets["set" + value].datosJugadores.equipo1.jugador1
+                    .unfError,
 
-          equipo2:
-            tipoJugadores == false
-            ? infoEquipo2.position==false ? infoSets["set" + value].datosJugadores.equipo2.jugador2.unfError : infoSets["set" + value].datosJugadores.equipo2.jugador1.unfError
-            : infoEquipo2.position==true ?  infoSets["set" + value].datosJugadores.equipo2.jugador2.unfError : infoSets["set" + value].datosJugadores.equipo2.jugador1.unfError,
+            equipo2:
+              tipoJugadores == false
+                ? infoEquipo2.position == false
+                  ? infoSets["set" + value].datosJugadores.equipo2.jugador2
+                      .unfError
+                  : infoSets["set" + value].datosJugadores.equipo2.jugador1
+                      .unfError
+                : infoEquipo2.position == true
+                ? infoSets["set" + value].datosJugadores.equipo2.jugador2
+                    .unfError
+                : infoSets["set" + value].datosJugadores.equipo2.jugador1
+                    .unfError,
           },
         ]);
       }
@@ -286,7 +364,7 @@ const GraficoInfo = ({
                             0,
                             item.equipo1[1] == 0
                               ? 0
-                              : (100*item.equipo1[0])/item.equipo1[1]/6,
+                              : (100 * item.equipo1[0]) / item.equipo1[1] / 6,
                           ],
                         }),
                         borderBottomEndRadius: animation.interpolate({
@@ -295,7 +373,7 @@ const GraficoInfo = ({
                             0,
                             item.equipo1[1] == 0
                               ? 0
-                              : (100*item.equipo1[0])/item.equipo1[1]/6,
+                              : (100 * item.equipo1[0]) / item.equipo1[1] / 6,
                           ],
                         }),
                         width: animation.interpolate({
@@ -304,9 +382,12 @@ const GraficoInfo = ({
                             "0%",
                             item.equipo1[0] == 0
                               ? "0%"
-                              : ((item.equipo1[1] * 100) /
-                              (item.equipo1[1] + item.equipo2[1]))-(((item.equipo1[1] * 100) /
-                              (item.equipo1[1] + item.equipo2[1]))-(100*item.equipo1[0])/item.equipo1[1])+"%",
+                              : (item.equipo1[1] * 100) /
+                                  (item.equipo1[1] + item.equipo2[1]) -
+                                ((item.equipo1[1] * 100) /
+                                  (item.equipo1[1] + item.equipo2[1]) -
+                                  (100 * item.equipo1[0]) / item.equipo1[1]) +
+                                "%",
                           ],
                         }),
                         backgroundColor: "green",
@@ -365,7 +446,7 @@ const GraficoInfo = ({
                             0,
                             item.equipo2[1] == 0
                               ? 0
-                              : (100*item.equipo2[0])/item.equipo2[1]/6,
+                              : (100 * item.equipo2[0]) / item.equipo2[1] / 6,
                           ],
                         }),
                         borderBottomEndRadius: animation.interpolate({
@@ -374,7 +455,7 @@ const GraficoInfo = ({
                             0,
                             item.equipo2[1] == 0
                               ? 0
-                              : (100*item.equipo2[0])/item.equipo2[1]/6,
+                              : (100 * item.equipo2[0]) / item.equipo2[1] / 6,
                           ],
                         }),
                         width: animation.interpolate({
@@ -383,9 +464,12 @@ const GraficoInfo = ({
                             "0%",
                             item.equipo2[0] == 0
                               ? "0%"
-                              : ((item.equipo2[1] * 100) /
-                              (item.equipo2[1] + item.equipo1[1]))-(((item.equipo2[1] * 100) /
-                              (item.equipo2[1] + item.equipo1[1]))-(100*item.equipo2[0])/item.equipo2[1])+"%",
+                              : (item.equipo2[1] * 100) /
+                                  (item.equipo2[1] + item.equipo1[1]) -
+                                ((item.equipo2[1] * 100) /
+                                  (item.equipo2[1] + item.equipo1[1]) -
+                                  (100 * item.equipo2[0]) / item.equipo2[1]) +
+                                "%",
                           ],
                         }),
                         backgroundColor: "orange",
@@ -501,7 +585,8 @@ const GraficoInfo = ({
 const InfoPartida = ({ route, theme }) => {
   const infoTeam = route.params[0];
   const infoSets = route.params[2];
-  const sets=route.params[3];
+  const sets = route.params[3];
+  const normas = route.params[4];
   const [setsResults, setSetsResults] = useState([
     { value: "0", label: "Partida" },
   ]);
@@ -511,7 +596,7 @@ const InfoPartida = ({ route, theme }) => {
   const [tipoJugadores, setTipoJugadores] = useState(false);
 
   useEffect(() => {
-    if (setsResults.length === 1) {
+    if (setsResults.length === 1 && normas.aTiempo === false) {
       Object.keys(infoSets).map((item, index) => {
         setSetsResults((current) => [
           ...current,
@@ -548,9 +633,7 @@ const InfoPartida = ({ route, theme }) => {
                 contentContainerStyle={styles.setsPerTeam}
                 data={sets}
                 renderItem={({ item }) => (
-                  <Text style={styles.setResult}>
-                    {item.equipo1}
-                  </Text>
+                  <Text style={styles.setResult}>{item.equipo1}</Text>
                 )}
               />
             </View>
@@ -566,21 +649,36 @@ const InfoPartida = ({ route, theme }) => {
               contentContainerStyle={styles.setsPerTeam}
               data={sets}
               renderItem={({ item }) => (
-                <Text style={styles.setResult}>
-                  {item.equipo2}
-                </Text>
+                <Text style={styles.setResult}>{item.equipo2}</Text>
               )}
             />
           </View>
         </View>
       </View>
       <SafeAreaView style={styles.container}>
-        <SegmentedButtons
-          showSelectedCheck={false}
-          value={value}
-          onValueChange={setValue}
-          buttons={setsResults}
-        />
+        {normas.aTiempo === false ? (
+          <SegmentedButtons
+            style={{}}
+            showSelectedCheck={false}
+            value={value}
+            onValueChange={setValue}
+            buttons={setsResults}
+          />
+        ) : (
+          <View
+            style={{
+              width: "100%",
+              borderWidth: 1,
+              alignItems: "center",
+              paddingVertical: 10,
+              borderRadius: 100,
+              backgroundColor: theme.colors.primaryContainer,
+              borderColor: theme.colors.outline,
+            }}
+          >
+            <Text style={{ fontWeight: "700" }}>Partida</Text>
+          </View>
+        )}
       </SafeAreaView>
       <View
         style={{
@@ -678,8 +776,7 @@ const InfoPartida = ({ route, theme }) => {
               data={sets}
               renderItem={({ item }) => (
                 <Text style={styles.setResult}>
-                  {item.equipo1}-
-                  {item.equipo2}
+                  {item.equipo1}-{item.equipo2}
                 </Text>
               )}
             />

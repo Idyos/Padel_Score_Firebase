@@ -95,20 +95,25 @@ const Principal = ({ navigation }) => {
           const querySnapshot = await getDocs(q);
           let equipos = {};
           let sets = {};
+          let normas = {};
           let setsData = [];
           querySnapshot.forEach(async (match) => {
             match.data().infoequipos === undefined
               ? ""
               : (equipos = match.data().infoequipos);
+              match.data().normas === undefined
+              ? ""
+              : (normas=match.data().normas)
             match.data().set === undefined ? "" : (sets = match.data().set);
             match.data().infoSets === undefined
               ? ""
               : (setsData = match.data().infoSets);
+
             match.data().set === undefined
               ? ""
               : setPartidas((current) => [
                 ...current,
-                [equipos, doc.id, sets, setsData],
+                [equipos, doc.id, sets, setsData, normas],
               ]);
           });
         });
@@ -118,7 +123,7 @@ const Principal = ({ navigation }) => {
       }
     };
     getMatches();
-  }, []);
+  }, [navigation]);
 
 
 
