@@ -42,6 +42,7 @@ const AnadirPartida = ({
         visible={visible}
         animateFrom={'right'}
         iconMode={'static'}
+        variant={'tertiary'}
         style={[styles.fabStyle, style, fabStyle]}
       />
     </SafeAreaView>

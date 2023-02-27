@@ -7,11 +7,16 @@ import {
   TouchableOpacity,
   DatePickerIOS,
   Animated,
-  Button
+  Button,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { Component, useEffect, useRef, useState } from "react";
-import { confirmPasswordReset, getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import {
+  confirmPasswordReset,
+  getAuth,
+  onAuthStateChanged,
+  signOut,
+} from "firebase/auth";
 import AnadirPartida from "../components/Principal/AnadirPartida";
 import {
   ActivityIndicator,
@@ -28,18 +33,18 @@ import {
   listcoll,
   orderBy,
   deleteDoc,
-  doc
+  doc,
 } from "firebase/firestore";
 import CartaPartida from "../components/Principal/CartaPartida";
 import { Easing } from "react-native-reanimated";
 import BorrarPartida from "../components/Principal/BorrarPartida";
-import { useClock } from 'react-native-timer-hooks';
+import { useClock } from "react-native-timer-hooks";
 
 const Principal = ({ navigation }) => {
   const [partidas, setPartidas] = useState([]);
   const [isExtended, setIsExtended] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
-  const [deleteDialog, setDeleteDialog] = useState({visible: false, id: 5});
+  const [deleteDialog, setDeleteDialog] = useState({ visible: false, id: 5 });
   const longPress = useRef(false);
   const cancelarBorrar = useRef(false);
 
@@ -90,6 +95,7 @@ const Principal = ({ navigation }) => {
       );
       try {
         const querySnapshot = await getDocs(q);
+        try{
         querySnapshot.forEach(async (doc) => {
           const q = collection(database, `Partidas/${doc.id}/PartidoCompleto`);
           const querySnapshot = await getDocs(q);
@@ -97,13 +103,14 @@ const Principal = ({ navigation }) => {
           let sets = {};
           let normas = {};
           let setsData = [];
+          
           querySnapshot.forEach(async (match) => {
             match.data().infoequipos === undefined
               ? ""
               : (equipos = match.data().infoequipos);
-              match.data().normas === undefined
+            match.data().normas === undefined
               ? ""
-              : (normas=match.data().normas)
+              : (normas = match.data().normas);
             match.data().set === undefined ? "" : (sets = match.data().set);
             match.data().infoSets === undefined
               ? ""
@@ -112,20 +119,20 @@ const Principal = ({ navigation }) => {
             match.data().set === undefined
               ? ""
               : setPartidas((current) => [
-                ...current,
-                [equipos, doc.id, sets, setsData, normas],
-              ]);
+                  ...current,
+                  [equipos, doc.id, sets, setsData, normas],
+                ]);
           });
         });
-        setHasLoaded(true);
+      }
+      finally{setHasLoaded(true)}
+        
       } catch (error) {
         console.log(error);
       }
     };
     getMatches();
   }, [navigation]);
-
-
 
   const deleteMatch = async (id) => {
     console.log(id);
@@ -152,15 +159,22 @@ const Principal = ({ navigation }) => {
           <Text style={styles.noMatches}>No hay partidas... Por ahora.</Text>
         ) : (
           <FlatList
-            onScrollEndDrag={onScroll}
-            onScrollBeginDrag={onScroll}
+            onScroll={onScroll}
             style={styles.listaPartidas}
             contentContainerStyle={styles.listaPartidasContainer}
             data={partidas}
             renderItem={({ item }) => (
               <TouchableOpacity>
-                <Animated.View style={{ transform: [{ translateX: fadeAnim }] }}>
-                  <CartaPartida item={item} setDeleteDialog={setDeleteDialog} longPress={longPress} navigation={navigation} cancelarBorrar={cancelarBorrar}/>
+                <Animated.View
+                  style={{ transform: [{ translateX: fadeAnim }] }}
+                >
+                  <CartaPartida
+                    item={item}
+                    setDeleteDialog={setDeleteDialog}
+                    longPress={longPress}
+                    navigation={navigation}
+                    cancelarBorrar={cancelarBorrar}
+                  />
                 </Animated.View>
               </TouchableOpacity>
             )}
@@ -179,7 +193,7 @@ const Principal = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   listaPartidasContainer: {
-    overflow: 'hidden'
+    overflow: "hidden",
   },
 
   principal: {

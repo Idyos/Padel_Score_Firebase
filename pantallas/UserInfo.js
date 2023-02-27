@@ -6,7 +6,7 @@ import {
   FlatList,
   Animated,
 } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   Button,
   IconButton,
@@ -19,6 +19,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { TouchableOpacity } from "react-native";
 import { getAuth, signOut, updateProfile } from "firebase/auth";
 import { Easing } from "react-native-reanimated";
+import { DarkLightContext } from "../components/DarkLightTheme";
 
 const windowHeight = Dimensions.get("window").height;
 
@@ -43,13 +44,13 @@ const UpdateProfile = () => {
     });*/
 };
 
-const UpdateDarkMode = () => {
-  console.log("HOLAAA");
-};
+
 
 const Profile = () => {
+  const {darkMode, setDarkMode} = useContext(DarkLightContext);
+  //const [ darkMode, setDarkMode ] = useState(false);
   const theme = useTheme();
-  const progress = useRef(new Animated.Value(0)).current;
+  const progress = useRef(new Animated.Value(0)).current;  
 
   const LogOutAnimation = (type) => {
     if (type == true) {
@@ -104,7 +105,7 @@ const Profile = () => {
         </View>
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={UpdateDarkMode}
+        onPress={()=>setDarkMode(!darkMode)}
         style={[
           styles.partidaInfo,
           {
@@ -121,7 +122,7 @@ const Profile = () => {
           />
           <Text style={{ fontSize: 15 }}>Modo Oscuro</Text>
         </View>
-        <Switch />
+        <Switch value={darkMode} onValueChange={() => setDarkMode(!darkMode)}/>
       </TouchableOpacity>
       <TouchableOpacity
       activeOpacity={.8}

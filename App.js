@@ -14,7 +14,9 @@ import Registrarse from "./pantallas/Registrarse";
 import Profile from "./pantallas/UserInfo";
 import { DefaultTheme, MD3DarkTheme, MD3LightTheme, Provider as PaperProvider } from "react-native-paper";
 import InfoPartida from "./pantallas/InfoPartida";
-import { useReducer, useRef, useState } from "react";
+import { useContext, useReducer, useRef, useState } from "react";
+import { DarkLightContext, DarkLightTheme } from "./components/DarkLightTheme";
+import { combineTransition } from "react-native-reanimated";
 
 const Stack = createNativeStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
@@ -59,9 +61,8 @@ function Home() {
 
 export default function App() {
   //  <StatusBar style="auto" />
-
-
-const oscuro=useRef(MD3LightTheme);
+ const darkMode = useContext(DarkLightContext);
+ console.log(darkMode);
   const theme = {
     ...MD3LightTheme,
     version: 3,
@@ -69,17 +70,19 @@ const oscuro=useRef(MD3LightTheme);
   };
 
   return (
+    <DarkLightTheme>
     <PaperProvider theme={theme}>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="login" component={Login} options={{headerShown: false}} />
-          <Stack.Screen name="tabbar" component={Home} options={{ headerShown: false }} />
-          <Stack.Screen name="registrarse" component={Registrarse} options={{headerShown: false}}/>
-          <Stack.Screen name="partida" component={Partida} options={{ headerShown: false }} />
-          <Stack.Screen name="info-partida" component={InfoPartida} />
-          <Stack.Screen name="Nueva Partida" component={NuevaPartida} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </PaperProvider>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="login" component={Login} options={{headerShown: false}} />
+            <Stack.Screen name="tabbar" component={Home} options={{ headerShown: false }} />
+            <Stack.Screen name="registrarse" component={Registrarse} options={{headerShown: false}}/>
+            <Stack.Screen name="partida" component={Partida} options={{ headerShown: false }} />
+            <Stack.Screen name="info-partida" component={InfoPartida} />
+            <Stack.Screen name="Nueva Partida" component={NuevaPartida} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </PaperProvider>
+      </DarkLightTheme>
   );
 }
