@@ -8,11 +8,7 @@ import {
 import { database } from "../src/config/fb";
 import { setDoc, doc, increment, getDoc } from "firebase/firestore";
 import { Text, IconButton } from "react-native-paper";
-import {
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import Contador from "../components/Partida/Contador";
 import PointDetail from "../components/Partida/Popup";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -67,9 +63,9 @@ const Partida = ({ route, navigation }) => {
     }
     navigation.navigate("tabbar");
     updateJuego("null");
-    if(aTiempo==false){
+    if (aTiempo == false) {
       updateSets(1);
-    }    
+    }
   };
 
   const partidaid = route.params.partidaid;
@@ -82,6 +78,7 @@ const Partida = ({ route, navigation }) => {
   const [goldenPoint, setGoldenPoint] = useState(false);
   const finish = useRef(false);
   const partidaTerminadaForzadamente = useRef(false);
+  const equipoPunto = useRef(); 
 
   const [datosJugadores, setDatosJugadores] = useState({
     equipo1: {
@@ -163,8 +160,8 @@ const Partida = ({ route, navigation }) => {
     },
   ];
   const updateSet = useRef(false);
-  
-  const updateJuego = async (team) => {  
+
+  const updateJuego = async (team) => {
     setGoldenPoint(false);
     const serving = serve ? "equipo2" : "equipo1";
     try {
@@ -201,10 +198,7 @@ const Partida = ({ route, navigation }) => {
         });
 
         await setDoc(
-          doc(
-            database,
-            `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`
-          ),
+          doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
           {
             infoequipos: {
               [puntos.team == 0 ? "equipo2" : "equipo1"]: {
@@ -231,7 +225,8 @@ const Partida = ({ route, navigation }) => {
           breakPointsExito:
             isTiebreak == false &&
             index == puntosJuego.length - 1 &&
-            +puntos.serving !== puntos.team && partidaTerminadaForzadamente.current == false
+            +puntos.serving !== puntos.team &&
+            partidaTerminadaForzadamente.current == false
               ? (datosJugadores["equipo" + (puntos.team + 1)].breakPointsExito =
                   datosJugadores["equipo" + (puntos.team + 1)]
                     .breakPointsExito + 1)
@@ -327,7 +322,8 @@ const Partida = ({ route, navigation }) => {
                 breakPointsExito:
                   isTiebreak == false &&
                   index == puntosJuego.length - 1 &&
-                  +puntos.serving !== puntos.team && partidaTerminadaForzadamente.current == false
+                  +puntos.serving !== puntos.team &&
+                  partidaTerminadaForzadamente.current == false
                     ? increment(1)
                     : increment(0),
                 jugadores: {
@@ -344,7 +340,7 @@ const Partida = ({ route, navigation }) => {
       } catch (error) {
         console.log(error);
       }
-      
+
       setPuntosJuego([]);
     });
     setServe(!serve);
@@ -418,6 +414,21 @@ const Partida = ({ route, navigation }) => {
     }, 1500);
   };
 
+  //RETROCEDER / CANCELAR PUNTOS
+  const atrasPuntos = () => {
+    if (puntosJuego.length != 0) {
+      
+      if (puntosJuego[puntosJuego.length - 1].team == 0) setMarcadorE1(marcadorE1 - 1);
+      if (puntosJuego[puntosJuego.length - 1].team == 1) setMarcadorE2(marcadorE2 - 1);
+      if(goldenPoint==true) setGoldenPoint(false);
+      puntosJuego.pop();
+    }
+  };
+
+  const cancelPunto = () => {
+    equipoPunto.current==1 ? setMarcadorE1(marcadorE1-1) : setMarcadorE2(marcadorE2-1);
+  }
+
   //PROCESOS AL TERMINAR LA PARTIDA
   useEffect(() => {
     const setsDoc = doc(
@@ -489,23 +500,23 @@ const Partida = ({ route, navigation }) => {
 
   //CONTADOR DE JUEGOS POR SET
   useEffect(() => {
-    if(aTiempo==false){
-    if (juegosE1 === 6 && juegosE2 === 6) {
-      setTiebreak(true);
-      return;
-    }
-    //EQUIPO 1
-    if (finish.current == false) {
-      if ((juegosE1 >= 6 && juegosE1 - juegosE2 >= 2) || juegosE1 === 7) {
-        setSetsE1(setsE1 + 1);
-        updateSet.current = true;
+    if (aTiempo == false) {
+      if (juegosE1 === 6 && juegosE2 === 6) {
+        setTiebreak(true);
+        return;
       }
-      if ((juegosE2 >= 6 && juegosE2 - juegosE1 >= 2) || juegosE2 === 7) {
-        setSetsE2(setsE2 + 1);
-        updateSet.current = true;
+      //EQUIPO 1
+      if (finish.current == false) {
+        if ((juegosE1 >= 6 && juegosE1 - juegosE2 >= 2) || juegosE1 === 7) {
+          setSetsE1(setsE1 + 1);
+          updateSet.current = true;
+        }
+        if ((juegosE2 >= 6 && juegosE2 - juegosE1 >= 2) || juegosE2 === 7) {
+          setSetsE2(setsE2 + 1);
+          updateSet.current = true;
+        }
       }
     }
-  }
   }, [juegosE1 === 6, juegosE2 === 6]);
 
   //CONTADOR DE SETS POR PARTIDA
@@ -560,6 +571,17 @@ const Partida = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={styles.pantalla}>
+      <View style={{ width: "90%" }}>
+        <IconButton
+          disabled={puntosJuego.length==0 ? true : false}
+          style={styles.goBackButton}
+          icon="keyboard-backspace"
+          iconColor="black"
+          size={40}
+          onPress={atrasPuntos}
+        />
+      </View>
+
       <PartidaConfig
         serve={serve}
         setServe={setServe}
@@ -583,15 +605,23 @@ const Partida = ({ route, navigation }) => {
         serve={serve}
         marcadorE2={marcadorE2}
         marcadorE1={marcadorE1}
+        cancelarPunto={cancelPunto}
       />
       <View style={styles.equipo}>
         <View style={styles.datosJugadores}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Text>{datos[0].nombre}</Text>
-            {serve ? "" : <IconButton style={styles.servicio} iconColor='lawngreen' icon="tennis-ball" />}
+            {serve ? (
+              ""
+            ) : (
+              <IconButton
+                style={styles.servicio}
+                iconColor="lawngreen"
+                icon="tennis-ball"
+              />
+            )}
           </View>
-          
-         
+
           <View style={styles.nombresJugadores}>
             <Text>{datos[0].jugadores.jugador1} / </Text>
             <Text>{datos[0].jugadores.jugador2}</Text>
@@ -606,12 +636,10 @@ const Partida = ({ route, navigation }) => {
           marcadorE1={marcadorE1}
           goldenPoint={goldenPoint}
           tiebreak={isTiebreak}
+          equipoPunto={equipoPunto}
         />
       </View>
       <View style={styles.marcadorSets}>
-        <View>
-          <Text></Text>
-        </View>
         <View style={styles.sets}>
           <View style={styles.set}>
             <Text style={styles.marcador}>
@@ -656,10 +684,18 @@ const Partida = ({ route, navigation }) => {
       </View>
       <View style={styles.equipo}>
         <View style={styles.datosJugadores}>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <Text>{datos[1].nombre}</Text>
-          {serve ? <IconButton style={styles.servicio} iconColor='lawngreen' icon="tennis-ball" /> : ""}
-        </View>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text>{datos[1].nombre}</Text>
+            {serve ? (
+              <IconButton
+                style={styles.servicio}
+                iconColor="lawngreen"
+                icon="tennis-ball"
+              />
+            ) : (
+              ""
+            )}
+          </View>
           <View style={styles.nombresJugadores}>
             <Text>{datos[1].jugadores.jugador1} / </Text>
             <Text>{datos[1].jugadores.jugador2}</Text>
@@ -674,6 +710,7 @@ const Partida = ({ route, navigation }) => {
           marcadorE2={marcadorE2}
           goldenPoint={goldenPoint}
           tiebreak={isTiebreak}
+          equipoPunto={equipoPunto}
         />
       </View>
     </SafeAreaView>
@@ -681,10 +718,11 @@ const Partida = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  goBackButton: {},
   pantalla: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "space-evenly",
+    justifyContent: "flex-end",
   },
   equipo: {
     alignItems: "center",
@@ -693,7 +731,7 @@ const styles = StyleSheet.create({
 
   datosJugadores: {
     justifyContent: "space-between",
-    alignItems: 'center',
+    alignItems: "center",
     width: "80%",
     flexDirection: "row",
   },
@@ -707,6 +745,8 @@ const styles = StyleSheet.create({
   },
 
   marcadorSets: {
+    height: "10%",
+    //backgroundColor: 'red',
     width: "90%",
     position: "relative",
     flexDirection: "row",

@@ -42,12 +42,6 @@ const PartidaConfig = ({ serve, setServe, infoequipos }) => {
 
                     <Dialog visible={servePantalla} onDismiss={() => setServePantalla(false)} style={{ alignItems: 'center'}}>
                         <Dialog.Title>
-                            <IconButton
-                                icon="keyboard-backspace"
-                                iconColor={theme.colors.primary}
-                                size={30}
-                                onPress={() => setPopupOrder(true)}
-                            />
                             <Text style={{}}>La partida va a empezar</Text>
                         </Dialog.Title>
                         <Dialog.Content>

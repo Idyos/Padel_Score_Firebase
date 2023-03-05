@@ -18,7 +18,13 @@ import {
   Button,
 } from "react-native-paper";
 import { database } from "../../src/config/fb";
-import { collection, getDocs, setDoc, doc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  setDoc,
+  doc,
+  serverTimestamp,
+} from "firebase/firestore";
 
 const PointDetail = (props) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,7 +39,7 @@ const PointDetail = (props) => {
     }
   }, [props.punto]);
 
-  useEffect(() => { }, [props.puntosJuego]);
+  useEffect(() => {}, [props.puntosJuego]);
 
   useEffect(() => {
     if (props.visible) {
@@ -46,15 +52,35 @@ const PointDetail = (props) => {
 
   function applyPoint(item) {
     if (props.serve == false && props.marcadorE2 == 3) {
-      props.setPunto({ ...props.punto, player: item, team: props.puntoEquipo, breakChance: true, serving: props.serve });
+      props.setPunto({
+        ...props.punto,
+        player: item,
+        team: props.puntoEquipo,
+        breakChance: true,
+        serving: props.serve,
+      });
       return;
     }
     if (props.serve == true && props.marcadorE1 == 3) {
-      props.setPunto({ ...props.punto, player: item, team: props.puntoEquipo, breakChance: true, serving: props.serve });
+      props.setPunto({
+        ...props.punto,
+        player: item,
+        team: props.puntoEquipo,
+        breakChance: true,
+        serving: props.serve,
+      });
       return;
     }
-    props.setPunto({ ...props.punto, player: item, team: props.puntoEquipo, breakChance: false, serving: props.serve });
+    props.setPunto({
+      ...props.punto,
+      player: item,
+      team: props.puntoEquipo,
+      breakChance: false,
+      serving: props.serve,
+    });
   }
+
+  console.log(props.punto);
 
   return (
     <Portal>
@@ -95,12 +121,14 @@ const PointDetail = (props) => {
               keyExtractor={(item, index) => "key" + index}
             />
             <Dialog.Actions style={{ alignSelf: "flex-end" }}>
-              <Button>Done</Button>
+              <Button onPress={() => (props.visibleFunc(false), props.cancelarPunto())}>Cancelar</Button>
             </Dialog.Actions>
           </>
         ) : (
           <>
-            <Dialog.Title style={{ fontSize: 20, fontWeight: "bold" }}>¿Quién ha causado el punto?</Dialog.Title>
+            <Dialog.Title style={{ fontSize: 20, fontWeight: "bold" }}>
+              ¿Quién ha causado el punto?
+            </Dialog.Title>
             <FlatList
               style={styles.pointOptions}
               data={props.punto.point == "unfError" ? equipoRival : equipo}
@@ -119,8 +147,10 @@ const PointDetail = (props) => {
                   >
                     <RadioButton
                       value={item}
-                      status={props.nuevoPunto === item ? "checked" : "unchecked"}
-                      onPress={() => { }}
+                      status={
+                        props.nuevoPunto === item ? "checked" : "unchecked"
+                      }
+                      onPress={() => {}}
                     />
                     <Text>{item}</Text>
                   </TouchableOpacity>
@@ -128,6 +158,9 @@ const PointDetail = (props) => {
               )}
               keyExtractor={(item, index) => "key" + index}
             />
+            <Dialog.Actions style={{ alignSelf: "flex-end" }}>
+              <Button onPress={() => setIsOpen(false)}>Atrás</Button>
+            </Dialog.Actions>
           </>
         )}
       </Dialog>
