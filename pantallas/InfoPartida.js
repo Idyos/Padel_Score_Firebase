@@ -4,11 +4,14 @@ import {
   FlatList,
   BackHandler,
   Animated,
+  ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useEffect, useState, useRef } from "react";
 import {
+  ActivityIndicator,
   Chip,
+  DataTable,
   Divider,
   IconButton,
   Menu,
@@ -18,17 +21,32 @@ import {
 } from "react-native-paper";
 import { Easing } from "react-native-reanimated";
 import GraficoInfo from "../components/InfoPartida/GraficosDatos";
+import SetsDetalles from "../components/InfoPartida/SetsDetalles";
+import { database } from "../src/config/fb";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  listcoll,
+  orderBy,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
+
 
 
 
 const InfoPartida = ({ route, theme }) => {
   const infoTeam = route.params[0];
+  const id = route.params[1];
   const infoSets = route.params[2];
   const sets = route.params[3];
   const normas = route.params[4];
   const [setsResults, setSetsResults] = useState([
     { value: "0", label: "Partida" },
   ]);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [setData, setSetData] = useState([]);
   const [visible, setVisible] = useState(false);
   const [dataType, setDataType] = useState(false);
@@ -51,8 +69,42 @@ const InfoPartida = ({ route, theme }) => {
   const [infoMatch, setInfoMatch] = useState([]);
   const [value, setValue] = useState("0");
 
-  return (
-    <View
+  //OBTENER INFORMACIÓN DE LOS SETS EN DETALLE
+
+  const [gamesOnSet, setGamesOnSet] = useState([]);
+
+  const getSetsData = async () => {
+    for(let i = 1; i<= sets.length; i++){
+      console.log(i);
+      const gamesOnSetRef = collection(
+        database,
+        `/Partidas/${id}/PartidoCompleto/Matchdetails/Set${i}`
+      );
+      const gamesOnSet = await getDocs(gamesOnSetRef);
+      let gamesOnSetArray = [];
+    //console.log(gamesOnSet.length);
+    gamesOnSet.forEach((doc) => {
+      gamesOnSetArray.push(doc.data());
+    });
+    setGamesOnSet((prevVer) => [...prevVer, gamesOnSetArray]);
+    }
+    setIsLoaded(true);
+   
+  };
+
+
+  useEffect(() => {
+    getSetsData();
+  }, []);
+
+
+
+
+
+  return !isLoaded ? (
+    <ActivityIndicator />
+  ) : (
+    <ScrollView
       style={[styles.pantalla, { backgroundColor: theme.colors.background }]}
     >
       <View style={styles.setsInfo}>
@@ -252,7 +304,16 @@ const InfoPartida = ({ route, theme }) => {
         tipoJugadores={tipoJugadores}
         dataType={dataType}
       />
-    </View>
+    <SetsDetalles
+        value={value}
+        gamesOnSet={gamesOnSet}
+        sets={setsResults}
+        match={infoMatch}
+        id={route.params[1]}
+        setsLength={infoSets}
+        infoTeam={infoTeam}
+      />
+    </ScrollView>
   );
 };
 

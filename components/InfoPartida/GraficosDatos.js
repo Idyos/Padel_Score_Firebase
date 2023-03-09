@@ -2,7 +2,8 @@ import {
     View,
     FlatList,
     Animated,
-    StyleSheet
+    StyleSheet,
+    ScrollView
   } from "react-native";
   import React, { useEffect, useRef } from "react";
   import {
@@ -295,7 +296,6 @@ const GraficoInfo = ({
         <FlatList
           data={match}
           renderItem={({ item }) => (
-            console.log(item.equipo1),
             item.name == "Break Points" ? (
               <View style={styles.Graficos}>
                 <View style={styles.grafico}>

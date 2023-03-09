@@ -39,7 +39,6 @@ const PartidaConfig = ({ serve, setServe, infoequipos }) => {
                 </Dialog>
             </Portal>
                 : <Portal>
-
                     <Dialog visible={servePantalla} onDismiss={() => setServePantalla(false)} style={{ alignItems: 'center'}}>
                         <Dialog.Title>
                             <Text style={{}}>La partida va a empezar</Text>
