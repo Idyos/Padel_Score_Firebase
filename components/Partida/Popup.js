@@ -51,17 +51,7 @@ const PointDetail = (props) => {
   }, [props.visible]);
 
   function applyPoint(item) {
-    if (props.serve == false && props.marcadorE2 == 3) {
-      props.setPunto({
-        ...props.punto,
-        player: item,
-        team: props.puntoEquipo,
-        breakChance: true,
-        serving: props.serve,
-      });
-      return;
-    }
-    if (props.serve == true && props.marcadorE1 == 3) {
+    if ((props.serve == false && props.marcadorE2 == 3 && props.breakChance.current==true) || (props.serve == true && props.marcadorE1 == 3 && props.breakChance.current==true)) {
       props.setPunto({
         ...props.punto,
         player: item,
@@ -106,7 +96,7 @@ const PointDetail = (props) => {
                       props.setPunto({ ...props.punto, point: item.data }),
                         setTimeout(() => {
                           setIsOpen(true);
-                        }, 500);
+                        }, 100);
                     }}
                   >
                     <RadioButton
@@ -142,7 +132,7 @@ const PointDetail = (props) => {
                       setTimeout(() => {
                         props.visibleFunc(false);
                         setIsOpen(false);
-                      }, 500);
+                      }, 100);
                     }}
                   >
                     <RadioButton

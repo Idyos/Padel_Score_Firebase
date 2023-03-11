@@ -9,6 +9,7 @@ import React, { useRef } from "react";
 import { ActivityIndicator, DataTable } from "react-native-paper";
 import { useEffect, useState } from "react";
 import { ScrollView } from "react-native";
+import JuegoDetalles from "./JuegoDetalles";
 
 const optionsPerPage = [2, 3, 4];
 
@@ -28,6 +29,7 @@ const SetsDetalles = (props) => {
   return props.value == "0" ? (
     ""
   ) : (
+    <>
     <DataTable style={{ alignSelf: "center", width: "100%" }}>
       <DataTable.Header>
         <DataTable.Title>{props.infoTeam.equipo1.nombre}</DataTable.Title>
@@ -75,6 +77,8 @@ const SetsDetalles = (props) => {
         })}
       </DataTable.Row>
     </DataTable>
+    <JuegoDetalles />
+    </>
   );
 };
 

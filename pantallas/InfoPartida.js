@@ -80,7 +80,8 @@ const InfoPartida = ({ route, theme }) => {
         database,
         `/Partidas/${id}/PartidoCompleto/Matchdetails/Set${i}`
       );
-      const gamesOnSet = await getDocs(gamesOnSetRef);
+      const q = query(gamesOnSetRef, orderBy("order"));
+      const gamesOnSet = await getDocs(q);
       let gamesOnSetArray = [];
     //console.log(gamesOnSet.length);
     gamesOnSet.forEach((doc) => {
@@ -89,7 +90,6 @@ const InfoPartida = ({ route, theme }) => {
     setGamesOnSet((prevVer) => [...prevVer, gamesOnSetArray]);
     }
     setIsLoaded(true);
-   
   };
 
 

@@ -79,6 +79,8 @@ const Partida = ({ route, navigation }) => {
   const finish = useRef(false);
   const partidaTerminadaForzadamente = useRef(false);
   const equipoPunto = useRef(); 
+  const ordenJuegos =useRef(0);
+  const breakChance=useRef(false);
 
   const [datosJugadores, setDatosJugadores] = useState({
     equipo1: {
@@ -163,6 +165,8 @@ const Partida = ({ route, navigation }) => {
 
   const updateJuego = async (team) => {
     setGoldenPoint(false);
+    breakChance.current=false;
+    ordenJuegos.current++;
     const serving = serve ? "equipo2" : "equipo1";
     try {
       await setDoc(
@@ -172,7 +176,7 @@ const Partida = ({ route, navigation }) => {
             setsE1 + setsE2 + 1
           }/Juego${juegosE1 + juegosE2 + 1}`
         ),
-        { winner: team, serve: serving }
+        { winner: team, serve: serving, order:  ordenJuegos.current}
       );
     } catch (error) {
       console.log(error);
@@ -417,9 +421,18 @@ const Partida = ({ route, navigation }) => {
   //RETROCEDER / CANCELAR PUNTOS
   const atrasPuntos = () => {
     if (puntosJuego.length != 0) {
-      
-      if (puntosJuego[puntosJuego.length - 1].team == 0) setMarcadorE1(marcadorE1 - 1);
-      if (puntosJuego[puntosJuego.length - 1].team == 1) setMarcadorE2(marcadorE2 - 1);
+      if (puntosJuego[puntosJuego.length - 1].team == 0){
+        if(serve==true && marcadorE1==3 && breakChance.current==true){
+          breakChance.current=false;
+        }
+        setMarcadorE1(marcadorE1 - 1);
+      } 
+      if (puntosJuego[puntosJuego.length - 1].team == 1){
+        if(serve==false && marcadorE2==3 && breakChance.current==true){
+          breakChance.current=false;
+        }
+        setMarcadorE2(marcadorE2 - 1);
+      } 
       if(goldenPoint==true) setGoldenPoint(false);
       puntosJuego.pop();
     }
@@ -451,6 +464,7 @@ const Partida = ({ route, navigation }) => {
 
   //CONTADOR DE PUNTOS POR JUEGOS
   useEffect(() => {
+
     let contador1 = 0;
     let contador2 = 0;
     for (let i = 0; i < puntosJuego.length; i++) {
@@ -482,6 +496,12 @@ const Partida = ({ route, navigation }) => {
     } else {
       if (contador1 === 3 && contador2 === 3) {
         setGoldenPoint(true);
+      }
+      if(serve == false && contador2 == 3){
+        breakChance.current=true;
+      }
+      if(serve==true && contador1==3){
+        breakChance.current=true;
       }
       if (contador1 === 4) {
         setJuegosE1(juegosE1 + 1);
@@ -558,6 +578,7 @@ const Partida = ({ route, navigation }) => {
       if (partidaTerminadaForzadamente.current == false) {
         setJuegosE1(0);
         setJuegosE2(0);
+        ordenJuegos.current=0;
         updateSets();
       }
       updateSet.current = false;
@@ -603,6 +624,7 @@ const Partida = ({ route, navigation }) => {
         setPuntosJuego={setPuntosJuego}
         tiebreak={isTiebreak}
         serve={serve}
+        breakChance={breakChance}
         marcadorE2={marcadorE2}
         marcadorE1={marcadorE1}
         cancelarPunto={cancelPunto}
