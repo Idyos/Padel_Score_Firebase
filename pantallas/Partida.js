@@ -165,7 +165,7 @@ const Partida = ({ route, navigation }) => {
 
   const updateJuego = async (team) => {
     setGoldenPoint(false);
-    breakChance.current=false;
+   
     ordenJuegos.current++;
     const serving = serve ? "equipo2" : "equipo1";
     try {
@@ -348,6 +348,7 @@ const Partida = ({ route, navigation }) => {
       setPuntosJuego([]);
     });
     setServe(!serve);
+    breakChance.current=false;
   };
 
   const updateSets = async (value = 0) => {
@@ -496,12 +497,6 @@ const Partida = ({ route, navigation }) => {
     } else {
       if (contador1 === 3 && contador2 === 3) {
         setGoldenPoint(true);
-      }
-      if(serve == false && contador2 == 3){
-        breakChance.current=true;
-      }
-      if(serve==true && contador1==3){
-        breakChance.current=true;
       }
       if (contador1 === 4) {
         setJuegosE1(juegosE1 + 1);
