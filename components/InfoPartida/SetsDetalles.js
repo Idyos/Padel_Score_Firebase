@@ -34,10 +34,6 @@ const SetsDetalles = (props) => {
   const gamesOnSetTeam2 = useRef(0);
 
   useEffect(() => {
-    setPage(0);
-  }, [itemsPerPage]);
-
-  useEffect(() => {
     if(set==0) setIsVisible(false);
   }, [set])
 
