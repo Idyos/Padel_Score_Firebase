@@ -21,7 +21,6 @@ import {
   doc,
 } from "firebase/firestore";
 
-const optionsPerPage = [2, 3, 4];
 
 const SetsDetalles = (props) => {
   const set = props.value;
@@ -29,8 +28,6 @@ const SetsDetalles = (props) => {
   const juegoNum = useRef(0);
   const [isVisible, setIsVisible] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [page, setPage] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState(optionsPerPage[0]);
   const [pointsOnGame, setPointsOnGame] = useState([]);
 
   const gamesOnSetTeam1 = useRef(0);

@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View } from "react-native";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { ActivityIndicator, DataTable } from "react-native-paper";
+import PuntoDetalles from "./PuntoDetalles";
+import { UserInterfaceIdiom } from "expo-constants";
 
 const JuegoDetalles = ({
   E1,
@@ -10,14 +12,15 @@ const JuegoDetalles = ({
   isLoaded,
   pointsOnGame,
 }) => {
-  console.log(pointsOnGame[0]);
+  const [SelectedPoint, setSelectedPoint] = useState(undefined);
   const pointsOnGameTeam1 = useRef(0);
   const pointsOnGameTeam2 = useRef(0);
-
+  const isPointDetailVisible = useRef(false);
   pointsOnGameTeam1.current = 0;
   pointsOnGameTeam2.current = 0;
-
+  console.log(pointsOnGame[0]);
   const ScoreCorrecto = (team) => {
+    
     if(team==0){
       switch (pointsOnGameTeam1.current) {
         case 0:
@@ -33,8 +36,11 @@ const JuegoDetalles = ({
           pointsOnGameTeam1.current = "Win";
           break;
         }
+       
     }
+   
     if(team==1){
+     
       switch (pointsOnGameTeam2.current) {
         case 0:
           pointsOnGameTeam2.current = 15;
@@ -46,10 +52,13 @@ const JuegoDetalles = ({
           pointsOnGameTeam2.current = 40;
           break; 
         case 40:
-          pointsOnGameTeam2.current = "Win";
+          pointsOnGameTeam1.current="";  
+        pointsOnGameTeam2.current = "Win";
+          
           break;
       }
     }
+    
   };
 
   return !isVisible ? (
@@ -72,7 +81,7 @@ const JuegoDetalles = ({
                 style={{ justifyContent: "center" }}
                 key={index}
                 numeric
-                onPress={() => console.log("ee")}
+                onPress={() => {setSelectedPoint(pointsOnGame[0][index]), isPointDetailVisible.current=true}}
                 textStyle={
                   element.team == "0" ? styles.wonGame : styles.lostGame
                 }
@@ -94,7 +103,7 @@ const JuegoDetalles = ({
                 style={{ justifyContent: "center" }}
                 key={index}
                 numeric
-                onPress={() => console.log("ee")}
+                onPress={() => {setSelectedPoint(pointsOnGame[0][index]),isPointDetailVisible.current=true}}
                 textStyle={
                   element.team == "1" ? styles.wonGame : styles.lostGame
                 }
@@ -105,6 +114,10 @@ const JuegoDetalles = ({
           })}
         </DataTable.Row>
       </DataTable>
+      <PuntoDetalles
+        SelectedPoint={SelectedPoint}
+        isPointDetailVisible={isPointDetailVisible.current}
+      />
     </>
   );
 };
