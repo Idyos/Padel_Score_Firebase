@@ -5,6 +5,7 @@ import {
   BackHandler,
   Animated,
   ScrollView,
+  Share
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useEffect, useState, useRef } from "react";
@@ -33,24 +34,69 @@ import {
   deleteDoc,
   doc,
 } from "firebase/firestore";
+import { useNavigation } from '@react-navigation/native';
 
-
-
-
+const shareMatch = async (id) => {
+  try {
+    const result = await Share.share({
+      message:
+        `https://contadorpadel.online/?matchId=${id}`,
+    });
+    if (result.action === Share.sharedAction) {
+      if (result.activityType) {
+        // shared with activity type of result.activityType
+      } else {
+        // shared
+      }
+    } else if (result.action === Share.dismissedAction) {
+      // dismissed
+    }
+  } catch (error) {
+    Alert.alert(error.message);
+  }
+}
 const InfoPartida = ({ route, theme }) => {
+  const navigation = useNavigation();
   const infoTeam = route.params[0];
   const id = route.params[1];
   const infoSets = route.params[2];
   const sets = route.params[3];
   const normas = route.params[4];
-  const [setsResults, setSetsResults] = useState([
-    { value: "0", label: "Partida" },
-  ]);
+  const [setsResults, setSetsResults] = useState([{ value: "0", label: "Partida" },]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [setData, setSetData] = useState([]);
   const [visible, setVisible] = useState(false);
   const [dataType, setDataType] = useState(false);
   const [tipoJugadores, setTipoJugadores] = useState(false);
+  const [visibleShare, setVisibleShare] = useState(false);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Menu
+        visible={visibleShare}
+        onDismiss={() => setVisibleShare(false)}
+        anchor={
+          <IconButton
+            icon="share"
+            size={30}
+            onPress={() => {shareMatch(id), setVisibleShare(!visibleShare)}}
+          />
+        }
+      >
+        <Menu.Item
+          trailingIcon="share"
+          onPress={() => {
+            shareMatch(id); setVisibleShare(false);
+          }}
+          title="Compartir"
+        />
+      </Menu>
+      ),
+    });
+  }, []);
+
+  console.log(visibleShare);
 
   useEffect(() => {
     if (setsResults.length === 1 && normas.aTiempo === false) {
@@ -97,12 +143,9 @@ const InfoPartida = ({ route, theme }) => {
     getSetsData();
   }, []);
 
-
-
-
-
   return !isLoaded ? (
     <ActivityIndicator />
+
   ) : (
     <ScrollView
       style={[styles.pantalla, { backgroundColor: theme.colors.background }]}
