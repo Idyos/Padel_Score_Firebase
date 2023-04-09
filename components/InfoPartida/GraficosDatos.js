@@ -10,7 +10,6 @@ import {
     Text,
   } from "react-native-paper";
   import { Easing, EasingNode } from "react-native-reanimated";
-import AnimatedNumber from "react-native-animated-numbers";
 
 const GraficoInfo = ({
     matchData,
