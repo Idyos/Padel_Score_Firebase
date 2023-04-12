@@ -10,7 +10,7 @@ import {
   Button,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import React, { Component, useEffect, useRef, useState } from "react";
+import React, { Component, useEffect, useMemo, useRef, useState } from "react";
 import {
   confirmPasswordReset,
   getAuth,
@@ -48,6 +48,8 @@ const Principal = ({ navigation }) => {
   const longPress = useRef(false);
   const cancelarBorrar = useRef(false);
 
+  const matchCount = useRef(0);
+
   const theme = useTheme();
   const auth = getAuth();
 
@@ -74,6 +76,18 @@ const Principal = ({ navigation }) => {
     }
   };
 
+  const animateItem = (index) => {
+    const animation = new Animated.Value(-400);
+    Animated.timing(animation, {
+      toValue: 0,
+      duration: 500,
+      delay: index * 100,
+      useNativeDriver: true,
+      // easing: Easing.out(Easing.exp),
+    }).start();
+    return animation;
+  };
+
   const fadeAnim = useRef(new Animated.Value(-400)).current;
 
   useEffect(() => {
@@ -95,44 +109,57 @@ const Principal = ({ navigation }) => {
       );
       try {
         const querySnapshot = await getDocs(q);
-        try{
-        querySnapshot.forEach(async (doc) => {
-          const q = collection(database, `Partidas/${doc.id}/PartidoCompleto`);
-          const querySnapshot = await getDocs(q);
-          let equipos = {};
-          let sets = {};
-          let normas = {};
-          let setsData = [];
+        matchCount.current=querySnapshot.size;
+        try {
           
-          querySnapshot.forEach(async (match) => {
-            match.data().infoequipos === undefined
-              ? ""
-              : (equipos = match.data().infoequipos);
-            match.data().normas === undefined
-              ? ""
-              : (normas = match.data().normas);
-            match.data().set === undefined ? "" : (sets = match.data().set);
-            match.data().infoSets === undefined
-              ? ""
-              : (setsData = match.data().infoSets);
+          querySnapshot.forEach(async (doc) => {
+            const q = collection(
+              database,
+              `Partidas/${doc.id}/PartidoCompleto`
+            );
+            
+            const querySnapshot = await getDocs(q);
+            let equipos = {};
+            let sets = {};
+            let normas = {};
+            let setsData = [];
 
-            match.data().set === undefined
-              ? ""
-              : setPartidas((current) => [
-                  ...current,
-                  [equipos, doc.id, sets, setsData, normas],
-                ]);
+            querySnapshot.forEach(async (match) => {
+              match.data().infoequipos === undefined
+                ? ""
+                : (equipos = match.data().infoequipos);
+              match.data().normas === undefined
+                ? ""
+                : (normas = match.data().normas);
+              match.data().set === undefined ? "" : (sets = match.data().set);
+              match.data().infoSets === undefined
+                ? ""
+                : (setsData = match.data().infoSets);
+
+              match.data().set === undefined
+                ? ""
+                : setPartidas((current) => [
+                    ...current,
+                    [equipos, doc.id, sets, setsData, normas],
+                  ]);
+            });
           });
-        });
-      }
-      finally{setHasLoaded(true)}
-        
+        } catch (error) {
+          console.log(error);
+        }
       } catch (error) {
         console.log(error);
+      } finally {
       }
     };
     getMatches();
   }, [navigation]);
+
+
+  //PELIGROSO, YA QUE SI NO TIENE INFO DE SETS NO SE VA A MOSTRAR NINGUNA PARTIDA
+  useEffect(() => {
+    if (partidas.length !== 0 && partidas.length===matchCount.current) setHasLoaded(true);
+  }, [partidas]);
 
   const deleteMatch = async (id) => {
     console.log(id);
@@ -163,7 +190,7 @@ const Principal = ({ navigation }) => {
             style={styles.listaPartidas}
             contentContainerStyle={styles.listaPartidasContainer}
             data={partidas}
-            renderItem={({ item }) => (
+            renderItem={({ item, index }) => (
               <TouchableOpacity>
                 <Animated.View
                   style={{ transform: [{ translateX: fadeAnim }] }}
