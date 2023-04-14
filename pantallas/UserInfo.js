@@ -20,6 +20,8 @@ import { TouchableOpacity } from "react-native";
 import { getAuth, signOut, updateProfile } from "firebase/auth";
 import { Easing } from "react-native-reanimated";
 import { DarkLightContext } from "../components/DarkLightTheme";
+import InfoEdit from "../components/UserInfo/InfoEdit";
+import * as ImagePicker from 'expo-image-picker';
 
 const windowHeight = Dimensions.get("window").height;
 
@@ -46,11 +48,19 @@ const UpdateProfile = () => {
 
 
 
+
 const Profile = () => {
   const {darkMode, setDarkMode} = useContext(DarkLightContext);
   //const [ darkMode, setDarkMode ] = useState(false);
+  const [editProfile, setEditProfile] = useState(false);
   const theme = useTheme();
   const progress = useRef(new Animated.Value(0)).current;  
+
+  const palabras = auth.currentUser.displayName.split(' ');
+  var primerasLetras = '';
+   for (let i = 0; i < Math.min(palabras.length, 2); i++) {
+     primerasLetras += palabras[i].charAt(0).toUpperCase();
+   }
 
   const LogOutAnimation = (type) => {
     if (type == true) {
@@ -70,8 +80,30 @@ const Profile = () => {
     }
   };
 
+
+  const [image, setImage] = useState(null);
+
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
+
+
+
   return (
     <SafeAreaView>
+      {editProfile ? <InfoEdit setEditProfile={setEditProfile} /> :      
       <TouchableOpacity
         style={[
           styles.partidaInfo,
@@ -80,9 +112,21 @@ const Profile = () => {
             height: windowHeight / 5,
           },
         ]}
-        onPress={UpdateProfile}
+        onPress={() => setEditProfile(true)}
       >
-        <Avatar.Text size={100} label="SS" />
+        {auth.currentUser.photoURL === null ? (
+            <Avatar.Text
+              style={styles.imagen}
+              size={100}
+              label={primerasLetras}
+            />
+          ) : (
+            <Avatar.Image
+              style={styles.imagen}
+              size={100}
+              source={{ uri: auth.currentUser.photoURL }}
+            />
+          )}
         <IconButton
           style={styles.editarPerfil}
           icon="clipboard-edit"
@@ -96,14 +140,15 @@ const Profile = () => {
             justifyContent: "space-evenly",
           }}
         >
-          <Text style={{ fontSize: 15 }}>
+          <Text style={{ fontSize: 25, fontWeight: 'bold' }}>
             {auth.currentUser.displayName == undefined
               ? "UNDEFINED"
               : auth.currentUser.displayName}
           </Text>
           <Text style={{ fontSize: 15 }}>{auth.currentUser.email}</Text>
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity>}
+ 
       <TouchableOpacity
         onPress={()=>setDarkMode(!darkMode)}
         style={[
@@ -169,6 +214,12 @@ const styles = StyleSheet.create({
     padding: 0,
     width: "95%",
   },
+
+  imagen: {
+    marginLeft: "5%",
+    marginRight: "5%",
+  },
+
   editarPerfil: {
     right: 0,
     top: 0,

@@ -156,7 +156,7 @@ const Principal = ({ navigation }) => {
   }, [navigation]);
 
 
-  //PELIGROSO, YA QUE SI NO TIENE INFO DE SETS NO SE VA A MOSTRAR NINGUNA PARTIDA
+  //PELIGROSO, YA QUE SI NO TIENE INFO DE SETS NO SE VA A MOSTRAR NINGUNA PARTIDA Y NO PRESENTARÁ LAS PARTIDAS
   useEffect(() => {
     if (partidas.length !== 0 && partidas.length===matchCount.current) setHasLoaded(true);
   }, [partidas]);

@@ -23,6 +23,11 @@ export default {
       "supportsTablet": true
     },
     "android": {
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
       "package": "com.javigamo.padelscore",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
