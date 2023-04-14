@@ -158,7 +158,8 @@ const Principal = ({ navigation }) => {
 
   //PELIGROSO, YA QUE SI NO TIENE INFO DE SETS NO SE VA A MOSTRAR NINGUNA PARTIDA Y NO PRESENTARÁ LAS PARTIDAS
   useEffect(() => {
-    if (partidas.length !== 0 && partidas.length===matchCount.current) setHasLoaded(true);
+    if(matchCount.current===0) setHasLoaded(true);
+    else if (partidas.length !== 0 && partidas.length===matchCount.current) setHasLoaded(true);
   }, [partidas]);
 
   const deleteMatch = async (id) => {

@@ -56,11 +56,13 @@ const Profile = () => {
   const theme = useTheme();
   const progress = useRef(new Animated.Value(0)).current;  
 
+  if(auth.currentUser.displayName!==null){
   const palabras = auth.currentUser.displayName.split(' ');
   var primerasLetras = '';
    for (let i = 0; i < Math.min(palabras.length, 2); i++) {
      primerasLetras += palabras[i].charAt(0).toUpperCase();
    }
+  }
 
   const LogOutAnimation = (type) => {
     if (type == true) {
@@ -142,7 +144,7 @@ const Profile = () => {
         >
           <Text style={{ fontSize: 25, fontWeight: 'bold' }}>
             {auth.currentUser.displayName == undefined
-              ? "UNDEFINED"
+              ? "Undefined"
               : auth.currentUser.displayName}
           </Text>
           <Text style={{ fontSize: 15 }}>{auth.currentUser.email}</Text>

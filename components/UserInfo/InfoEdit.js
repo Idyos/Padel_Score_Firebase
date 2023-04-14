@@ -30,12 +30,16 @@ const InfoEdit = ({ setEditProfile }) => {
   const [photo, setPhoto] = useState(auth.currentUser.photoURL);
   const [guardarAsync, setGuardarAsync] = useState(false);
   const [guardar, setGuardar] = useState(true);
-
-  const palabras = auth.currentUser.displayName.split(" ");
   var primerasLetras = "";
-  for (let i = 0; i < Math.min(palabras.length, 2); i++) {
-    primerasLetras += palabras[i].charAt(0).toUpperCase();
-  }
+  useEffect(() => {
+    if (name !== null) {
+        const palabras = auth.currentUser.displayName.split(" ");
+        for (let i = 0; i < Math.min(palabras.length, 2); i++) {
+          primerasLetras += palabras[i].charAt(0).toUpperCase();
+        }
+      }
+  }, [])
+  
 
   useEffect(() => {
     //console.log(name=="");
