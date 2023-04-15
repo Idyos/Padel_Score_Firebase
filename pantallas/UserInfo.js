@@ -22,6 +22,8 @@ import { Easing } from "react-native-reanimated";
 import { DarkLightContext } from "../components/DarkLightTheme";
 import InfoEdit from "../components/UserInfo/InfoEdit";
 import * as ImagePicker from 'expo-image-picker';
+import SearchScreen from "../components/testUsuarios";
+import UserAvatar from "../components/UserAvatar";
 
 const windowHeight = Dimensions.get("window").height;
 
@@ -32,22 +34,6 @@ const SalirSesion = () => {
       console.log(error);
     });
 };
-
-const UpdateProfile = () => {
-  //const auth = getAuth();
-
-  console.log(auth.displayName);
-  /*updateProfile(auth)
-    .then(() => {
-      console.log("CHAU");
-    })
-    .catch((error) => {
-      // An error happened.
-    });*/
-};
-
-
-
 
 const Profile = () => {
   const {darkMode, setDarkMode} = useContext(DarkLightContext);
@@ -82,27 +68,6 @@ const Profile = () => {
     }
   };
 
-
-  const [image, setImage] = useState(null);
-
-  const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    console.log(result);
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
-  };
-
-
-
   return (
     <SafeAreaView>
       {editProfile ? <InfoEdit setEditProfile={setEditProfile} /> :      
@@ -116,19 +81,7 @@ const Profile = () => {
         ]}
         onPress={() => setEditProfile(true)}
       >
-        {auth.currentUser.photoURL === null ? (
-            <Avatar.Text
-              style={styles.imagen}
-              size={100}
-              label={primerasLetras}
-            />
-          ) : (
-            <Avatar.Image
-              style={styles.imagen}
-              size={100}
-              source={{ uri: auth.currentUser.photoURL }}
-            />
-          )}
+        <UserAvatar foto={auth.currentUser.photoURL} nombre={auth.currentUser.displayName} size={100}/>
         <IconButton
           style={styles.editarPerfil}
           icon="clipboard-edit"
@@ -200,6 +153,7 @@ const Profile = () => {
           ]}
         ></Animated.View>
       </TouchableOpacity>
+      <SearchScreen />
     </SafeAreaView>
   );
 };

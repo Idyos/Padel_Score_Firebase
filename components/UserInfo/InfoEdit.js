@@ -19,6 +19,8 @@ import {
 } from "react-native-paper";
 import { getAuth, signOut, updateProfile } from "firebase/auth";
 import * as ImagePicker from "expo-image-picker";
+import { database } from "../../src/config/fb";
+import { doc, setDoc } from "firebase/firestore";
 
 const windowHeight = Dimensions.get("window").height;
 
@@ -60,17 +62,29 @@ const InfoEdit = ({ setEditProfile }) => {
       quality: 1,
     });
 
-    console.log(result);
-
     setPhoto(result.assets[0].uri);
   };
 
-  const guardarPerfil = () => {
+  console.log(photo);
+
+  const guardarPerfil = async () => {
     setGuardarAsync(true);
     if (email !== auth.currentUser.email) {
       alert("EMAIL DIFERENTE");
       setGuardarAsync(false);
     } else {
+      console.log(auth.currentUser.phoneNumber);
+      console.log(photo);
+      await setDoc(doc(database, `Usuarios/${auth.currentUser.uid}`), {
+        displayName:
+          name !== auth.currentUser.displayName
+            ? name
+            : auth.currentUser.displayName,
+        photoURL:
+          photo !== auth.currentUser.photoURL
+            ? photo===null ? null : photo
+            : auth.currentUser.photoURL,
+      }, {merge: true} );
       updateProfile(auth.currentUser, {
         displayName:
           name !== auth.currentUser.displayName
@@ -78,7 +92,7 @@ const InfoEdit = ({ setEditProfile }) => {
             : auth.currentUser.displayName,
         photoURL:
           photo !== auth.currentUser.photoURL
-            ? photo
+            ? photo===null ? null : photo
             : auth.currentUser.photoURL,
       })
         .then(() => {
