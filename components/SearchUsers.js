@@ -6,8 +6,8 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { database } from "../src/config/fb";
 import UserAvatar from "./UserAvatar";
 
-const SearchScreen = () => {
-  const [searchText, setSearchText] = useState("");
+const SearchScreen = ({searchText, navigation}) => {
+
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -37,16 +37,11 @@ const SearchScreen = () => {
   };
 
   return (
-    <View>
-      <TextInput
-        placeholder="Buscar usuarios"
-        value={searchText}
-        onChangeText={(text) => setSearchText(text)}
-      />
+    <View style={styles.searchResults}>
       <FlatList
         data={users}
         renderItem={({ item, index }) => (
-          <TouchableNativeFeedback>
+          <TouchableNativeFeedback onPress={() => navigation.navigate("perfilUsuario", item)}>
             <View style={[styles.user, index===0 ? {borderTopWidth: 1} : null]}>
             <UserAvatar foto={item.photoURL} nombre={item.displayName} />
             <Text style={{fontSize: 20}}>{item.displayName}</Text>
@@ -65,7 +60,12 @@ user:{
     alignItems: 'center',
     padding: 10,
     borderBottomWidth: 1,
-}
+},
+
+searchResults: {
+  flexGrow: 1,
+},
+
 });
 
 export default SearchScreen;

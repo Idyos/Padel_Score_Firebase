@@ -25,6 +25,8 @@ import { combineTransition } from "react-native-reanimated";
 import { IconButton, Menu } from "react-native-paper";
 import {Alert, Share, View, Button} from 'react-native';
 import Partida2 from "./pantallas/Partida2";
+import BuscarUsuarios from "./pantallas/BuscarUsuarios";
+import PerfilUsuario from "./pantallas/PerfilUsuario";
 
 
 const Stack = createNativeStackNavigator();
@@ -70,6 +72,16 @@ function Home() {
               color={color}
               size={26}
             />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="buscar"
+        component={BuscarUsuarios}
+        options={{
+          tabBarLabel: "Buscar",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="magnify" color={color} size={26} />
           ),
         }}
       />
@@ -122,6 +134,11 @@ export default function App() {
             <Stack.Screen
               name="partida"
               component={Partida}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="perfilUsuario"
+              component={PerfilUsuario}
               options={{ headerShown: false }}
             />
              <Stack.Screen

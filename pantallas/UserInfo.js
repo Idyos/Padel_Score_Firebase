@@ -22,7 +22,7 @@ import { Easing } from "react-native-reanimated";
 import { DarkLightContext } from "../components/DarkLightTheme";
 import InfoEdit from "../components/UserInfo/InfoEdit";
 import * as ImagePicker from 'expo-image-picker';
-import SearchScreen from "../components/testUsuarios";
+import SearchScreen from "../components/SearchUsers";
 import UserAvatar from "../components/UserAvatar";
 
 const windowHeight = Dimensions.get("window").height;

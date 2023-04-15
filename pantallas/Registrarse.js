@@ -6,50 +6,108 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState } from "react";
-import { TextInput } from "react-native-paper";
+import { ActivityIndicator, HelperText, TextInput, useTheme } from "react-native-paper";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { database } from "../src/config/fb";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 const Registrarse = ({navigation}) => {
+  const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
+  const [nameError, setNameError] = useState(["", false]);
+  const [emailError, setEmailError] = useState(["", false]);
+  const [passError, setPassError] = useState(["", false]);
   const [pass, setPass] = useState("");
   const [pass2, setPass2] = useState("");
+  const [registerTry, setRegisterTry] = useState(false);
+  const theme = useTheme();
+
+
+  const hasNameErrors = (errorCode, type) => {
+    if (errorCode === true) setNameError([type, true]);
+  };
+  const hasEmailErrors = (errorCode, type) => {
+    if (errorCode === true)setEmailError([type, true]);
+  };
+  const hasPassErrors = (errorCode, type) => {
+    if (errorCode === true) setPassError([type, true]);
+  };
+
 
   const handleRegister = () => {
-    if (pass != pass2) {
-      alert("Las contraseñas no coinciden.");
-    } else {
+    if(nombre===""){
+      hasNameErrors(true, "Completa el campo del nombre");
+      setTimeout(() => {
+        setRegisterTry(false);  
+      }, 0);
+      
+    }
+    else if (pass != pass2) {
+      hasPassErrors(true, "Las contraseñas no coinciden");
+      setTimeout(() => {
+        setRegisterTry(false);  
+      }, 0);
+    }
+    else {
       const auth = getAuth();
       createUserWithEmailAndPassword(auth, correo, pass)
-        .then((userCredential) => {
+        .then(async (userCredential) => {
           // Signed in
+          setRegisterTry(false);
           const user = userCredential.user;
-          // ...
+          user.displayName=nombre;
+          await setDoc(doc(database, `Usuarios/${user.uid}`), {displayName: nombre}, {merge: true});
           navigation.navigate("principal");
         })
         .catch((error) => {
+          setRegisterTry(false);
           const errorCode = error.code;
           const errorMessage = error.message;
-          // ..
+          if (errorCode === "auth/invalid-email") hasEmailErrors(true, "Correo incorrecto");
+        if (errorCode === "auth/user-not-found") hasEmailErrors(true, "Este usuario no existe");
+        if (errorCode === "auth/wrong-password") hasPassErrors(true, "Contraseña incorrecta");
+        if (errorCode === "auth/internal-error") hasPassErrors(true, "Error interno");
+        if (errorCode === "auth/too-many-requests") hasPassErrors(true, "Demasiados intentos, espera unos minutos");
+          console.log(errorCode);
         });
     }
   };
 
   return (
     <View style={styles.login}>
+      {registerTry ? 
+      <View style={styles.loading}>
+        <ActivityIndicator style={{opacity: 1}} size={70}  />
+      </View> : null}
       <Text style={styles.title}>Contador Pádel</Text>
       <View style={styles.inputs}>
+      <TextInput
+          selectionColor={nameError[1] ? theme.colors.error : "orange"}
+          activeOutlineColor={nameError[1] ? theme.colors.error : "orange"}
+          mode="outlined"
+          style={styles.inputGeneral}
+          label="Nombre"
+          value={nombre}
+          onChangeText={(text) => {setNombre(text), setNameError(["", false])}}
+        />
+               <HelperText type="error" padding="none" visible={nameError[1]}>
+          {nameError[0]}
+        </HelperText>
         <TextInput
-          selectionColor="orange"
-          activeOutlineColor="orange"
+          selectionColor={emailError[1] ? theme.colors.error : "orange"}
+          activeOutlineColor={emailError[1] ? theme.colors.error : "orange"}
           mode="outlined"
           style={styles.inputGeneral}
           label="Email"
           value={correo}
-          onChangeText={(text) => setCorreo(text)}
+          onChangeText={(text) => {setCorreo(text), setEmailError(["", false])}}
         />
+        <HelperText type="error" padding="none" visible={emailError[1]}>
+          {emailError[0]}
+        </HelperText>
         <TextInput
           selectionColor="orange"
           activeOutlineColor="orange"
@@ -61,17 +119,20 @@ const Registrarse = ({navigation}) => {
           secureTextEntry={true}
         />
         <TextInput
-          selectionColor="orange"
-          activeOutlineColor="orange"
+           selectionColor={passError[1] ? theme.colors.error : "orange"}
+           activeOutlineColor={passError[1] ? theme.colors.error : "orange"}
           mode="outlined"
           style={styles.inputGeneral}
           value={pass2}
-          onChangeText={(text) => setPass2(text)}
+          onChangeText={(text) => {setPass2(text), setPassError(["", false])}}
           label="Confirmar contraseña"
           secureTextEntry={true}
         />
+         <HelperText type="error" padding="none" visible={passError[1]}>
+          {passError[0]}
+        </HelperText>
       </View>
-      <TouchableOpacity style={styles.registrarBoton} onPress={handleRegister}>
+      <TouchableOpacity style={styles.registrarBoton} onPress={() => {handleRegister(), setRegisterTry(true)}}>
         <Text style={styles.siguienteTexto}>Registrarse</Text>
       </TouchableOpacity>
     </View>
@@ -87,6 +148,17 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     alignItems: "center",
     justifyContent: "space-evenly",
+  },
+
+  loading: {
+    width: "100%",
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    height: "100%",
+    top: 0,
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent:'center',
+    zIndex: 3,
   },
 
   title: {
