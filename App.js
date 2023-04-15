@@ -24,6 +24,7 @@ import { DarkLightContext, DarkLightTheme } from "./components/DarkLightTheme";
 import { combineTransition } from "react-native-reanimated";
 import { IconButton, Menu } from "react-native-paper";
 import {Alert, Share, View, Button} from 'react-native';
+import Partida2 from "./pantallas/Partida2";
 
 
 const Stack = createNativeStackNavigator();
@@ -121,6 +122,11 @@ export default function App() {
             <Stack.Screen
               name="partida"
               component={Partida}
+              options={{ headerShown: false }}
+            />
+             <Stack.Screen
+              name="partida2"
+              component={Partida2}
               options={{ headerShown: false }}
             />
             <Stack.Screen

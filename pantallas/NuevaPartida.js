@@ -48,6 +48,7 @@ const NuevaPartida = ({ navigation, route }) => {
       jugadores: {
         jugador1: {
           nombre: "",
+          playerId: "",
           winners: 0,
           smashes: 0,
           unfError: 0,
@@ -55,6 +56,7 @@ const NuevaPartida = ({ navigation, route }) => {
         },
         jugador2: {
           nombre: "",
+          playerId: "",
           winners: 0,
           smashes: 0,
           unfError: 0,
@@ -71,6 +73,7 @@ const NuevaPartida = ({ navigation, route }) => {
       jugadores: {
         jugador1: {
           nombre: "",
+          playerId: "",
           winners: 0,
           smashes: 0,
           unfError: 0,
@@ -78,6 +81,7 @@ const NuevaPartida = ({ navigation, route }) => {
         },
         jugador2: {
           nombre: "",
+          playerId: "",
           winners: 0,
           smashes: 0,
           unfError: 0,
@@ -99,7 +103,7 @@ const NuevaPartida = ({ navigation, route }) => {
       partidaTerminada: false,
       creadoEn: serverTimestamp(),
     });
-    navigation.navigate("partida", {
+    navigation.navigate("partida2", {
       partidaid: crearPartida.id,
       infoequipos: equipoObj,
       sets: setAmmount,

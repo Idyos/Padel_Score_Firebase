@@ -41,8 +41,7 @@ const InfoEdit = ({ setEditProfile }) => {
   }, [])
   
 
-  useEffect(() => {
-    //console.log(name=="");
+  useEffect(() => { 
     if (name === "") setName(null);
     if (
       name !== auth.currentUser.displayName ||
@@ -142,6 +141,7 @@ const InfoEdit = ({ setEditProfile }) => {
             iconColor="white"
             size={50}
             onPress={openImagePicker}
+            onLongPress={() => setPhoto(null)}
           />
         </View>
         <View

@@ -109,15 +109,16 @@ const Principal = ({ navigation }) => {
       );
       try {
         const querySnapshot = await getDocs(q);
-        matchCount.current=querySnapshot.size;
+        matchCount.current = querySnapshot.size;
+        console.log(querySnapshot.size);
+        if (querySnapshot.size === 0) setHasLoaded(true);
         try {
-          
           querySnapshot.forEach(async (doc) => {
             const q = collection(
               database,
               `Partidas/${doc.id}/PartidoCompleto`
             );
-            
+
             const querySnapshot = await getDocs(q);
             let equipos = {};
             let sets = {};
@@ -137,7 +138,13 @@ const Principal = ({ navigation }) => {
                 : (setsData = match.data().infoSets);
 
               match.data().set === undefined
-                ? ""
+                ? null
+                : setPartidas((current) => [
+                    ...current,
+                    [equipos, doc.id, sets, setsData, normas],
+                  ]);
+              match.data().sets === undefined
+                ? null
                 : setPartidas((current) => [
                     ...current,
                     [equipos, doc.id, sets, setsData, normas],
@@ -155,11 +162,12 @@ const Principal = ({ navigation }) => {
     getMatches();
   }, [navigation]);
 
-
   //PELIGROSO, YA QUE SI NO TIENE INFO DE SETS NO SE VA A MOSTRAR NINGUNA PARTIDA Y NO PRESENTARÁ LAS PARTIDAS
   useEffect(() => {
-    if(matchCount.current===0) setHasLoaded(true);
-    else if (partidas.length !== 0 && partidas.length===matchCount.current) setHasLoaded(true);
+    setTimeout(() => {
+      if (partidas.length !== 0 && partidas.length === matchCount.current)
+        setHasLoaded(true);
+    }, 500);
   }, [partidas]);
 
   const deleteMatch = async (id) => {
