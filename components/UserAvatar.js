@@ -2,7 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { Avatar } from "react-native-paper";
 
-const UserAvatar = ({foto, nombre, size}) => {
+const UserAvatar = ({foto, nombre, size, desde=null}) => {
     if(nombre!==null){
         const palabras = nombre.split(' ');
         var primerasLetras = '';
@@ -15,10 +15,10 @@ const UserAvatar = ({foto, nombre, size}) => {
   return (
     <TouchableOpacity onPress={() => console.log("")}>
       {foto === null ? (
-        <Avatar.Text style={styles.imagen} label={primerasLetras} size={size ? size : 60}/>
+        <Avatar.Text style={desde==="infoedit" ? styles.imagenEdit : styles.imagen} label={primerasLetras} size={size ? size : 60}/>
       ) : (
         <Avatar.Image
-          style={styles.imagen}
+          style={desde==="infoedit" ? styles.imagenEdit : styles.imagen}
           source={{ uri: foto }}
           size={size ? size : 60}
         />
@@ -32,5 +32,10 @@ export default UserAvatar;
 const styles = StyleSheet.create({
     imagen: {
         marginLeft: "10%",
+      },
+
+      imagenEdit: {
+        marginRight: "5%",
+        marginLeft: "5%",
       },
 });

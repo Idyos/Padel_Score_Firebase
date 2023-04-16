@@ -22,13 +22,12 @@ import * as ImagePicker from "expo-image-picker";
 import { database } from "../../src/config/fb";
 import { doc, setDoc } from "firebase/firestore";
 import {
-  getBlob,
   getDownloadURL,
   getStorage,
   ref,
   uploadBytes,
-  uploadString,
 } from "firebase/storage";
+import UserAvatar from "../UserAvatar";
 
 const storage = getStorage();
 
@@ -171,20 +170,7 @@ const InfoEdit = ({ setEditProfile }) => {
         }}
       >
         <View style={{ alignItems: "center", justifyContent: "center" }}>
-          {photo === null ? (
-            <Avatar.Text
-              style={styles.imagen}
-              size={100}
-              label={primerasLetras}
-            />
-          ) : (
-            <Avatar.Image
-              style={styles.imagen}
-              size={100}
-              source={{ uri: photo }}
-            />
-          )}
-
+          <UserAvatar style={styles.imagen} foto={photo} nombre={name} size={100} desde="infoedit"/>
           <IconButton
             style={styles.editarFoto}
             icon="account-circle-outline"

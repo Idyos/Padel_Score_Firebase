@@ -12,7 +12,7 @@ const SearchScreen = ({searchText, navigation}) => {
 
   useEffect(() => {
     const delay = setTimeout(() => {
-      if (searchText !== "") searchUsers();
+      if (searchText !== "" && searchText!==undefined && searchText!==null) searchUsers();
       else setUsers([]);
     }, 500);
 
@@ -21,6 +21,7 @@ const SearchScreen = ({searchText, navigation}) => {
 
   // Función para buscar usuarios
   const searchUsers = async () => {
+    console.log("SEARCHUSERS FUNCTION");
     const q = query(
       collection(database, "Usuarios"),
       where("displayName", ">=", searchText),
