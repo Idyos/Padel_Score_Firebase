@@ -3,7 +3,6 @@ import React from "react";
 import { Avatar } from "react-native-paper";
 
 const UserAvatar = ({foto, nombre, size}) => {
-    console.log(size);
     if(nombre!==null){
         const palabras = nombre.split(' ');
         var primerasLetras = '';
@@ -14,7 +13,7 @@ const UserAvatar = ({foto, nombre, size}) => {
 
 
   return (
-    <TouchableOpacity onPress={() => console.log("hola")}>
+    <TouchableOpacity onPress={() => console.log("")}>
       {foto === null ? (
         <Avatar.Text style={styles.imagen} label={primerasLetras} size={size ? size : 60}/>
       ) : (

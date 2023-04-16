@@ -71,6 +71,7 @@ const Registrarse = ({navigation}) => {
         if (errorCode === "auth/wrong-password") hasPassErrors(true, "Contraseña incorrecta");
         if (errorCode === "auth/internal-error") hasPassErrors(true, "Error interno");
         if (errorCode === "auth/too-many-requests") hasPassErrors(true, "Demasiados intentos, espera unos minutos");
+        if (errorCode === "auth/weak-password") hasPassErrors(true, "Contraseña demasiado débil");
           console.log(errorCode);
         });
     }

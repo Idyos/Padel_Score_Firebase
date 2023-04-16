@@ -35,6 +35,8 @@ const SalirSesion = () => {
     });
 };
 
+console.log(auth.currentUser.photoURL);
+
 const Profile = () => {
   const {darkMode, setDarkMode} = useContext(DarkLightContext);
   //const [ darkMode, setDarkMode ] = useState(false);

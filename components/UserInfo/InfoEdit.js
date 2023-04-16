@@ -21,29 +21,30 @@ import { getAuth, signOut, updateProfile } from "firebase/auth";
 import * as ImagePicker from "expo-image-picker";
 import { database } from "../../src/config/fb";
 import { doc, setDoc } from "firebase/firestore";
+import {
+  getBlob,
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytes,
+  uploadString,
+} from "firebase/storage";
+
+const storage = getStorage();
 
 const windowHeight = Dimensions.get("window").height;
 
 const InfoEdit = ({ setEditProfile }) => {
   const theme = useTheme();
   const auth = getAuth();
+  const imagesRef = ref(storage, `profilePics/${auth.currentUser.uid}`);
   const [email, setEmail] = useState(auth.currentUser.email);
   const [name, setName] = useState(auth.currentUser.displayName);
   const [photo, setPhoto] = useState(auth.currentUser.photoURL);
   const [guardarAsync, setGuardarAsync] = useState(false);
   const [guardar, setGuardar] = useState(true);
-  var primerasLetras = "";
-  useEffect(() => {
-    if (name !== null) {
-        const palabras = auth.currentUser.displayName.split(" ");
-        for (let i = 0; i < Math.min(palabras.length, 2); i++) {
-          primerasLetras += palabras[i].charAt(0).toUpperCase();
-        }
-      }
-  }, [])
-  
 
-  useEffect(() => { 
+  useEffect(() => {
     if (name === "") setName(null);
     if (
       name !== auth.currentUser.displayName ||
@@ -61,38 +62,73 @@ const InfoEdit = ({ setEditProfile }) => {
       aspect: [1, 1],
       quality: 1,
     });
-
     setPhoto(result.assets[0].uri);
   };
 
-  console.log(photo);
+  const imageBlob = (uri) => {
+    console.log(uri);
+    return new Promise((resolve, reject) => {
+      let xhr = new XMLHttpRequest();
+      xhr.onerror = reject;
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4) {
+          resolve(xhr.response);
+        }
+      };
+      xhr.open("GET", uri);
+      xhr.responseType = "blob";
+      xhr.send();
+    });
+  };
 
   const guardarPerfil = async () => {
+    const metadata = {
+      contentType: "image/jpeg",
+    };
     setGuardarAsync(true);
     if (email !== auth.currentUser.email) {
       alert("EMAIL DIFERENTE");
       setGuardarAsync(false);
     } else {
-      console.log(auth.currentUser.phoneNumber);
-      console.log(photo);
-      await setDoc(doc(database, `Usuarios/${auth.currentUser.uid}`), {
-        displayName:
-          name !== auth.currentUser.displayName
-            ? name
-            : auth.currentUser.displayName,
-        photoURL:
-          photo !== auth.currentUser.photoURL
-            ? photo===null ? null : photo
-            : auth.currentUser.photoURL,
-      }, {merge: true} );
+      let photoLink = photo;
+
+      if (photo !== auth.currentUser.photoURL) {
+        imageBlob(photo)
+          .then((resolve) => {
+            uploadBytes(imagesRef, resolve);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+        photoLink = await getDownloadURL(imagesRef);
+      }
+
+      await setDoc(
+        doc(database, `Usuarios/${auth.currentUser.uid}`),
+        {
+          displayName:
+            name !== auth.currentUser.displayName
+              ? name
+              : auth.currentUser.displayName,
+          photoURL:
+            photoLink !== auth.currentUser.photoURL
+              ? photoLink === null
+                ? null
+                : photoLink
+              : auth.currentUser.photoURL,
+        },
+        { merge: true }
+      );
       updateProfile(auth.currentUser, {
         displayName:
           name !== auth.currentUser.displayName
             ? name
             : auth.currentUser.displayName,
         photoURL:
-          photo !== auth.currentUser.photoURL
-            ? photo===null ? null : photo
+          photoLink !== auth.currentUser.photoURL
+            ? photoLink === null
+              ? null
+              : photoLink
             : auth.currentUser.photoURL,
       })
         .then(() => {
