@@ -5,9 +5,10 @@ import "firebase/firestore";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { database } from "../src/config/fb";
 import UserAvatar from "./UserAvatar";
+import { getAuth } from "firebase/auth";
 
-const SearchScreen = ({searchText, navigation}) => {
-
+const SearchScreen = ({searchText, navigation}) => { 
+  const auth = getAuth();
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -42,12 +43,14 @@ const SearchScreen = ({searchText, navigation}) => {
       <FlatList
         data={users}
         renderItem={({ item, index }) => (
+          item.id!==auth.currentUser.uid ?
           <TouchableNativeFeedback onPress={() => navigation.navigate("perfilUsuario", item)}>
             <View style={[styles.user, index===0 ? {borderTopWidth: 1} : null]}>
             <UserAvatar foto={item.photoURL} nombre={item.displayName} />
             <Text style={{fontSize: 20}}>{item.displayName}</Text>
             </View>
           </TouchableNativeFeedback>
+          : null
         )}
         keyExtractor={(item) => item.id}
       />

@@ -11,7 +11,6 @@ const UserAvatar = ({foto, nombre, size, desde=null}) => {
          }
         }
 
-
   return (
     <TouchableOpacity onPress={() => console.log("")}>
       {foto === null ? (

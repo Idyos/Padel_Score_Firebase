@@ -21,12 +21,7 @@ import { getAuth, signOut, updateProfile } from "firebase/auth";
 import * as ImagePicker from "expo-image-picker";
 import { database } from "../../src/config/fb";
 import { doc, setDoc } from "firebase/firestore";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytes,
-} from "firebase/storage";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import UserAvatar from "../UserAvatar";
 
 const storage = getStorage();
@@ -64,8 +59,43 @@ const InfoEdit = ({ setEditProfile }) => {
     setPhoto(result.assets[0].uri);
   };
 
+  const actualizarUsuario = async (photoLink) => {
+    await setDoc(
+      doc(database, `Usuarios/${auth.currentUser.uid}`),
+      {
+        displayName:
+          name !== auth.currentUser.displayName
+            ? name
+            : auth.currentUser.displayName,
+        photoURL:
+          photoLink !== auth.currentUser.photoURL
+            ? photoLink
+            : auth.currentUser.photoURL,
+      },
+      { merge: true }
+    );
+    updateProfile(auth.currentUser, {
+      displayName:
+        name !== auth.currentUser.displayName
+          ? name
+          : auth.currentUser.displayName,
+      photoURL:
+        photoLink !== auth.currentUser.photoURL
+          ? photoLink
+          : auth.currentUser.photoURL,
+    })
+      .then(() => {
+        setGuardarAsync(false);
+        setEditProfile(false);
+        // ...
+      })
+      .catch((error) => {
+        // An error occurred
+        // ...
+      });
+  };
+
   const imageBlob = (uri) => {
-    console.log(uri);
     return new Promise((resolve, reject) => {
       let xhr = new XMLHttpRequest();
       xhr.onerror = reject;
@@ -81,65 +111,23 @@ const InfoEdit = ({ setEditProfile }) => {
   };
 
   const guardarPerfil = async () => {
-    const metadata = {
-      contentType: "image/jpeg",
-    };
     setGuardarAsync(true);
     if (email !== auth.currentUser.email) {
       alert("EMAIL DIFERENTE");
       setGuardarAsync(false);
     } else {
-      let photoLink = photo;
-
-      if (photo !== auth.currentUser.photoURL) {
-        imageBlob(photo)
-          .then((resolve) => {
-            uploadBytes(imagesRef, resolve);
-          })
-          .catch((error) => {
-            console.log(error);
+      imageBlob(photo)
+        .then((resolve) => {
+          uploadBytes(imagesRef, resolve).then(() => {
+            getDownloadURL(imagesRef).then((link) => {
+                actualizarUsuario(link);
+            });
           });
-        photoLink = await getDownloadURL(imagesRef);
-      }
-
-      await setDoc(
-        doc(database, `Usuarios/${auth.currentUser.uid}`),
-        {
-          displayName:
-            name !== auth.currentUser.displayName
-              ? name
-              : auth.currentUser.displayName,
-          photoURL:
-            photoLink !== auth.currentUser.photoURL
-              ? photoLink === null
-                ? null
-                : photoLink
-              : auth.currentUser.photoURL,
-        },
-        { merge: true }
-      );
-      updateProfile(auth.currentUser, {
-        displayName:
-          name !== auth.currentUser.displayName
-            ? name
-            : auth.currentUser.displayName,
-        photoURL:
-          photoLink !== auth.currentUser.photoURL
-            ? photoLink === null
-              ? null
-              : photoLink
-            : auth.currentUser.photoURL,
-      })
-        .then(() => {
-          setGuardarAsync(false);
-          setEditProfile(false);
-          // ...
         })
         .catch((error) => {
-          // An error occurred
-          // ...
+          console.log(error);
         });
-    }
+    }   
   };
 
   return (
@@ -170,7 +158,13 @@ const InfoEdit = ({ setEditProfile }) => {
         }}
       >
         <View style={{ alignItems: "center", justifyContent: "center" }}>
-          <UserAvatar style={styles.imagen} foto={photo} nombre={name} size={100} desde="infoedit"/>
+          <UserAvatar
+            style={styles.imagen}
+            foto={photo}
+            nombre={name}
+            size={100}
+            desde="infoedit"
+          />
           <IconButton
             style={styles.editarFoto}
             icon="account-circle-outline"
