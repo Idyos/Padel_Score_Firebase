@@ -163,6 +163,8 @@ const Partida = ({ route, navigation }) => {
   ];
   const updateSet = useRef(false);
 
+
+  //A LAS CLOUD FUNCTION, HACER QUE SI UNA PARTIDA LLEVA CON EL TAG DE PARTIDATERMINADA=FALSE MAS DE 6 HORAS, QUE PASE A TERMINADA.
   const updateJuego = async (team) => {
     setGoldenPoint(false);
    
