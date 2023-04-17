@@ -75,13 +75,13 @@ const SetsDetalles = (props) => {
           if (element.winner == "equipo1") gamesOnSetTeam1.current++;
           return (
             <DataTable.Cell
-              disabled={element.winner == "equipo1" ? false : true}
+              disabled={element.winner=="null" ? false : element.winner == "equipo1" ? false : true}
               style={{ justifyContent: "center" }}
               key={index}
               numeric
               onPress={() => getPuntosJuego(index+1)}
               textStyle={
-                element.winner == "equipo1" ? styles.wonGame : styles.lostGame
+                element.winner=="null" ? styles.wonGame : element.winner == "equipo1" ? styles.wonGame : styles.lostGame
               }
             >
               {gamesOnSetTeam1.current}
@@ -97,13 +97,13 @@ const SetsDetalles = (props) => {
           if (element.winner == "equipo2") gamesOnSetTeam2.current++;
           return (
             <DataTable.Cell
-              disabled={element.winner == "equipo2" ? false : true}
+              disabled={element.winner=="null" ? false : element.winner == "equipo2" ? false : true}
               style={{ justifyContent: "center" }}
               key={index}
               numeric
               onPress={() => getPuntosJuego(index+1)}
               textStyle={
-                element.winner == "equipo2" ? styles.wonGame : styles.lostGame
+                element.winner=="null" ? styles.wonGame : element.winner == "equipo2" ? styles.wonGame : styles.lostGame
               }
             >
               {gamesOnSetTeam2.current}
@@ -113,8 +113,7 @@ const SetsDetalles = (props) => {
       </DataTable.Row>
     </DataTable>
     <JuegoDetalles 
-    E1={props.infoTeam.equipo1.nombre}
-    E2={props.infoTeam.equipo2.nombre}
+    teams={props.infoTeam}
     juego={juegoNum.current}
     isVisible={isVisible}
     isLoaded={isLoaded}

@@ -73,8 +73,6 @@ const PointDetail = (props) => {
     }
   }
 
-  console.log(props.punto);
-
   return (
     <Portal>
       <Dialog visible={props.visible} style={{ alignItems: "center" }}>

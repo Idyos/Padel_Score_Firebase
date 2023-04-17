@@ -5,8 +5,7 @@ import PuntoDetalles from "./PuntoDetalles";
 import { UserInterfaceIdiom } from "expo-constants";
 
 const JuegoDetalles = ({
-  E1,
-  E2,
+  teams,
   juego,
   isVisible,
   isLoaded,
@@ -18,7 +17,7 @@ const JuegoDetalles = ({
   const isPointDetailVisible = useRef(false);
   pointsOnGameTeam1.current = 0;
   pointsOnGameTeam2.current = 0;
-  console.log(pointsOnGame[0]);
+
   const ScoreCorrecto = (team) => {
     
     if(team==0){
@@ -70,7 +69,7 @@ const JuegoDetalles = ({
       <Text>Juego {juego}</Text>
       <DataTable style={{ alignSelf: "center", width: "100%" }}>
         <DataTable.Header>
-          <DataTable.Title>{E1}</DataTable.Title>
+          <DataTable.Title>{teams.equipo1.nombre}</DataTable.Title>
         </DataTable.Header>
         <DataTable.Row>
           {pointsOnGame[0].map((element, index) => {
@@ -92,7 +91,7 @@ const JuegoDetalles = ({
           })}
         </DataTable.Row>
         <DataTable.Header>
-          <DataTable.Title>{E2}</DataTable.Title>
+          <DataTable.Title>{teams.equipo2.nombre}</DataTable.Title>
         </DataTable.Header>
         <DataTable.Row>
           {pointsOnGame[0].map((element, index) => {
@@ -115,6 +114,7 @@ const JuegoDetalles = ({
         </DataTable.Row>
       </DataTable>
       <PuntoDetalles
+        teams={teams}
         SelectedPoint={SelectedPoint}
         isPointDetailVisible={isPointDetailVisible.current}
       />

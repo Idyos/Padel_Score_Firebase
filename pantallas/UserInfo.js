@@ -35,23 +35,12 @@ const SalirSesion = () => {
     });
 };
 
-
-console.log(auth.currentUser.photoURL);
-
 const Profile = () => {
   const {darkMode, setDarkMode} = useContext(DarkLightContext);
   //const [ darkMode, setDarkMode ] = useState(false);
   const [editProfile, setEditProfile] = useState(false);
   const theme = useTheme();
   const progress = useRef(new Animated.Value(0)).current;  
-
-  if(auth.currentUser.displayName!==null){
-  const palabras = auth.currentUser.displayName.split(' ');
-  var primerasLetras = '';
-   for (let i = 0; i < Math.min(palabras.length, 2); i++) {
-     primerasLetras += palabras[i].charAt(0).toUpperCase();
-   }
-  }
 
   const LogOutAnimation = (type) => {
     if (type == true) {

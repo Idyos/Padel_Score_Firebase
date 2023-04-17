@@ -96,8 +96,6 @@ const InfoPartida = ({ route, theme }) => {
     });
   }, []);
 
-  console.log(visibleShare);
-
   useEffect(() => {
     if (setsResults.length === 1 && normas.aTiempo === false) {
       Object.keys(infoSets).map((item, index) => {
