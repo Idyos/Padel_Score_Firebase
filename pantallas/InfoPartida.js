@@ -5,7 +5,8 @@ import {
   BackHandler,
   Animated,
   ScrollView,
-  Share
+  Share,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useEffect, useState, useRef } from "react";
@@ -34,13 +35,12 @@ import {
   deleteDoc,
   doc,
 } from "firebase/firestore";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
 
 const shareMatch = async (id) => {
   try {
     const result = await Share.share({
-      message:
-        `https://contadorpadel.online/?matchId=${id}`,
+      message: `https://contadorpadel.online/?matchId=${id}`,
     });
     if (result.action === Share.sharedAction) {
       if (result.activityType) {
@@ -54,15 +54,39 @@ const shareMatch = async (id) => {
   } catch (error) {
     Alert.alert(error.message);
   }
-}
-const InfoPartida = ({ route, theme }) => {
-  const navigation = useNavigation();
+};
+
+
+
+const InfoPartida = ({ route, theme, navigation }) => {
+  useEffect(() => {
+    const handleBackButton = () => {
+      // Aquí puedes poner el código que quieres que se ejecute cuando se presiona el botón de retroceso
+      // Si quieres evitar que se vaya hacia atrás en la pantalla actual, utiliza preventDefault()
+      console.log("AOPISJDIAOPSJD");
+      navigation.navigate("principal");
+      return true;
+    };
+
+    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+    };
+  }, []);
+
+  navigation.addListener("beforeRemove", (e) => {
+    e.preventDefault();
+    navigation.navigate("principal");
+  });
   const infoTeam = route.params[0];
   const id = route.params[1];
   const infoSets = route.params[2];
-  const sets = route.params[3];
+  const sets =  route.params[3];
   const normas = route.params[4];
-  const [setsResults, setSetsResults] = useState([{ value: "0", label: "Partida" },]);
+  const [setsResults, setSetsResults] = useState([
+    { value: "0", label: "Partida" },
+  ]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [setData, setSetData] = useState([]);
   const [visible, setVisible] = useState(false);
@@ -74,24 +98,27 @@ const InfoPartida = ({ route, theme }) => {
     navigation.setOptions({
       headerRight: () => (
         <Menu
-        visible={visibleShare}
-        onDismiss={() => setVisibleShare(false)}
-        anchor={
-          <IconButton
-            icon="share"
-            size={30}
-            onPress={() => {shareMatch(id), setVisibleShare(!visibleShare)}}
+          visible={visibleShare}
+          onDismiss={() => setVisibleShare(false)}
+          anchor={
+            <IconButton
+              icon="share"
+              size={30}
+              onPress={() => {
+                shareMatch(id), setVisibleShare(!visibleShare);
+              }}
+            />
+          }
+        >
+          <Menu.Item
+            trailingIcon="share"
+            onPress={() => {
+              shareMatch(id);
+              setVisibleShare(false);
+            }}
+            title="Compartir"
           />
-        }
-      >
-        <Menu.Item
-          trailingIcon="share"
-          onPress={() => {
-            shareMatch(id); setVisibleShare(false);
-          }}
-          title="Compartir"
-        />
-      </Menu>
+        </Menu>
       ),
     });
   }, []);
@@ -118,8 +145,7 @@ const InfoPartida = ({ route, theme }) => {
   const [gamesOnSet, setGamesOnSet] = useState([]);
 
   const getSetsData = async () => {
-    for(let i = 1; i<= sets.length; i++){
-      console.log(i);
+    for (let i = 1; i <= sets.length; i++) {
       const gamesOnSetRef = collection(
         database,
         `/Partidas/${id}/PartidoCompleto/Matchdetails/Set${i}`
@@ -127,15 +153,13 @@ const InfoPartida = ({ route, theme }) => {
       const q = query(gamesOnSetRef, orderBy("order"));
       const gamesOnSet = await getDocs(q);
       let gamesOnSetArray = [];
-    //console.log(gamesOnSet.length);
-    gamesOnSet.forEach((doc) => {
-      gamesOnSetArray.push(doc.data());
-    });
-    setGamesOnSet((prevVer) => [...prevVer, gamesOnSetArray]);
+      gamesOnSet.forEach((doc) => {
+        gamesOnSetArray.push(doc.data());
+      });
+      setGamesOnSet((prevVer) => [...prevVer, gamesOnSetArray]);
     }
     setIsLoaded(true);
   };
-
 
   useEffect(() => {
     getSetsData();
@@ -143,7 +167,6 @@ const InfoPartida = ({ route, theme }) => {
 
   return !isLoaded ? (
     <ActivityIndicator />
-
   ) : (
     <ScrollView
       style={[styles.pantalla, { backgroundColor: theme.colors.background }]}
@@ -345,7 +368,7 @@ const InfoPartida = ({ route, theme }) => {
         tipoJugadores={tipoJugadores}
         dataType={dataType}
       />
-    <SetsDetalles
+      <SetsDetalles
         value={value}
         gamesOnSet={gamesOnSet}
         sets={setsResults}

@@ -40,16 +40,14 @@ import { Easing } from "react-native-reanimated";
 import BorrarPartida from "../components/Principal/BorrarPartida";
 import { useClock } from "react-native-timer-hooks";
 
-const Principal = ({ navigation }) => {
+const Principal = ({ navigation }) => {  
   const [partidas, setPartidas] = useState([]);
   const [isExtended, setIsExtended] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState({ visible: false, id: 5 });
   const longPress = useRef(false);
   const cancelarBorrar = useRef(false);
-
   const matchCount = useRef(0);
-
   const theme = useTheme();
   const auth = getAuth();
 

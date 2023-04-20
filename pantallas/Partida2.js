@@ -4,6 +4,7 @@ import {
   BackHandler,
   TouchableOpacity,
   FlatList,
+  Alert,
 } from "react-native";
 import { database } from "../src/config/fb";
 import {
@@ -13,6 +14,7 @@ import {
   getDoc,
   arrayUnion,
   getDocs,
+  collection,
 } from "firebase/firestore";
 import { Text, IconButton } from "react-native-paper";
 import { useEffect, useRef, useState } from "react";
@@ -22,6 +24,46 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import SalirPartida from "../components/Partida/SalirPartida";
 import PartidaConfig from "../components/Partida/PartidaConfig";
 
+const getMatchDetails = async (id) => {
+    let partida;
+      try {
+          const q = collection(
+            database,
+            `Partidas/${id}/PartidoCompleto`
+          );
+
+          const querySnapshot = await getDocs(q);
+          let equipos = {};
+          let sets = {};
+          let normas = {};
+          let setsData = [];
+
+          querySnapshot.forEach(async (match) => {
+            match.data().infoequipos === undefined
+              ? ""
+              : (equipos = match.data().infoequipos);
+            match.data().normas === undefined
+              ? ""
+              : (normas = match.data().normas);
+            match.data().set === undefined ? "" : (sets = match.data().set);
+            match.data().infoSets === undefined
+              ? ""
+              : (setsData = match.data().infoSets);
+
+            match.data().set === undefined
+              ? null
+              :  partida = [equipos, id, sets, setsData, normas];
+               
+            match.data().sets === undefined
+              ? null
+              : partida = [equipos, id, sets, setsData, normas];
+          });
+          return partida;
+      } catch (error) {
+        console.log(error);
+      }
+  };
+
 async function crearPartida(
   partidaid,
   infoequipos,
@@ -29,7 +71,8 @@ async function crearPartida(
   pOro,
   aTiempo,
   datosJugadores,
-  setInfoSets
+  juegosE1,
+  juegosE2
 ) {
   const normas = { sets: sets, pOro: pOro, aTiempo: aTiempo };
   const matchRef = doc(
@@ -43,7 +86,6 @@ async function crearPartida(
   try {
     const refSnap = await getDoc(matchRef);
     if (!refSnap.exists()) {
-      setInfoSets([{ equipo1: 0, equipo2: 0 }]);
       await setDoc(
         doc(database, `Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
         { infoequipos, normas }
@@ -51,7 +93,7 @@ async function crearPartida(
       await setDoc(
         doc(database, `Partidas/${partidaid}/PartidoCompleto/SetsResults`),
         {
-          infoSets: [{ equipo1: 0, equipo2: 0 }],
+          infoSets: [{ equipo1: juegosE1, equipo2: juegosE2 }],
           set: {
             set1: {
               datosJugadores,
@@ -82,11 +124,14 @@ const Partida2 = ({ route, navigation }) => {
   const terminarPartida = async () => {
     finish.current = true;
     partidaTerminadaForzadamente.current = true;
-    navigation.navigate("tabbar");
 
     updateJuego("null");
     updateSets(true);
     setAtrasPartida(false);
+
+    getMatchDetails(partidaid).then((response) => {
+      navigation.navigate("info-partida", response);
+    });
   };
 
   const partidaid = route.params.partidaid;
@@ -98,6 +143,7 @@ const Partida2 = ({ route, navigation }) => {
   const [isTiebreak, setTiebreak] = useState(false);
   const [goldenPoint, setGoldenPoint] = useState(false);
   const finish = useRef(false);
+  const updateSet = useRef(false);
   const partidaTerminadaForzadamente = useRef(false);
   const equipoPunto = useRef();
   const ordenJuegos = useRef(0);
@@ -105,7 +151,6 @@ const Partida2 = ({ route, navigation }) => {
 
   const datosJugadores = {
     equipo1: {
-      games: 0,
       puntosOro: 0,
       breakPoints: 0,
       breakPointsExito: 0,
@@ -123,7 +168,6 @@ const Partida2 = ({ route, navigation }) => {
       },
     },
     equipo2: {
-      games: 0,
       puntosOro: 0,
       breakPoints: 0,
       breakPointsExito: 0,
@@ -142,8 +186,6 @@ const Partida2 = ({ route, navigation }) => {
     },
   };
 
-
-
   //DEL SERVICIO
   const [serve, setServe] = useState(undefined);
   const [infoSets, setInfoSets] = useState([]);
@@ -158,7 +200,7 @@ const Partida2 = ({ route, navigation }) => {
 
   //JUEGOS DE CADA EQUIPO
   const [juegosE1, setJuegosE1] = useState(0);
-  const [juegosE2, setJuegosE2] = useState(5);
+  const [juegosE2, setJuegosE2] = useState(0);
 
   //SETS DE CADA EQUIPO
   const [setsE1, setSetsE1] = useState(0);
@@ -184,9 +226,6 @@ const Partida2 = ({ route, navigation }) => {
       position: infoequipos.equipo2.position,
     },
   ];
-  const updateSet = useRef(false);
-
-  console.log(infoSets);
 
   const updateJuego = async (team) => {
     setGoldenPoint(false);
@@ -306,25 +345,18 @@ const Partida2 = ({ route, navigation }) => {
     breakChance.current = false;
   };
 
-  const updateSets = async (finish=false) => {
+  const updateSets = async (finish = false) => {
     const setsDoc = doc(
       database,
       `/Partidas/${partidaid}/PartidoCompleto/SetsResults`
     );
     //TODO: No hacer que se añada la info del set con un timeout, sino que se añada cuando se termine de añadir en el sets results
-    setTimeout(async () => {
       if (!finish) {
         try {
           await setDoc(
             setsDoc,
             {
               set: {
-                ["set" + (setsE1 + setsE2)]: {
-                  datosJugadores: {
-                    equipo1: { games: juegosE1 },
-                    equipo2: { games: juegosE2 },
-                  },
-                },
                 ["set" + (setsE1 + setsE2 + 1)]: {
                   datosJugadores,
                 },
@@ -335,15 +367,13 @@ const Partida2 = ({ route, navigation }) => {
         } catch (error) {
           console.log(error);
         }
-      }
-      else{
-   await setDoc(
+      } else {
+        await setDoc(
           doc(database, `Partidas/${partidaid}`),
           { partidaTerminada: true },
           { merge: true }
         );
       }
-    }, 1500);
   };
 
   //RETROCEDER / CANCELAR PUNTOS
@@ -421,16 +451,25 @@ const Partida2 = ({ route, navigation }) => {
     }
   }, [puntosJuego]);
   //CONTADOR DE JUEGOS POR SET
-  useEffect(() => {
-    let nuevosPartidos = [...infoSets];
 
+  const updateInfoSets = () => {
+    console.log(infoSets);
+    if (finish.current==false) {
+      let nuevosPartidos = [...infoSets];
     nuevosPartidos[setsE1 + setsE2] = {
       ...nuevosPartidos[setsE1 + setsE2],
       equipo1: juegosE1,
       equipo2: juegosE2,
     };
+    console.log(nuevosPartidos);
     setInfoSets(nuevosPartidos);
+    } else {
+      setInfoSets(infoSets.pop());
+    }
+  }
+  useEffect(() => {
 
+    updateInfoSets();
     if (aTiempo == false) {
       if (juegosE1 === 6 && juegosE2 === 6) {
         setTiebreak(true);
@@ -440,10 +479,14 @@ const Partida2 = ({ route, navigation }) => {
       if (finish.current == false) {
         if ((juegosE1 >= 6 && juegosE1 - juegosE2 >= 2) || juegosE1 === 7) {
           setSetsE1(setsE1 + 1);
+          setJuegosE1(0);
+          setJuegosE2(0);
           updateSet.current = true;
         }
         if ((juegosE2 >= 6 && juegosE2 - juegosE1 >= 2) || juegosE2 === 7) {
           setSetsE2(setsE2 + 1);
+          setJuegosE1(0);
+          setJuegosE2(0);
           updateSet.current = true;
         }
       }
@@ -464,27 +507,52 @@ const Partida2 = ({ route, navigation }) => {
   //CONTADOR DE SETS POR PARTIDA
   useEffect(() => {
     if (finish.current == false) {
-      if (setsE1 > sets / 2) {
-        alert("SE HA TERMINADO EL PARTIDO, GANADOR: " + datos[0].nombre);
-        updateSets(true);
+      if (setsE1 > sets / 2 && updateSet.current==true) {
+        Alert.alert(
+          'SE HA TERMINADO EL PARTIDO',
+          'Ganador: '+datos[0].nombre,
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                getMatchDetails(partidaid).then((response) => {
+                  navigation.navigate("info-partida", response);
+                });
+              },
+            },
+          ],
+        );
         updateSet.current = false;
         finish.current = true;
+        setInfoSets(infoSets.splice(infoSets.length-1, 1));
+        updateSets();
         return;
       }
-      if (setsE2 > sets / 2) {
-        alert("SE HA TERMINADO EL PARTIDO, GANADOR: " + datos[1].nombre);
-        updateSets(true);
+      if (setsE2 > sets / 2 && updateSet.current==true) {
+        Alert.alert(
+          'SE HA TERMINADO EL PARTIDO',
+          'Ganador: '+datos[1].nombre,
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                getMatchDetails(partidaid).then((response) => {
+                  navigation.navigate("info-partida", response);
+                });
+              },
+            }
+          ],
+        );
         updateSet.current = false;
         finish.current = true;
+        setInfoSets(infoSets.splice(infoSets.length-1, 1));
+        updateSets(true);
         return;
       }
     }
     if (updateSet.current == true) {
       console.log("AÑADIR SIMPLEMENTE UN SET");
-      setInfoSets((current) => [
-        ...current,
-        { equipo1: juegosE1, equipo2: juegosE2 },
-      ]);
+      updateSets();
       updateSet.current = false;
     }
   }, [updateSet.current]);
@@ -498,7 +566,8 @@ const Partida2 = ({ route, navigation }) => {
       pOro,
       aTiempo,
       datosJugadores,
-      setInfoSets
+      juegosE1,
+      juegosE2
     );
   }, []);
 
@@ -585,22 +654,6 @@ const Partida2 = ({ route, navigation }) => {
                     <Text style={styles.marcador}>{item.equipo1}</Text>
                     <Text style={styles.marcador}>{item.equipo2}</Text>
                   </View>
-                  {/* <View style={styles.set}>
-                    <Text style={styles.marcador}>
-                      {finish.current == true
-                        ? ""
-                        : infoSets[index + 1] === undefined
-                        ? juegosE1
-                        : ""}
-                    </Text>
-                    <Text style={styles.marcador}>
-                      {finish.current == true
-                        ? ""
-                        : infoSets[index + 1] === undefined
-                        ? juegosE2
-                        : ""}
-                    </Text>
-                  </View> */}
                 </View>
               )}
               keyExtractor={(item, index) => "key" + index}
