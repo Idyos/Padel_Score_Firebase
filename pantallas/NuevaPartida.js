@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   DatePickerIOS,
   TouchableHighlight,
+  ImagePickerIOS,
 } from "react-native";
 import { database } from "../src/config/fb";
 import {
@@ -22,6 +23,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import firebase from "firebase/app";
+import { MediaTypeOptions, getCameraPermissionsAsync, launchCameraAsync } from "expo-image-picker";
 import {
   HelperText,
   IconButton,
@@ -31,10 +33,13 @@ import {
   TextInput,
   useTheme,
 } from "react-native-paper";
-import { eq } from "react-native-reanimated";
+import { Camera, CameraType } from "expo-camera";
+import { getStorage, ref, uploadBytes } from "@firebase/storage";
+import SearchScreen from "../components/NuevaPartida/SearchUsers";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
+const storage = getStorage();
 
 const NuevaPartida = ({ navigation, route }) => {
   const theme = useTheme();
@@ -42,50 +47,28 @@ const NuevaPartida = ({ navigation, route }) => {
     equipo1: {
       nombre: "Equipo A",
       position: false,
-      puntosOro: 0,
-      breakPoints: 0,
-      breakPointsExito: 0,
       jugadores: {
         jugador1: {
           nombre: "",
           playerId: "",
-          winners: 0,
-          smashes: 0,
-          unfError: 0,
-          smashesExito: 0,
         },
         jugador2: {
           nombre: "",
           playerId: "",
-          winners: 0,
-          smashes: 0,
-          unfError: 0,
-          smashesExito: 0,
         },
       },
     },
     equipo2: {
-      puntosOro: 0,
-      breakPoints: 0,
-      breakPointsExito: 0,
       nombre: "Equipo B",
       position: false,
       jugadores: {
         jugador1: {
           nombre: "",
           playerId: "",
-          winners: 0,
-          smashes: 0,
-          unfError: 0,
-          smashesExito: 0,
         },
         jugador2: {
           nombre: "",
           playerId: "",
-          winners: 0,
-          smashes: 0,
-          unfError: 0,
-          smashesExito: 0,
         },
       },
     },
@@ -96,6 +79,100 @@ const NuevaPartida = ({ navigation, route }) => {
   const [puntoDeOro, setPuntoDeOro] = useState(true);
   const [aTiempo, setATiempo] = useState(false);
   const [tipo, setTipo] = useState(false);
+  const [type, setType] = useState(CameraType.back);
+  const [permission, requestPermission] = Camera.useCameraPermissions();
+  const [cameraRef, setCameraRef] = useState(null);
+  const [hasPermission, setHasPermission] = useState(null);
+  useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(status === 'granted');
+    })();
+  }, []);
+  const imagesRef = ref(storage, `matches/test`);
+
+
+
+const addPlayer = (name, id, type) => { 
+  switch(type){
+    case 0:
+      setEquipoObj({
+        ...equipoObj,
+        equipo1: {
+          ...equipoObj.equipo1,
+          jugadores: {
+            ...equipoObj.equipo1.jugadores,
+            jugador1: {
+              nombre: name,
+              playerId: id,
+            },
+          },
+        },
+      })
+      break;
+    case 1: 
+    setEquipoObj({
+      ...equipoObj,
+      equipo1: {
+        ...equipoObj.equipo1,
+        jugadores: {
+          ...equipoObj.equipo1.jugadores,
+          jugador2: {
+            nombre: name,
+            playerId: id,
+          },
+        },
+      },
+    })
+  }
+}
+
+  function toggleCameraType() {
+    setType((current) =>
+      current === CameraType.back ? CameraType.front : CameraType.back
+    );
+  }
+
+  console.log(equipoObj);
+
+  const takePicture = async () => {
+    if (cameraRef) {
+      const data = await cameraRef.takePictureAsync();
+
+      const imageBlob = (uri) => {
+        return new Promise((resolve, reject) => {
+          let xhr = new XMLHttpRequest();
+          xhr.onerror = reject;
+          xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4) {
+              resolve(xhr.response);
+            }
+          };
+          xhr.open("GET", uri);
+          xhr.responseType = "blob";
+          xhr.send();
+        });
+      };
+      console.log(data.uri);
+      imageBlob(data.uri)
+      .then((resolve) => {
+        uploadBytes(imagesRef, resolve).then(() => {
+          console.log("imagen subida exitosamente");
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    }
+  };
+
+  const openCamera = async () => {
+    const {permission} = getCameraPermissionsAsync();
+    console.log(permission);
+    launchCameraAsync({mediaTypes: MediaTypeOptions.Images, quality: 1, aspect: [4, 3]}, response => {
+      console.log(response.assets[0].uri);
+    });
+  };
 
   const CreacionEquipo = async () => {
     const crearPartida = await addDoc(collection(database, "Partidas"), {
@@ -139,7 +216,7 @@ const NuevaPartida = ({ navigation, route }) => {
             value={equipoObj.equipo1.nombre}
             maxLength={20}
           />
-          <View style={styles.playerSection}>
+          <View style={[styles.playerSection, {zIndex: 2}]}>
             <TextInput
               autoComplete="off"
               mode="flat"
@@ -173,19 +250,21 @@ const NuevaPartida = ({ navigation, route }) => {
                       ...equipoObj.equipo1.jugadores,
                       jugador1: {
                         nombre: text,
-                        winners: 0,
-                        smashes: 0,
-                        unfError: 0,
-                        smashesExito: 0,
+                        playerId: "",
                       },
                     },
                   },
                 })
               }
             />
+            <SearchScreen 
+              addPlayer = {addPlayer}
+              searchText = {equipoObj.equipo1.jugadores.jugador1.nombre}
+              type={0}
+            />
           </View>
 
-          <View style={styles.playerSection}>
+          <View style={[styles.playerSection, {zIndex: 1}]}>
             <TextInput
               autoComplete="off"
               mode="flat"
@@ -219,15 +298,17 @@ const NuevaPartida = ({ navigation, route }) => {
                       ...equipoObj.equipo1.jugadores,
                       jugador2: {
                         nombre: text,
-                        winners: 0,
-                        smashes: 0,
-                        unfError: 0,
-                        smashesExito: 0,
+                        playerId: "",
                       },
                     },
                   },
                 });
               }}
+            />
+            <SearchScreen 
+              addPlayer = {addPlayer}
+              searchText = {equipoObj.equipo1.jugadores.jugador2.nombre}
+              type={1}
             />
           </View>
           <TouchableOpacity
@@ -301,10 +382,7 @@ const NuevaPartida = ({ navigation, route }) => {
                       ...equipoObj.equipo2.jugadores,
                       jugador1: {
                         nombre: text,
-                        winners: 0,
-                        smashes: 0,
-                        unfError: 0,
-                        smashesExito: 0,
+                        playerId: ""
                       },
                     },
                   },
@@ -346,10 +424,7 @@ const NuevaPartida = ({ navigation, route }) => {
                       ...equipoObj.equipo2.jugadores,
                       jugador2: {
                         nombre: text,
-                        winners: 0,
-                        smashes: 0,
-                        unfError: 0,
-                        smashesExito: 0,
+                        playerId: "",
                       },
                     },
                   },
@@ -370,10 +445,40 @@ const NuevaPartida = ({ navigation, route }) => {
     case 2:
       return (
         <View style={styles.pantalla}>
+          {/* <Camera style={{zIndex: 3, width: "100%", height: "100%", aspectRatio: }} useCamera2Api={true} type={type}  ref={ref => {
+          setCameraRef(ref);
+        }}>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={toggleCameraType}
+              >
+                <Text style={styles.text}>Flip Camera</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{
+                  alignContent: 'flex-end',
+                  alignItems: "center",
+                  backgroundColor: 'red',
+                }}
+                onPress={takePicture}
+              >
+                <Text style={{ fontSize: 18, marginBottom: 10, color: "white" }}>
+                  Take Picture
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </Camera> */}
           <Text style={styles.title}>Configuración de la partida</Text>
-          <Surface style={[styles.configureSection, {justifyContent: 'space-between'}]}>
-            <Text style={{fontSize: 20}}>Añadir Imagen: </Text>
-            <Text style={{color: 'red'}}>Función aún no disponible.</Text>
+          <Surface
+            style={[
+              styles.configureSection,
+              { justifyContent: "space-between" },
+            ]}
+          >
+            <Text style={{ fontSize: 20 }}>Añadir Imagen: </Text>
+            <IconButton icon="camera" onPress={() => openCamera()} />
           </Surface>
 
           <Surface
@@ -387,7 +492,10 @@ const NuevaPartida = ({ navigation, route }) => {
               visible={tipo}
               onDismiss={() => setTipo(false)}
               anchor={
-                <TouchableOpacity onPress={() => setTipo(true)} style={{flexDirection: 'row', alignItems: 'center'}}>
+                <TouchableOpacity
+                  onPress={() => setTipo(true)}
+                  style={{ flexDirection: "row", alignItems: "center" }}
+                >
                   <Text style={{ fontSize: 20 }}>
                     {aTiempo == false ? "Sets" : "Tiempo"}
                   </Text>
@@ -397,13 +505,17 @@ const NuevaPartida = ({ navigation, route }) => {
             >
               <Menu.Item
                 onPress={() => {
-                  setATiempo(false), setTipo(false), setNormas({ ...normas, aTiempo: aTiempo, });
+                  setATiempo(false),
+                    setTipo(false),
+                    setNormas({ ...normas, aTiempo: aTiempo });
                 }}
                 title="Sets"
               />
               <Menu.Item
                 onPress={() => {
-                  setATiempo(true), setTipo(false), setNormas({ ...normas, aTiempo: aTiempo, });
+                  setATiempo(true),
+                    setTipo(false),
+                    setNormas({ ...normas, aTiempo: aTiempo });
                 }}
                 title="Tiempo"
               />
@@ -511,6 +623,7 @@ const styles = StyleSheet.create({
 
   playerSection: {
     width: "80%",
+    position: 'relative',
     margin: 10,
     paddingHorizontal: 10,
     paddingVertical: 5,
