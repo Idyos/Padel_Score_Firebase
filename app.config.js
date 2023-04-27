@@ -15,9 +15,10 @@ export default {
     },
     "plugins": [
       [
-        "expo-camera",
+        "expo-image-picker",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
+          "photosPermission": "The app accesses your photos to let you share them with your friends.",
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
         }
       ]
     ],
@@ -31,11 +32,6 @@ export default {
       "supportsTablet": true
     },
     "android": {
-      "permissions": [
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
-      ],
       "package": "com.javigamo.padelscore",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

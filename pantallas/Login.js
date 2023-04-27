@@ -30,11 +30,7 @@ useEffect(() => {
   const auth = getAuth();
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      console.log("HAY USER");
-      // User is signed in, see docs for a list of available properties
-      // https://firebase.google.com/docs/reference/js/firebase.User
       navigation.navigate("tabbar", { screen: "principal" });
-      // ...
     }
     else {
       console.log("NO HAY USER");

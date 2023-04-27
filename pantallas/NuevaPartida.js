@@ -8,10 +8,8 @@ import {
   BackHandler,
   Dimensions,
   Pressable,
+  Image,
   TouchableOpacity,
-  DatePickerIOS,
-  TouchableHighlight,
-  ImagePickerIOS,
 } from "react-native";
 import { database } from "../src/config/fb";
 import {
@@ -23,7 +21,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import firebase from "firebase/app";
-import { MediaTypeOptions, getCameraPermissionsAsync, launchCameraAsync } from "expo-image-picker";
+import * as ImagePicker from "expo-image-picker";
 import {
   HelperText,
   IconButton,
@@ -34,7 +32,7 @@ import {
   useTheme,
 } from "react-native-paper";
 import { Camera, CameraType } from "expo-camera";
-import { getStorage, ref, uploadBytes } from "@firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "@firebase/storage";
 import SearchScreen from "../components/NuevaPartida/SearchUsers";
 
 const windowWidth = Dimensions.get("window").width;
@@ -79,107 +77,103 @@ const NuevaPartida = ({ navigation, route }) => {
   const [puntoDeOro, setPuntoDeOro] = useState(true);
   const [aTiempo, setATiempo] = useState(false);
   const [tipo, setTipo] = useState(false);
-  const [type, setType] = useState(CameraType.back);
-  const [permission, requestPermission] = Camera.useCameraPermissions();
-  const [cameraRef, setCameraRef] = useState(null);
-  const [hasPermission, setHasPermission] = useState(null);
-  useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
-    })();
-  }, []);
-  const imagesRef = ref(storage, `matches/test`);
+  const [image, setImage] = useState();
 
+ 
 
-
-const addPlayer = (name, id, type) => { 
-  switch(type){
-    case 0:
-      setEquipoObj({
-        ...equipoObj,
-        equipo1: {
-          ...equipoObj.equipo1,
-          jugadores: {
-            ...equipoObj.equipo1.jugadores,
-            jugador1: {
-              nombre: name,
-              playerId: id,
+  const addPlayer = (name, id, type) => {
+    switch (type) {
+      case 0:
+        setEquipoObj({
+          ...equipoObj,
+          equipo1: {
+            ...equipoObj.equipo1,
+            jugadores: {
+              ...equipoObj.equipo1.jugadores,
+              jugador1: {
+                nombre: name,
+                playerId: id,
+              },
             },
           },
-        },
-      })
-      break;
-    case 1: 
-    setEquipoObj({
-      ...equipoObj,
-      equipo1: {
-        ...equipoObj.equipo1,
-        jugadores: {
-          ...equipoObj.equipo1.jugadores,
-          jugador2: {
-            nombre: name,
-            playerId: id,
+        });
+        break;
+      case 1:
+        setEquipoObj({
+          ...equipoObj,
+          equipo1: {
+            ...equipoObj.equipo1,
+            jugadores: {
+              ...equipoObj.equipo1.jugadores,
+              jugador2: {
+                nombre: name,
+                playerId: id,
+              },
+            },
           },
-        },
-      },
-    })
-  }
-}
-
-  function toggleCameraType() {
-    setType((current) =>
-      current === CameraType.back ? CameraType.front : CameraType.back
-    );
-  }
-
-  console.log(equipoObj);
-
-  const takePicture = async () => {
-    if (cameraRef) {
-      const data = await cameraRef.takePictureAsync();
-
-      const imageBlob = (uri) => {
-        return new Promise((resolve, reject) => {
-          let xhr = new XMLHttpRequest();
-          xhr.onerror = reject;
-          xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4) {
-              resolve(xhr.response);
-            }
-          };
-          xhr.open("GET", uri);
-          xhr.responseType = "blob";
-          xhr.send();
         });
-      };
-      console.log(data.uri);
-      imageBlob(data.uri)
-      .then((resolve) => {
-        uploadBytes(imagesRef, resolve).then(() => {
-          console.log("imagen subida exitosamente");
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
     }
   };
 
   const openCamera = async () => {
-    const {permission} = getCameraPermissionsAsync();
-    console.log(permission);
-    launchCameraAsync({mediaTypes: MediaTypeOptions.Images, quality: 1, aspect: [4, 3]}, response => {
-      console.log(response.assets[0].uri);
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("You've refused to allow this appp to access your camera!");
+      return;
+    }
+    console.log(permissionResult.granted);
+    try {
+      let result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.7,
+        aspect: [16, 9],
+      });
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+        console.log(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.log("Error occurred while launching the camera: ", error);
+    }
+  };
+
+  const imageBlob = (uri) => {
+    return new Promise((resolve, reject) => {
+      let xhr = new XMLHttpRequest();
+      xhr.onerror = reject;
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4) {
+          resolve(xhr.response);
+        }
+      };
+      xhr.open("GET", uri);
+      xhr.responseType = "blob";
+      xhr.send();
     });
   };
 
   const CreacionEquipo = async () => {
-    const crearPartida = await addDoc(collection(database, "Partidas"), {
-      usuario: route.params.user,
-      partidaTerminada: false,
-      creadoEn: serverTimestamp(),
-    });
+      const crearPartida = await addDoc(collection(database, "Partidas"), {
+        usuario: route.params.user,
+        partidaTerminada: false,
+        creadoEn: serverTimestamp(),
+        imagenPartida: null,
+      });
+      const imagesRef = ref(storage, `matches/${crearPartida.id}`);
+      if(image!==undefined){
+        imageBlob(image)
+        .then((resolve) => {
+          uploadBytes(imagesRef, resolve).then(() => {
+            getDownloadURL(imagesRef).then(async (link) => {
+                await setDoc(doc(database, `Partidas/${crearPartida.id}`), {imagenPartida: link}, {merge: true});
+            });
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      }
     navigation.navigate("partida2", {
       partidaid: crearPartida.id,
       infoequipos: equipoObj,
@@ -216,7 +210,7 @@ const addPlayer = (name, id, type) => {
             value={equipoObj.equipo1.nombre}
             maxLength={20}
           />
-          <View style={[styles.playerSection, {zIndex: 2}]}>
+          <View style={[styles.playerSection, { zIndex: 2 }]}>
             <TextInput
               autoComplete="off"
               mode="flat"
@@ -257,14 +251,14 @@ const addPlayer = (name, id, type) => {
                 })
               }
             />
-            <SearchScreen 
-              addPlayer = {addPlayer}
-              searchText = {equipoObj.equipo1.jugadores.jugador1.nombre}
+            <SearchScreen
+              addPlayer={addPlayer}
+              searchText={equipoObj.equipo1.jugadores.jugador1.nombre}
               type={0}
             />
           </View>
 
-          <View style={[styles.playerSection, {zIndex: 1}]}>
+          <View style={[styles.playerSection, { zIndex: 1 }]}>
             <TextInput
               autoComplete="off"
               mode="flat"
@@ -305,9 +299,9 @@ const addPlayer = (name, id, type) => {
                 });
               }}
             />
-            <SearchScreen 
-              addPlayer = {addPlayer}
-              searchText = {equipoObj.equipo1.jugadores.jugador2.nombre}
+            <SearchScreen
+              addPlayer={addPlayer}
+              searchText={equipoObj.equipo1.jugadores.jugador2.nombre}
               type={1}
             />
           </View>
@@ -382,7 +376,7 @@ const addPlayer = (name, id, type) => {
                       ...equipoObj.equipo2.jugadores,
                       jugador1: {
                         nombre: text,
-                        playerId: ""
+                        playerId: "",
                       },
                     },
                   },
@@ -445,41 +439,47 @@ const addPlayer = (name, id, type) => {
     case 2:
       return (
         <View style={styles.pantalla}>
-          {/* <Camera style={{zIndex: 3, width: "100%", height: "100%", aspectRatio: }} useCamera2Api={true} type={type}  ref={ref => {
-          setCameraRef(ref);
-        }}>
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={toggleCameraType}
-              >
-                <Text style={styles.text}>Flip Camera</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={{
-                  alignContent: 'flex-end',
-                  alignItems: "center",
-                  backgroundColor: 'red',
-                }}
-                onPress={takePicture}
-              >
-                <Text style={{ fontSize: 18, marginBottom: 10, color: "white" }}>
-                  Take Picture
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </Camera> */}
           <Text style={styles.title}>Configuración de la partida</Text>
-          <Surface
-            style={[
-              styles.configureSection,
-              { justifyContent: "space-between" },
-            ]}
-          >
-            <Text style={{ fontSize: 20 }}>Añadir Imagen: </Text>
-            <IconButton icon="camera" onPress={() => openCamera()} />
-          </Surface>
+          {image === undefined ? (
+            <Surface
+              style={[
+                styles.configureSection,
+                { justifyContent: "space-between" },
+              ]}
+            >
+              <Text style={{ fontSize: 20 }}>Añadir Imagen: </Text>
+              <IconButton icon="camera" onPress={() => openCamera()} />
+            </Surface>
+          ) : (
+            <TouchableOpacity
+              style={[
+                styles.configureSection,
+                {
+                  paddingHorizontal: 0,
+                  paddingVertical: 0,
+                  shadowColor: "#000",
+                  shadowOffset: {
+                    width: 0,
+                    height: 5,
+                  },
+                  shadowOpacity: 0.34,
+                  shadowRadius: 6.27,
+
+                  elevation: 10,
+                },
+              ]}
+              activeOpacity={0.8}
+              onLongPress={() => setImage()}
+              delayLongPress={1000}
+            >
+              <Image style={styles.matchImage} source={{ uri: image }} />
+              <IconButton
+                style={styles.editMatchImage}
+                icon="camera-retake"
+                onPress={() => openCamera()}
+              />
+            </TouchableOpacity>
+          )}
 
           <Surface
             style={[
@@ -621,9 +621,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
+  matchImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 15,
+  },
+
+  editMatchImage: {
+    backgroundColor: "white",
+    right: 5,
+    top: 5,
+    position: "absolute",
+  },
+
   playerSection: {
     width: "80%",
-    position: 'relative',
+    position: "relative",
     margin: 10,
     paddingHorizontal: 10,
     paddingVertical: 5,
