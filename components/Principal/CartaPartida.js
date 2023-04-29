@@ -1,6 +1,7 @@
 import {
   StyleSheet,
   View,
+  Image,
   Dimensions,
   FlatList,
   Animated,
@@ -13,20 +14,16 @@ import { withTheme } from "react-native-paper";
 import { doc, getDoc } from "firebase/firestore";
 import { database } from "../../src/config/fb";
 import { Easing } from "react-native-reanimated";
+import { LinearGradient } from 'expo-linear-gradient';
+
 
 
 const windowHeight = Dimensions.get("window").height;
 
 const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation, cancelarBorrar }) => {
   const [logout, setLogout] = useState(false);
-  const [partidaTerminada, setPartidaTerminada] = useState(true);
-
-  const estadoPartida = async () => {
-    const partida = doc(database, `Partidas/${item[1]}`);
-    const partidaInfo = await getDoc(partida);
-    setPartidaTerminada(partidaInfo.data().partidaTerminada);
-  };
-  estadoPartida();
+  const partidaTerminada= item[6];
+  const image = item[5];
   const players = item[0];
   const progress = useRef(new Animated.Value(0)).current;
 
@@ -92,11 +89,13 @@ const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation, can
         ]}
         elevation={1}
       >
-        <Text style={[styles.title, { color: theme.colors.primary }]}>
-          {" "}
-          {item[0] === undefined ? "" : item[0].equipo1.nombre} /{" "}
-          {item[0] === undefined ? "" : item[0].equipo2.nombre}
-        </Text>
+        <View style={image!==undefined ? {backgroundColor: theme.colors.primaryContainer, borderRadius: 1000, paddingHorizontal: 10, paddingVertical: 4, opacity: 0.8} : null}>
+          <Text style={[styles.title, { color: theme.colors.primary}]}>
+            {item[0] === undefined ? "" : item[0].equipo1.nombre} /{" "}
+            {item[0] === undefined ? "" : item[0].equipo2.nombre}
+          </Text>
+        </View>
+        
         <View style={styles.partidaDetalles}>
           <View style={styles.setContainer}>
             <FlatList
@@ -145,6 +144,7 @@ const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation, can
             )}
             listKey={(item, index) => index.toString()}
           />
+          
         </View>
         {partidaTerminada ? (
           ""
@@ -171,6 +171,8 @@ const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation, can
             },
           ]}
         ></Animated.View>
+        <LinearGradient locations={[0, 0.7]} colors={['transparent', theme.colors.primaryContainer]} style={{bottom: -1, width: "200%", height: "60%", position: 'absolute', zIndex: -1}}></LinearGradient>
+         {image!==undefined ? <Image source={{uri: image}} style={styles.image}/> : null}
       </Surface>
     </TouchableOpacity>
   );
@@ -192,7 +194,17 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
 
+  image: {
+    position: 'absolute',
+    width: "120%",
+    height: "140%",
+    left: 0,
+    top: 0,
+    zIndex: -2,
+  },
+
   partidaInfo: {
+    position: 'relative',
     overflow: "hidden",
     justifyContent: "space-between",
     marginVertical: 10,

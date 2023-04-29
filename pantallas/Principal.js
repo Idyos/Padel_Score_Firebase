@@ -108,10 +108,11 @@ const Principal = ({ navigation }) => {
       try {
         const querySnapshot = await getDocs(q);
         matchCount.current = querySnapshot.size;
-        console.log(querySnapshot.size);
         if (querySnapshot.size === 0) setHasLoaded(true);
         try {
           querySnapshot.forEach(async (doc) => {
+            let image = doc.data().imagenPartida;
+            let finished = doc.data().partidaTerminada;
             const q = collection(
               database,
               `Partidas/${doc.id}/PartidoCompleto`
@@ -139,13 +140,13 @@ const Principal = ({ navigation }) => {
                 ? null
                 : setPartidas((current) => [
                     ...current,
-                    [equipos, doc.id, sets, setsData, normas],
+                    [equipos, doc.id, sets, setsData, normas, image, finished],
                   ]);
               match.data().sets === undefined
                 ? null
                 : setPartidas((current) => [
                     ...current,
-                    [equipos, doc.id, sets, setsData, normas],
+                    [equipos, doc.id, sets, setsData, normas, image, finished],
                   ]);
             });
           });
