@@ -7,14 +7,14 @@ import { database } from "../../src/config/fb";
 import UserAvatar from "../UserAvatar";
 import { getAuth } from "firebase/auth";
 
-const SearchScreen = ({addPlayer, searchText, type}) => { 
+const SearchScreen = ({addPlayer, searchText, player, team}) => { 
   const [users, setUsers] = useState([]);
   const [visible, setVisible] = useState(false);
-  const [player, setPlayer] = useState();
+  const [playerName, setPlayer] = useState();
 
   useEffect(() => {
     const delay = setTimeout(() => {
-      if (searchText !== "" && searchText!==undefined && searchText!==null && searchText!==player) {searchUsers(); setVisible(true)}
+      if (searchText !== "" && searchText!==undefined && searchText!==null && searchText!==playerName) {searchUsers(); setVisible(true)}
       else {setUsers([]); setVisible(false)}
     }, 500);
 
@@ -47,7 +47,7 @@ const SearchScreen = ({addPlayer, searchText, type}) => {
         data={users}
         //contentContainerStyle={{maxHeight: 50}}
         renderItem={({ item, index }) => (
-          <TouchableNativeFeedback style={{flexGrow: 0}} onPress={() => {addPlayer(item.displayName, item.id, type), setPlayer(item.displayName), setVisible(false)}}>
+          <TouchableNativeFeedback style={{flexGrow: 0}} onPress={() => {addPlayer(item.displayName, item.id, player, team), setPlayer(item.displayName), setVisible(false)}}>
             <View style={[styles.user, index===users.length-1 ? {borderBottomWidth: 0} : null]}>
             <UserAvatar foto={item.photoURL} nombre={item.displayName} />
             <Text style={{fontSize: 20}}>{item.displayName}</Text>
