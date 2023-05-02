@@ -23,6 +23,7 @@ import {
 import firebase from "firebase/app";
 import * as ImagePicker from "expo-image-picker";
 import {
+  ActivityIndicator,
   HelperText,
   IconButton,
   Menu,
@@ -32,7 +33,12 @@ import {
   useTheme,
 } from "react-native-paper";
 import { Camera, CameraType } from "expo-camera";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "@firebase/storage";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} from "@firebase/storage";
 import SearchScreen from "../components/NuevaPartida/SearchUsers";
 
 const windowWidth = Dimensions.get("window").width;
@@ -71,6 +77,7 @@ const NuevaPartida = ({ navigation, route }) => {
       },
     },
   });
+  const [creatingMatch, setCreatingMatch] = useState(false);
   const [normas, setNormas] = useState({});
   const [equipo, setEquipo] = useState(0);
   const [setAmmount, setSetAmmount] = useState(3);
@@ -79,40 +86,22 @@ const NuevaPartida = ({ navigation, route }) => {
   const [tipo, setTipo] = useState(false);
   const [image, setImage] = useState();
 
- 
-
-  const addPlayer = (name, id, type) => {
-    switch (type) {
-      case 0:
-        setEquipoObj({
-          ...equipoObj,
-          equipo1: {
-            ...equipoObj.equipo1,
-            jugadores: {
-              ...equipoObj.equipo1.jugadores,
-              jugador1: {
-                nombre: name,
-                playerId: id,
-              },
-            },
+  const addPlayer = (name, id, player, team) => {
+    const userRef = doc(database, `Usuarios/${id}`);
+    setEquipoObj({
+      ...equipoObj,
+      ["equipo" + team]: {
+        ...equipoObj["equipo" + team],
+        jugadores: {
+          ...equipoObj["equipo" + team].jugadores,
+          ["jugador" + player]: {
+            nombre: name,
+            playerId: id,
+            playerReference: userRef,
           },
-        });
-        break;
-      case 1:
-        setEquipoObj({
-          ...equipoObj,
-          equipo1: {
-            ...equipoObj.equipo1,
-            jugadores: {
-              ...equipoObj.equipo1.jugadores,
-              jugador2: {
-                nombre: name,
-                playerId: id,
-              },
-            },
-          },
-        });
-    }
+        },
+      },
+    });
   };
 
   const openCamera = async () => {
@@ -122,7 +111,7 @@ const NuevaPartida = ({ navigation, route }) => {
       alert("You've refused to allow this appp to access your camera!");
       return;
     }
-    console.log(permissionResult.granted);
+
     try {
       let result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -154,33 +143,60 @@ const NuevaPartida = ({ navigation, route }) => {
   };
 
   const CreacionEquipo = async () => {
+    let crearPartidaId;
+    try {
+      setCreatingMatch(true);
       const crearPartida = await addDoc(collection(database, "Partidas"), {
         usuario: route.params.user,
         partidaTerminada: false,
         creadoEn: serverTimestamp(),
         imagenPartida: null,
       });
+      crearPartidaId=crearPartida.id;
       const imagesRef = ref(storage, `matches/${crearPartida.id}`);
-      if(image!==undefined){
+      if (image !== undefined) {
         imageBlob(image)
-        .then((resolve) => {
-          uploadBytes(imagesRef, resolve).then(() => {
-            getDownloadURL(imagesRef).then(async (link) => {
-                await setDoc(doc(database, `Partidas/${crearPartida.id}`), {imagenPartida: link}, {merge: true});
+          .then((resolve) => {
+            uploadBytes(imagesRef, resolve).then(() => {
+              getDownloadURL(imagesRef).then(async (link) => {
+                await setDoc(
+                  doc(database, `Partidas/${crearPartida.id}`),
+                  { imagenPartida: link },
+                  { merge: true }
+                );
+              });
             });
+          })
+          .catch((error) => {
+            console.log(error);
           });
-        })
-        .catch((error) => {
-          console.log(error);
-        });
       }
-    navigation.navigate("partida2", {
-      partidaid: crearPartida.id,
-      infoequipos: equipoObj,
-      sets: setAmmount,
-      pOro: puntoDeOro,
-      aTiempo: aTiempo,
-    });
+
+      for(let i = 1; i<=Object.keys(equipoObj).length; i++){
+        for(let j = 1;  j<=Object.keys(equipoObj["equipo"+i].jugadores).length; j++){
+          if(equipoObj["equipo"+i].jugadores["jugador"+j].playerId!==null && equipoObj["equipo"+i].jugadores["jugador"+j].playerId!== undefined && equipoObj["equipo"+i].jugadores["jugador"+j].playerId!== undefined){
+            //const userId = doc(database, `Usuarios/${equipoObj["equipo"+i].jugadores["jugador"+j].playerId}`);
+            const matchRef = doc(database, `Partidas/${crearPartida.id}`);
+            await setDoc(doc(database, `Usuarios/${equipoObj["equipo"+i].jugadores["jugador"+j].playerId}/Partidas/${crearPartida.id}`), {
+              match: matchRef,
+            })
+          }
+        }
+      }
+
+    } catch (error) {
+      setCreatingMatch(false);
+      console.log(error);
+    } finally {
+      setCreatingMatch(false);
+      navigation.navigate("partida2", {
+        partidaid: crearPartidaId,
+        infoequipos: equipoObj,
+        sets: setAmmount,
+        pOro: puntoDeOro,
+        aTiempo: aTiempo,
+      });
+    }
   };
 
   switch (equipo) {
@@ -254,7 +270,8 @@ const NuevaPartida = ({ navigation, route }) => {
             <SearchScreen
               addPlayer={addPlayer}
               searchText={equipoObj.equipo1.jugadores.jugador1.nombre}
-              type={0}
+              player={1}
+              team={1}
             />
           </View>
 
@@ -302,7 +319,8 @@ const NuevaPartida = ({ navigation, route }) => {
             <SearchScreen
               addPlayer={addPlayer}
               searchText={equipoObj.equipo1.jugadores.jugador2.nombre}
-              type={1}
+              player={2}
+              team={1}
             />
           </View>
           <TouchableOpacity
@@ -383,6 +401,12 @@ const NuevaPartida = ({ navigation, route }) => {
                 })
               }
             />
+            <SearchScreen
+              addPlayer={addPlayer}
+              searchText={equipoObj.equipo2.jugadores.jugador1.nombre}
+              player={1}
+              team={2}
+            />
           </View>
           <View style={styles.playerSection}>
             <TextInput
@@ -425,6 +449,12 @@ const NuevaPartida = ({ navigation, route }) => {
                 });
               }}
             />
+            <SearchScreen
+              addPlayer={addPlayer}
+              searchText={equipoObj.equipo2.jugadores.jugador2.nombre}
+              player={2}
+              team={2}
+            />
           </View>
           <TouchableOpacity
             style={styles.siguiente}
@@ -437,7 +467,11 @@ const NuevaPartida = ({ navigation, route }) => {
         </View>
       );
     case 2:
-      return (
+      return creatingMatch ? (
+        <View style={styles.loading}>
+          <ActivityIndicator style={{ opacity: 1 }} size={70} />
+        </View>
+      ) : (
         <View style={styles.pantalla}>
           <Text style={styles.title}>Configuración de la partida</Text>
           {image === undefined ? (
@@ -609,6 +643,17 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     alignItems: "center",
     //justifyContent: "center",
+  },
+
+  loading: {
+    width: "100%",
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    height: "100%",
+    top: 0,
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent:'center',
+    zIndex: 3,
   },
 
   configureSection: {
