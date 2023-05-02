@@ -10,9 +10,7 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { Surface } from "react-native-paper";
 import { Chip, Text } from "react-native-paper";
-import { withTheme } from "react-native-paper";
-import { doc, getDoc } from "firebase/firestore";
-import { database } from "../../src/config/fb";
+import { withTheme } from "react-native-paper"; 
 import { Easing } from "react-native-reanimated";
 import { LinearGradient } from 'expo-linear-gradient';
 
