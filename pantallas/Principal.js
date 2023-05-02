@@ -8,6 +8,7 @@ import {
   DatePickerIOS,
   Animated,
   Button,
+  BackHandler,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { Component, useEffect, useMemo, useRef, useState } from "react";
@@ -51,6 +52,14 @@ const Principal = ({ navigation }) => {
   const theme = useTheme();
   const auth = getAuth();
 
+  BackHandler.addEventListener("hardwareBackPress", () => {
+    navigation.addListener("beforeRemove", (e) => {
+      // Prevent default behavior of leaving the screen
+      e.preventDefault();
+
+      BackHandler.exitApp();
+    });
+  });
   onAuthStateChanged(auth, (user) => {
     if (user) {
       // User is signed in, see docs for a list of available properties
