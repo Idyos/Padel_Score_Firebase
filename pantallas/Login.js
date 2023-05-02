@@ -30,7 +30,7 @@ useEffect(() => {
   const auth = getAuth();
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      navigation.navigate("tabbar", { screen: "principal" });
+      navigation.replace("tabbar", { screen: "principal" });
     }
     else {
       console.log("NO HAY USER");
@@ -57,7 +57,7 @@ useEffect(() => {
       .then((userCredential) => {
         console.log("login EXITOSO");
         setLoginTry(false);
-        navigation.navigate("tabbar", { screen: "principal" });
+        navigation.replace("tabbar", { screen: "principal" });
       })
       .catch((error) => {
         const errorCode = error.code;
