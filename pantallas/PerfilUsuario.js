@@ -12,32 +12,37 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { collection, getDoc, getDocs } from "firebase/firestore";
 import { database } from "../src/config/fb";
 import CartaPartida from "../components/PerfilUsuario/CartaPartida";
+import { ActivityIndicator } from "react-native-paper";
 
-const PerfilUsuario = ({navigation, route, theme }) => {
+const PerfilUsuario = ({ navigation, route, theme }) => {
   const [partidas, setPartidas] = useState([]);
+  const matchCount = useRef(0);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   useEffect(() => {
     setPartidas([]);
     const getMatches = async () => {
-      //console.log(route.params.id);
       const q = collection(database, `Usuarios/${route.params.id}/Partidas`);
       try {
         const querySnapshot = await getDocs(q);
-        let matchCount = querySnapshot.size;
-        if (matchCount>0) {
+        matchCount.current = querySnapshot.size;
+        if (querySnapshot.size === 0) setHasLoaded(true);
+        if (querySnapshot.size > 0) {
           try {
             querySnapshot.forEach(async (doc) => {
               const docInfo = await getDoc(doc.data().match);
               let image = docInfo.data().imagenPartida;
               let finished = docInfo.data().partidaTerminada;
-              const q = collection(database, `Partidas/${docInfo.id}/PartidoCompleto`);
+              const q = collection(
+                database,
+                `Partidas/${docInfo.id}/PartidoCompleto`
+              );
               const query = await getDocs(q);
               let equipos = {};
-               let sets = {};
-               let normas = {};
+              let sets = {};
+              let normas = {};
               let setsData = [];
               query.forEach(async (match) => {
-                
                 match.data().infoequipos === undefined
                   ? ""
                   : (equipos = match.data().infoequipos);
@@ -53,17 +58,31 @@ const PerfilUsuario = ({navigation, route, theme }) => {
                   ? null
                   : setPartidas((current) => [
                       ...current,
-                      [equipos, doc.id, sets, setsData, normas, image, finished],
+                      [
+                        equipos,
+                        doc.id,
+                        sets,
+                        setsData,
+                        normas,
+                        image,
+                        finished,
+                      ],
                     ]);
                 match.data().sets === undefined
                   ? null
                   : setPartidas((current) => [
                       ...current,
-                      [equipos, doc.id, sets, setsData, normas, image, finished],
+                      [
+                        equipos,
+                        doc.id,
+                        sets,
+                        setsData,
+                        normas,
+                        image,
+                        finished,
+                      ],
                     ]);
-                console.log(match.data());
-              })
-
+              });
             });
           } catch (error) {
             console.log(error);
@@ -77,6 +96,13 @@ const PerfilUsuario = ({navigation, route, theme }) => {
     getMatches();
   }, []);
 
+  //IMPORTANTE ACTUALIZAR CLOUD FUNCTIONS PARA QUE SE BORRE TAMBIÉN DEL USUARIO UNA PARTIDA CUANDO ESTA SE BORRE
+  useEffect(() => {
+    setTimeout(() => {
+      if (partidas.length === matchCount.current) setHasLoaded(true);
+    }, 500);
+  }, [partidas]);
+
   const fadeAnim = useRef(new Animated.Value(-400)).current;
 
   useEffect(() => {
@@ -89,29 +115,38 @@ const PerfilUsuario = ({navigation, route, theme }) => {
   }, []);
   return (
     <SafeAreaView style={styles.pantalla}>
-      {route.params.photoURL.startsWith("http") ? 
-      <Image
-        style={styles.profilePicture}
-        source={{ uri: route.params.photoURL }}
-      />
-     : null}
+      {route.params.photoURL === null ? null : route.params.photoURL.startsWith(
+          "http"
+        ) ? (
+        <Image
+          style={styles.profilePicture}
+          source={{ uri: route.params.photoURL }}
+        />
+      ) : null}
       <Text style={styles.userName}>{route.params.displayName}</Text>
-      <FlatList
-        style={styles.listaPartidas}
-        contentContainerStyle={styles.listaPartidasContainer}
-        data={partidas}
-        renderItem={({ item, index }) => (
-          <TouchableOpacity>
-            <Animated.View style={{ transform: [{ translateX: fadeAnim }] }}>
-              <CartaPartida
-                item={item}
-                navigation={navigation}
-              />
-            </Animated.View>
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item, index) => "key" + index}
-      />
+      {hasLoaded == false ? (
+        <ActivityIndicator style={{ flex: 1 }} size="large" animating={true} />
+      ) : partidas.length === 0 ? (
+        <View style={styles.noMatches}>
+          <Text style={{ fontSize: 23, textAlign: "center", paddingHorizontal: 10 }}>
+            Este usuario aún no ha jugado ninguna partida.
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          style={styles.listaPartidas}
+          contentContainerStyle={styles.listaPartidasContainer}
+          data={partidas}
+          renderItem={({ item, index }) => (
+            <TouchableOpacity>
+              <Animated.View style={{ transform: [{ translateX: fadeAnim }] }}>
+                <CartaPartida item={item} navigation={navigation} />
+              </Animated.View>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item, index) => "key" + index}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -135,6 +170,12 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     fontSize: 40,
     textAlign: "left",
+  },
+
+  noMatches: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   listaPartidas: {
