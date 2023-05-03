@@ -174,7 +174,7 @@ const NuevaPartida = ({ navigation, route }) => {
 
       for(let i = 1; i<=Object.keys(equipoObj).length; i++){
         for(let j = 1;  j<=Object.keys(equipoObj["equipo"+i].jugadores).length; j++){
-          if(equipoObj["equipo"+i].jugadores["jugador"+j].playerId!==null && equipoObj["equipo"+i].jugadores["jugador"+j].playerId!== undefined && equipoObj["equipo"+i].jugadores["jugador"+j].playerId!== undefined){
+          if(equipoObj["equipo"+i].jugadores["jugador"+j].playerId!==null && equipoObj["equipo"+i].jugadores["jugador"+j].playerId!== undefined && equipoObj["equipo"+i].jugadores["jugador"+j].playerId!== ""){
             //const userId = doc(database, `Usuarios/${equipoObj["equipo"+i].jugadores["jugador"+j].playerId}`);
             const matchRef = doc(database, `Partidas/${crearPartida.id}`);
             await setDoc(doc(database, `Usuarios/${equipoObj["equipo"+i].jugadores["jugador"+j].playerId}/Partidas/${crearPartida.id}`), {
