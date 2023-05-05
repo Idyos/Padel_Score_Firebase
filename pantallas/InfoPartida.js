@@ -63,7 +63,6 @@ const InfoPartida = ({ route, theme, navigation }) => {
     const handleBackButton = () => {
       // Aquí puedes poner el código que quieres que se ejecute cuando se presiona el botón de retroceso
       // Si quieres evitar que se vaya hacia atrás en la pantalla actual, utiliza preventDefault()
-      console.log("AOPISJDIAOPSJD");
       navigation.navigate("principal");
       return true;
     };

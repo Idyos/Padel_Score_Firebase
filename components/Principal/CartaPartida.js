@@ -25,6 +25,7 @@ const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation, can
   const players = item[0];
   const progress = useRef(new Animated.Value(0)).current;
 
+
   useEffect(() => {
     if (logout == true && cancelarBorrar.current==false) {
 
