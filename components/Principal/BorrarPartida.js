@@ -6,7 +6,7 @@ const windowHeight = Dimensions.get("window").height;
 
 const BorrarPartida = (props) => {
 
-  
+  //console.log(props);
 
   return (
     <Portal>
