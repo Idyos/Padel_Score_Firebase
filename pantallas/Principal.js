@@ -35,13 +35,14 @@ import {
   orderBy,
   deleteDoc,
   doc,
+  onSnapshot,
 } from "firebase/firestore";
 import CartaPartida from "../components/Principal/CartaPartida";
 import { Easing } from "react-native-reanimated";
 import BorrarPartida from "../components/Principal/BorrarPartida";
 import { useClock } from "react-native-timer-hooks";
 
-const Principal = ({ navigation }) => {  
+const Principal = ({ navigation }) => {
   const [partidas, setPartidas] = useState([]);
   const [isExtended, setIsExtended] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -107,68 +108,89 @@ const Principal = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    setPartidas([]);
     const getMatches = async () => {
       const q = query(
         collection(database, "Partidas"),
         where("usuario", "==", user),
-        orderBy("creadoEn")
+        orderBy("creadoEn", 'asc')
       );
-      try {
-        const querySnapshot = await getDocs(q);
-        matchCount.current = querySnapshot.size;
-        if (querySnapshot.size === 0) setHasLoaded(true);
-        try {
-          querySnapshot.forEach(async (doc) => {
-            let image = doc.data().imagenPartida;
-            let finished = doc.data().partidaTerminada;
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        matchCount.current=snapshot.size;
+        if(snapshot.size==0) setHasLoaded(true);
+        snapshot.docChanges().forEach(async (change) => {
+          const docId = change.doc.id;
+          console.log(change.type);
+          if (change.type === 'added') {
+            let image = change.doc.data().imagenPartida;
+            let finished = change.doc.data().partidaTerminada;
             const q = collection(
               database,
-              `Partidas/${doc.id}/PartidoCompleto`
+              `Partidas/${docId}/PartidoCompleto`
             );
-
-            const querySnapshot = await getDocs(q);
-            let equipos = {};
-            let sets = {};
-            let normas = {};
-            let setsData = [];
-
-            querySnapshot.forEach(async (match) => {
-              match.data().infoequipos === undefined
-                ? ""
-                : (equipos = match.data().infoequipos);
-              match.data().normas === undefined
-                ? ""
-                : (normas = match.data().normas);
-              match.data().set === undefined ? "" : (sets = match.data().set);
-              match.data().infoSets === undefined
-                ? ""
-                : (setsData = match.data().infoSets);
-
-              match.data().set === undefined
-                ? null
-                : setPartidas((current) => [
-                    ...current,
-                    [equipos, doc.id, sets, setsData, normas, image, finished],
-                  ]);
-              match.data().sets === undefined
-                ? null
-                : setPartidas((current) => [
-                    ...current,
-                    [equipos, doc.id, sets, setsData, normas, image, finished],
-                  ]);
+            const queryFunction = async (delay) => {
+              const querySnapshot = await getDocs(q);
+              if (querySnapshot.empty) {
+                console.log("La colección está vacía. Esperando...");
+                setTimeout(() => queryFunction(2000), delay);
+              } else {
+                
+                let equipos = {};
+                let sets = {};
+                let normas = {};
+                let setsData = [];
+                
+                querySnapshot.forEach(async (match) => {
+                  console.log(match.data().normas);
+                  match.data().infoequipos === undefined
+                    ? ""
+                    : (equipos = match.data().infoequipos);
+                  match.data().normas === undefined
+                    ? ""
+                    : (normas = match.data().normas);
+                  match.data().set === undefined ? "" : (sets = match.data().set);
+                  match.data().infoSets === undefined
+                    ? ""
+                    : (setsData = match.data().infoSets);
+    
+                  match.data().set === undefined
+                    ? null
+                    : setPartidas((current) => [
+                        ...current,
+                        [equipos, docId, sets, setsData, normas, image, finished],
+                      ]);
+                  match.data().sets === undefined
+                    ? null
+                    : setPartidas((current) => [
+                        ...current,
+                        [equipos, docId, sets, setsData, normas, image, finished],
+                      ]);
+                });
+              }
+            } 
+            queryFunction(2000);
+          }
+           else if (change.type === 'modified') {
+            setPartidas((current) => {
+              return current.map((partida) => {
+                if (partida[1] === docId) {
+                  return [...partida.slice(0, 6), change.doc.data().partidaTerminada];
+                } else {
+                  return partida;
+                }
+              });
             });
-          });
-        } catch (error) {
-          console.log(error);
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-      }
+          }
+           else if (change.type === 'removed') {
+            setPartidas((prevDocs) => prevDocs.filter((doc) => doc[1] !== docId));
+          }
+        });
+      });
+      return () => {
+        unsubscribe();
+      };
     };
     getMatches();
-  }, [navigation]);
+  }, []);
 
   //PELIGROSO, YA QUE SI NO TIENE INFO DE SETS NO SE VA A MOSTRAR NINGUNA PARTIDA Y NO PRESENTARÁ LAS PARTIDAS
   useEffect(() => {
