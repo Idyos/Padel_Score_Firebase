@@ -640,9 +640,9 @@ const styles = StyleSheet.create({
     position: "relative",
     height: "100%",
     //flex: 1,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     alignItems: "center",
-    //justifyContent: "center",
+    justifyContent: "center",
   },
 
   loading: {
