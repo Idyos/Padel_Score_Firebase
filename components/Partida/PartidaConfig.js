@@ -4,7 +4,7 @@ import { Portal, Dialog, Button, Text, RadioButton, IconButton, useTheme } from 
 import { Marker } from "react-native-svg";
 
 
-const PartidaConfig = ({ serve, setServe, infoequipos }) => {
+const PartidaConfig = ({ serve, setServe, infoequipos, play, setPlay }) => {
     const [popupOrder, setPopupOrder] = useState(true);
     const [servePantalla, setServePantalla] = useState(true);
 
@@ -14,7 +14,7 @@ const PartidaConfig = ({ serve, setServe, infoequipos }) => {
     return (
         <>
             {popupOrder ? <Portal>
-                <Dialog visible={servePantalla} onDismiss={() => setServePantalla(false)} style={{ alignItems: 'center' }}>
+                <Dialog visible={servePantalla} /*onDismiss={() => setServePantalla(false)}*/ style={{ alignItems: 'center' }}>
                     <Dialog.Title>¿Qué equipo empezará el servicio?</Dialog.Title>
                     <Dialog.Content>
                         <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => { setServe(false), setPopupOrder(false) }}>
@@ -48,7 +48,7 @@ const PartidaConfig = ({ serve, setServe, infoequipos }) => {
                         </Dialog.Content>
                         <Dialog.Actions style={{alignSelf: 'stretch'}}>
                         <Button onPress={() => setPopupOrder(true)}>Atrás</Button>
-                            <Button onPress={() => setServePantalla(false)}>Empezar</Button>
+                            <Button onPress={() => (setServePantalla(false), play(), setPlay(true))}>Empezar</Button>
                         </Dialog.Actions>
                     </Dialog>
                 </Portal>}
