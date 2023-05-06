@@ -30,8 +30,9 @@ const PointDetail = (props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [equipo, setEquipo] = useState([]);
   const [equipoRival, setEquipoRival] = useState([]);
+  const positions = [props.datos[0].position, props.datos[1].position];
   const dialog = false;
-
+  console.log(positions[0]);
   useEffect(() => {
     if (props.punto.player) {
       props.setPuntosJuego([...props.puntosJuego, props.punto]);
@@ -43,10 +44,10 @@ const PointDetail = (props) => {
 
   useEffect(() => {
     if (props.visible) {
-      setEquipo(Object.values(props.datos[props.puntoEquipo].jugadores));
+      setEquipo([props.datos[props.puntoEquipo].jugadores.jugador1, props.datos[props.puntoEquipo].jugadores.jugador2]);
       props.puntoEquipo === 0
-        ? setEquipoRival(Object.values(props.datos[1].jugadores))
-        : setEquipoRival(Object.values(props.datos[0].jugadores));
+        ? setEquipoRival([props.datos[1].jugadores.jugador1, props.datos[1].jugadores.jugador2])
+        : setEquipoRival([props.datos[0].jugadores.jugador1, props.datos[0].jugadores.jugador2]);
     }
   }, [props.visible]);
 
@@ -71,6 +72,17 @@ const PointDetail = (props) => {
     if((props.serve == false && props.marcadorE2 == 3) || (props.serve == true && props.marcadorE1==3)){
       props.breakChance.current=true;
     }
+  }
+
+  const setUpPosition = (index) => {
+    let team;
+    if(props.punto.point != "unfError") team = props.puntoEquipo
+    else team = props.puntoEquipo == 0 ? 1 : 0;
+    
+    if(positions[team]==false && index==0) return "R";
+    if(positions[team]==false && index==1) return "D";
+    if(positions[team]==true && index==0) return "D";
+    if(positions[team]==true && index==1) return "R";
   }
 
   return (
@@ -143,7 +155,7 @@ const PointDetail = (props) => {
                       }
                       onPress={() => {}}
                     />
-                    <Text>{item}</Text>
+                    <Text>{item} ({setUpPosition(index)})</Text>
                   </TouchableOpacity>
                 </Dialog.Content>
               )}
