@@ -25,6 +25,7 @@ const Login = ({ navigation }) => {
   const [pass, setPass] = useState("");
   const [loginTry, setLoginTry] = useState(false);
   const theme = useTheme();
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
 
 useEffect(() => {
   const auth = getAuth();
@@ -99,7 +100,8 @@ useEffect(() => {
           value={pass}
           onChangeText={(text) => {setPass(text), setPassErrorVisible(false)}}
           label="Contraseña"
-          secureTextEntry={true}
+          secureTextEntry={secureTextEntry}
+          right={<TextInput.Icon icon={secureTextEntry ? "eye" : "eye-off"} onPress={() => setSecureTextEntry(!secureTextEntry)}/>}
         />
         <HelperText type="error" padding="none" visible={passErrorVisible}>
           {passError}

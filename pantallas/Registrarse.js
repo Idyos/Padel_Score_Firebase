@@ -23,6 +23,7 @@ const Registrarse = ({navigation}) => {
   const [pass, setPass] = useState("");
   const [pass2, setPass2] = useState("");
   const [registerTry, setRegisterTry] = useState(false);
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
   const theme = useTheme();
 
 
@@ -117,7 +118,8 @@ const Registrarse = ({navigation}) => {
           value={pass}
           onChangeText={(text) => setPass(text)}
           label="Contraseña"
-          secureTextEntry={true}
+          secureTextEntry={secureTextEntry}
+          right={<TextInput.Icon icon={secureTextEntry ? "eye" : "eye-off"} onPress={() => setSecureTextEntry(!secureTextEntry)}/>}
         />
         <TextInput
            selectionColor={passError[1] ? theme.colors.error : "orange"}
