@@ -52,7 +52,7 @@ const Principal = ({ navigation }) => {
   const matchCount = useRef(0);
   const theme = useTheme();
   const auth = getAuth();
-
+  let user;
   BackHandler.addEventListener("hardwareBackPress", () => {
     navigation.addListener("beforeRemove", (e) => {
       // Prevent default behavior of leaving the screen
@@ -61,17 +61,17 @@ const Principal = ({ navigation }) => {
       BackHandler.exitApp();
     });
   });
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
+  onAuthStateChanged(auth, (usuario) => {
+    if (usuario) {
       // User is signed in, see docs for a list of available properties
       // https://firebase.google.com/docs/reference/js/firebase.User
-      const uid = user.uid;
-      // ...
+      const uid = usuario.uid;
+      user = usuario.uid;
     } else {
       navigation.navigate("login");
     }
   });
-  const user = auth.currentUser.uid;
+  if(auth.currentUser.uid!==null) user = auth.currentUser.uid;
 
   const onScroll = ({ nativeEvent }) => {
     const currentScrollPosition =
@@ -140,7 +140,6 @@ const Principal = ({ navigation }) => {
                 let setsData = [];
                 
                 querySnapshot.forEach(async (match) => {
-                  console.log(match.data().normas);
                   match.data().infoequipos === undefined
                     ? ""
                     : (equipos = match.data().infoequipos);

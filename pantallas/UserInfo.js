@@ -28,20 +28,23 @@ import UserAvatar from "../components/UserAvatar";
 const windowHeight = Dimensions.get("window").height;
 
 const auth = getAuth();
-const SalirSesion = () => {
-  signOut(auth)
-    .catch((error) => {
-      console.log(error);
+const SalirSesion = (navigation) => {
+  signOut(auth).then(() => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'login' }],
     });
+  })
+  .catch((error) => {
+    console.log(error);
+  });
 };
 
-const Profile = () => {
+const Profile = ({navigation}) => {
   const {darkMode, setDarkMode} = useContext(DarkLightContext);
-  //const [ darkMode, setDarkMode ] = useState(false);
   const [editProfile, setEditProfile] = useState(false);
   const theme = useTheme();
   const progress = useRef(new Animated.Value(0)).current;  
-
   const LogOutAnimation = (type) => {
     if (type == true) {
       Animated.timing(progress, {
@@ -127,7 +130,7 @@ const Profile = () => {
             position: "relative",
           },
         ]}
-        onLongPress={SalirSesion}
+        onLongPress={() => SalirSesion(navigation)}
         delayLongPress={850}
       >
         <IconButton icon="logout" iconColor={theme.colors.primary} size={30} />
