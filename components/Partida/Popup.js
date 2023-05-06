@@ -31,8 +31,7 @@ const PointDetail = (props) => {
   const [equipo, setEquipo] = useState([]);
   const [equipoRival, setEquipoRival] = useState([]);
   const positions = [props.datos[0].position, props.datos[1].position];
-  const dialog = false;
-  console.log(positions[0]);
+
   useEffect(() => {
     if (props.punto.player) {
       props.setPuntosJuego([...props.puntosJuego, props.punto]);
