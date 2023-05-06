@@ -23,6 +23,7 @@ import PointDetail from "../components/Partida/Popup";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SalirPartida from "../components/Partida/SalirPartida";
 import PartidaConfig from "../components/Partida/PartidaConfig";
+import StopwatchTimer from 'react-native-animated-stopwatch-timer';
 
 const getMatchDetails = async (id) => {
     let partida;
@@ -140,6 +141,7 @@ const Partida2 = ({ route, navigation }) => {
   const pOro = route.params.pOro;
   const aTiempo = route.params.aTiempo;
 
+  const stopwatchTimerRef = useRef(null);
   const [isTiebreak, setTiebreak] = useState(false);
   const [goldenPoint, setGoldenPoint] = useState(false);
   const finish = useRef(false);
@@ -148,7 +150,7 @@ const Partida2 = ({ route, navigation }) => {
   const equipoPunto = useRef();
   const ordenJuegos = useRef(0);
   const breakChance = useRef(false);
-
+  const [playPause, setPlayPause] = useState(false);
   const datosJugadores = {
     equipo1: {
       puntosOro: 0,
@@ -199,7 +201,7 @@ const Partida2 = ({ route, navigation }) => {
   const [marcadorE2, setMarcadorE2] = useState(0);
 
   //JUEGOS DE CADA EQUIPO
-  const [juegosE1, setJuegosE1] = useState(0);
+  const [juegosE1, setJuegosE1] = useState(5);
   const [juegosE2, setJuegosE2] = useState(0);
 
   //SETS DE CADA EQUIPO
@@ -226,6 +228,16 @@ const Partida2 = ({ route, navigation }) => {
       position: infoequipos.equipo2.position,
     },
   ];
+
+  const playOrPauseStopWatch = () => {
+    if(playPause) stopwatchTimerRef.current?.pause();
+    else stopwatchTimerRef.current?.play();
+    setPlayPause(!playPause);
+  }
+
+  function play() {
+    stopwatchTimerRef.current?.play();
+  }
 
   const updateJuego = async (team) => {
     setGoldenPoint(false);
@@ -350,13 +362,15 @@ const Partida2 = ({ route, navigation }) => {
       database,
       `/Partidas/${partidaid}/PartidoCompleto/SetsResults`
     );
-    //TODO: No hacer que se añada la info del set con un timeout, sino que se añada cuando se termine de añadir en el sets results
       if (!finish) {
         try {
           await setDoc(
             setsDoc,
             {
               set: {
+                ["set" + (setsE1 +setsE2)]: {
+                  duration : stopwatchTimerRef.current?.getSnapshot(),
+                },
                 ["set" + (setsE1 + setsE2 + 1)]: {
                   datosJugadores,
                 },
@@ -371,6 +385,16 @@ const Partida2 = ({ route, navigation }) => {
         await setDoc(
           doc(database, `Partidas/${partidaid}`),
           { partidaTerminada: true },
+          { merge: true }
+        );
+        await setDoc( setsDoc,
+          {
+            set: {
+              ["set" + (setsE1 + setsE2)]: {
+                duration : stopwatchTimerRef.current?.getSnapshot(),
+              },
+            },
+          },
           { merge: true }
         );
       }
@@ -467,8 +491,8 @@ const Partida2 = ({ route, navigation }) => {
       setInfoSets(infoSets.pop());
     }
   }
-  useEffect(() => {
 
+  useEffect(() => {
     updateInfoSets();
     if (aTiempo == false) {
       if (juegosE1 === 6 && juegosE2 === 6) {
@@ -525,7 +549,7 @@ const Partida2 = ({ route, navigation }) => {
         updateSet.current = false;
         finish.current = true;
         setInfoSets(infoSets.splice(infoSets.length-1, 1));
-        updateSets();
+        updateSets(true);
         return;
       }
       if (setsE2 > sets / 2 && updateSet.current==true) {
@@ -573,7 +597,7 @@ const Partida2 = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={styles.pantalla}>
-      <View style={{ width: "90%" }}>
+      <View style={{ width: "90%", flexDirection:'row', alignItems: 'center'}}>
         <IconButton
           disabled={puntosJuego.length == 0 ? true : false}
           style={styles.goBackButton}
@@ -582,12 +606,21 @@ const Partida2 = ({ route, navigation }) => {
           size={40}
           onPress={atrasPuntos}
         />
+        <View>
+        <Text>Partida: </Text><StopwatchTimer digitStyle={{fontSize: 20}} trailingZeros={0} animationDistance={30} ref={stopwatchTimerRef} />
+        </View>
+        <IconButton 
+        icon={playPause ? "pause" : "play"}
+        onPress={playOrPauseStopWatch}
+        />
       </View>
 
       <PartidaConfig
         serve={serve}
         setServe={setServe}
         infoequipos={infoequipos}
+        play = {play}
+        setPlay = {setPlayPause}
       />
       <SalirPartida
         visible={atrasPartida}
