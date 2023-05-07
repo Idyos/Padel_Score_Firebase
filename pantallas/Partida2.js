@@ -128,6 +128,7 @@ const Partida2 = ({ route, navigation }) => {
 
     updateJuego("null");
     updateSets(true);
+    stopwatchTimerRef.current?.reset();
     setAtrasPartida(false);
 
     getMatchDetails(partidaid).then((response) => {
@@ -358,6 +359,7 @@ const Partida2 = ({ route, navigation }) => {
   };
 
   const updateSets = async (finish = false) => {
+    let snapshot = stopwatchTimerRef.current?.getSnapshot();
     const setsDoc = doc(
       database,
       `/Partidas/${partidaid}/PartidoCompleto/SetsResults`
@@ -369,7 +371,7 @@ const Partida2 = ({ route, navigation }) => {
             {
               set: {
                 ["set" + (setsE1 +setsE2)]: {
-                  duration : stopwatchTimerRef.current?.getSnapshot(),
+                  duration : snapshot,
                 },
                 ["set" + (setsE1 + setsE2 + 1)]: {
                   datosJugadores,
@@ -391,7 +393,7 @@ const Partida2 = ({ route, navigation }) => {
           {
             set: {
               ["set" + (setsE1 + setsE2)]: {
-                duration : stopwatchTimerRef.current?.getSnapshot(),
+                duration : snapshot,
               },
             },
           },
@@ -550,6 +552,7 @@ const Partida2 = ({ route, navigation }) => {
         finish.current = true;
         setInfoSets(infoSets.splice(infoSets.length-1, 1));
         updateSets(true);
+        stopwatchTimerRef.current?.reset();
         return;
       }
       if (setsE2 > sets / 2 && updateSet.current==true) {
@@ -607,7 +610,7 @@ const Partida2 = ({ route, navigation }) => {
           onPress={atrasPuntos}
         />
         <View>
-        <Text>Partida: </Text><StopwatchTimer digitStyle={{fontSize: 20}} trailingZeros={0} animationDistance={30} ref={stopwatchTimerRef} />
+        <Text>Partida: </Text>{!finish.current ? <StopwatchTimer digitStyle={{fontSize: 20}} trailingZeros={0} animationDistance={30} ref={stopwatchTimerRef} /> : null}
         </View>
         <IconButton 
         icon={playPause ? "pause" : "play"}
