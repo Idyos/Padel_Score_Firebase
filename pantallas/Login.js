@@ -4,13 +4,16 @@ import {
   View,
   Dimensions,
   TouchableOpacity,
+  Pressable,
+  Linking,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { TextInput, HelperText, useTheme, ActivityIndicator } from "react-native-paper";
+import { TextInput, HelperText, useTheme, ActivityIndicator, Dialog, Portal, Button } from "react-native-paper";
 import {
   getAuth,
   signInWithEmailAndPassword,
   onAuthStateChanged,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 
 const windowWidth = Dimensions.get("window").width;
@@ -26,9 +29,11 @@ const Login = ({ navigation }) => {
   const [loginTry, setLoginTry] = useState(false);
   const theme = useTheme();
   const [secureTextEntry, setSecureTextEntry] = useState(true);
-
-useEffect(() => {
+  const [forgotPass, setForgotPass] = useState(false);
+  const [updatePass, setUpdatePass] = useState(false);
   const auth = getAuth();
+useEffect(() => {
+
   onAuthStateChanged(auth, (user) => {
     if (user) {
       navigation.replace("tabbar", { screen: "principal" });
@@ -40,7 +45,20 @@ useEffect(() => {
 
 }, [])
 
-  
+
+  const sendEmailToRecoverPass = () => {
+    sendPasswordResetEmail(auth, correo)
+      .then(() => {
+        setLoginTry(false);
+        setForgotPass(false);
+        setUpdatePass(true);
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    setLoginTry(false);
+  });
+  }
 
   const hasEmailErrors = (errorCode, type) => {
     if (errorCode === true){setEmailError(type); setEmailErrorVisible(true)}
@@ -66,7 +84,7 @@ useEffect(() => {
         console.log(errorCode);
         if (errorCode === "auth/invalid-email") hasEmailErrors(true, "Correo incorrecto");
         if (errorCode === "auth/user-not-found") hasEmailErrors(true, "Este usuario no existe");
-        if (errorCode === "auth/wrong-password") hasPassErrors(true, "Contraseña incorrecta");
+        if (errorCode === "auth/wrong-password") {hasPassErrors(true, "Contraseña incorrecta"); setForgotPass(true)};
         if (errorCode === "auth/internal-error") hasPassErrors(true, "Error interno");
         if (errorCode === "auth/too-many-requests") hasPassErrors(true, "Demasiados intentos, espera unos minutos");
       });
@@ -78,6 +96,17 @@ useEffect(() => {
       <View style={styles.loading}>
         <ActivityIndicator style={{opacity: 1}} size={70}  />
       </View> : null}
+      <Portal>
+          <Dialog visible={updatePass} dismissable={false}>
+            <Dialog.Content>
+              <Text>Se ha enviado un correo a {correo}</Text>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button onPress={() => setUpdatePass(false)}>Cerrar</Button>
+              <Button onPress={() => (setUpdatePass(false), Linking.openURL('https://mail.google.com/'))}>Ir al correo</Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
       <Text style={styles.title}>Contador Pádel</Text>
       <View style={styles.inputs}>
         <TextInput
@@ -106,6 +135,8 @@ useEffect(() => {
         <HelperText type="error" padding="none" visible={passErrorVisible}>
           {passError}
         </HelperText>
+        {forgotPass ? <Pressable onPress={() => (sendEmailToRecoverPass(),setLoginTry(true))}><Text style={{color: 'blue'}}>¿Has olvidado la contraseña?</Text></Pressable>
+        : null }
       </View>
       <TouchableOpacity style={styles.siguiente} onPress={() => handleLogin()}>
         <Text style={styles.siguienteTexto}>Iniciar Sesión</Text>
