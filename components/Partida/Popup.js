@@ -86,7 +86,7 @@ const PointDetail = (props) => {
 
   return (
     <Portal>
-      <Dialog visible={props.visible} style={{ alignItems: "center" }}>
+      <Dialog visible={props.visible} style={{ alignItems: "center" }} dismissable={false}>
         {isOpen === false ? (
           <>
             <Dialog.Title style={{ fontSize: 21, fontWeight: "bold" }}>

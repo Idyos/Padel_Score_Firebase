@@ -8,7 +8,7 @@ const SalirPartida = (props) => {
 
   return (
     <Portal>
-    <Dialog visible={props.visible} style={{alignItems: 'center'}}>
+    <Dialog visible={props.visible} style={{alignItems: 'center'}} dismissable={false}>
     <Dialog.Icon icon="alert" size={60} />
       <Dialog.Title style={{ fontSize: 25, fontWeight: "bold", textAlign: 'center' }}>
         La partida aún no ha terminado.
