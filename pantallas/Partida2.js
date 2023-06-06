@@ -17,13 +17,13 @@ import {
   collection,
 } from "firebase/firestore";
 import { Text, IconButton } from "react-native-paper";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Contador from "../components/Partida/Contador";
 import PointDetail from "../components/Partida/Popup";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SalirPartida from "../components/Partida/SalirPartida";
 import PartidaConfig from "../components/Partida/PartidaConfig";
-import StopwatchTimer from 'react-native-animated-stopwatch-timer';
+
 
 const getMatchDetails = async (id) => {
     let partida;
@@ -34,6 +34,7 @@ const getMatchDetails = async (id) => {
           );
 
           const querySnapshot = await getDocs(q);
+          
           let equipos = {};
           let sets = {};
           let normas = {};
@@ -109,6 +110,7 @@ async function crearPartida(
 }
 
 const Partida2 = ({ route, navigation }) => {
+
   const [atrasPartida, setAtrasPartida] = useState(false);
   // const hasUnsavedChanges = Boolean(text);
 
@@ -126,32 +128,16 @@ const Partida2 = ({ route, navigation }) => {
     finish.current = true;
     partidaTerminadaForzadamente.current = true;
 
-    updateJuego("null");
-    updateSets(true);
-    stopwatchTimerRef.current?.reset();
-    setAtrasPartida(false);
-
-    getMatchDetails(partidaid).then((response) => {
-      navigation.navigate("info-partida", response);
+    updateJuego("null").then(() => {
+      updateSets(true);
+      getMatchDetails(partidaid).then((response) => {
+        setAtrasPartida(false);
+        navigation.navigate("info-partida", response);
+      });
     });
   };
 
-  const partidaid = route.params.partidaid;
-  const infoequipos = route.params.infoequipos;
-  const sets = route.params.sets;
-  const pOro = route.params.pOro;
-  const aTiempo = route.params.aTiempo;
 
-  const stopwatchTimerRef = useRef(null);
-  const [isTiebreak, setTiebreak] = useState(false);
-  const [goldenPoint, setGoldenPoint] = useState(false);
-  const finish = useRef(false);
-  const updateSet = useRef(false);
-  const partidaTerminadaForzadamente = useRef(false);
-  const equipoPunto = useRef();
-  const ordenJuegos = useRef(0);
-  const breakChance = useRef(false);
-  const [playPause, setPlayPause] = useState(false);
   const datosJugadores = {
     equipo1: {
       puntosOro: 0,
@@ -188,6 +174,20 @@ const Partida2 = ({ route, navigation }) => {
       },
     },
   };
+  const partidaid = route.params.partidaid;
+  const infoequipos = route.params.infoequipos;
+  const sets = route.params.sets;
+  const pOro = route.params.pOro;
+  const aTiempo = route.params.aTiempo;
+  const stopwatchTimerRef = useRef(null);
+  const [isTiebreak, setTiebreak] = useState(false);
+  const [goldenPoint, setGoldenPoint] = useState(false);
+  const finish = useRef(false);
+  const updateSet = useRef(false);
+  const partidaTerminadaForzadamente = useRef(false);
+  const equipoPunto = useRef();
+  const ordenJuegos = useRef(0);
+  const breakChance = useRef(false);
 
   //DEL SERVICIO
   const [serve, setServe] = useState(undefined);
@@ -230,15 +230,6 @@ const Partida2 = ({ route, navigation }) => {
     },
   ];
 
-  const playOrPauseStopWatch = () => {
-    if(playPause) stopwatchTimerRef.current?.pause();
-    else stopwatchTimerRef.current?.play();
-    setPlayPause(!playPause);
-  }
-
-  function play() {
-    stopwatchTimerRef.current?.play();
-  }
 
   const updateJuego = async (team) => {
     setGoldenPoint(false);
@@ -370,9 +361,6 @@ const Partida2 = ({ route, navigation }) => {
             setsDoc,
             {
               set: {
-                ["set" + (setsE1 +setsE2)]: {
-                  duration : snapshot,
-                },
                 ["set" + (setsE1 + setsE2 + 1)]: {
                   datosJugadores,
                 },
@@ -384,19 +372,12 @@ const Partida2 = ({ route, navigation }) => {
           console.log(error);
         }
       } else {
+        const newArray = infoSets
+        newArray.pop();
+        setInfoSets(newArray);
         await setDoc(
           doc(database, `Partidas/${partidaid}`),
           { partidaTerminada: true },
-          { merge: true }
-        );
-        await setDoc( setsDoc,
-          {
-            set: {
-              ["set" + (setsE1 + setsE2)]: {
-                duration : snapshot,
-              },
-            },
-          },
           { merge: true }
         );
       }
@@ -476,26 +457,19 @@ const Partida2 = ({ route, navigation }) => {
       }
     }
   }, [puntosJuego]);
-  //CONTADOR DE JUEGOS POR SET
 
+  //CONTADOR DE JUEGOS POR SET
   const updateInfoSets = () => {
-    console.log(infoSets);
-    if (finish.current==false) {
-      let nuevosPartidos = [...infoSets];
+    let nuevosPartidos = [...infoSets];
     nuevosPartidos[setsE1 + setsE2] = {
       ...nuevosPartidos[setsE1 + setsE2],
       equipo1: juegosE1,
       equipo2: juegosE2,
     };
-    console.log(nuevosPartidos);
     setInfoSets(nuevosPartidos);
-    } else {
-      setInfoSets(infoSets.pop());
-    }
   }
 
   useEffect(() => {
-    updateInfoSets();
     if (aTiempo == false) {
       if (juegosE1 === 6 && juegosE2 === 6) {
         setTiebreak(true);
@@ -503,6 +477,7 @@ const Partida2 = ({ route, navigation }) => {
       }
       //EQUIPO 1
       if (finish.current == false) {
+        updateInfoSets();
         if ((juegosE1 >= 6 && juegosE1 - juegosE2 >= 2) || juegosE1 === 7) {
           setSetsE1(setsE1 + 1);
           setJuegosE1(0);
@@ -550,7 +525,7 @@ const Partida2 = ({ route, navigation }) => {
         );
         updateSet.current = false;
         finish.current = true;
-        setInfoSets(infoSets.splice(infoSets.length-1, 1));
+    
         updateSets(true);
         stopwatchTimerRef.current?.reset();
         return;
@@ -572,7 +547,6 @@ const Partida2 = ({ route, navigation }) => {
         );
         updateSet.current = false;
         finish.current = true;
-        setInfoSets(infoSets.splice(infoSets.length-1, 1));
         updateSets(true);
         return;
       }
@@ -599,7 +573,7 @@ const Partida2 = ({ route, navigation }) => {
   }, []);
 
   return (
-    <SafeAreaView style={styles.pantalla}>
+    <SafeAreaView style={styles.pantalla} >
       <View style={{ width: "90%", flexDirection:'row', alignItems: 'center'}}>
         <IconButton
           disabled={puntosJuego.length == 0 ? true : false}
@@ -609,21 +583,15 @@ const Partida2 = ({ route, navigation }) => {
           size={40}
           onPress={atrasPuntos}
         />
-        <View>
-        <Text>Partida: </Text>{!finish.current ? <StopwatchTimer digitStyle={{fontSize: 20}} trailingZeros={0} animationDistance={30} ref={stopwatchTimerRef} /> : null}
-        </View>
-        <IconButton 
-        icon={playPause ? "pause" : "play"}
-        onPress={playOrPauseStopWatch}
-        />
+        {/* <View>
+        <Text>Partida: </Text>
+        </View> */}
       </View>
 
       <PartidaConfig
         serve={serve}
         setServe={setServe}
         infoequipos={infoequipos}
-        play = {play}
-        setPlay = {setPlayPause}
       />
       <SalirPartida
         visible={atrasPartida}
