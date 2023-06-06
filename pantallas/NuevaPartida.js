@@ -1,13 +1,9 @@
-import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   StyleSheet,
   Text,
-  Button,
   View,
-  BackHandler,
   Dimensions,
-  Pressable,
   Image,
   TouchableOpacity,
 } from "react-native";
@@ -17,14 +13,11 @@ import {
   addDoc,
   setDoc,
   doc,
-  now,
   serverTimestamp,
 } from "firebase/firestore";
-import firebase from "firebase/app";
 import * as ImagePicker from "expo-image-picker";
 import {
   ActivityIndicator,
-  HelperText,
   IconButton,
   Menu,
   Surface,
@@ -32,7 +25,6 @@ import {
   TextInput,
   useTheme,
 } from "react-native-paper";
-import { Camera, CameraType } from "expo-camera";
 import {
   getStorage,
   ref,
@@ -467,11 +459,12 @@ const NuevaPartida = ({ navigation, route }) => {
         </View>
       );
     case 2:
-      return creatingMatch ? (
-        <View style={styles.loading}>
-          <ActivityIndicator style={{ opacity: 1 }} size={70} />
-        </View>
-      ) : (
+      return  (
+      creatingMatch ? (
+          <View style={styles.loading}>
+            <ActivityIndicator style={{ opacity: 1 }} size={70} />
+          </View>
+        ) : null,
         <View style={styles.pantalla}>
           <Text style={styles.title}>Configuración de la partida</Text>
           {image === undefined ? (
