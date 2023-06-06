@@ -129,7 +129,7 @@ export default function App() {
               component={InfoPartida}
             >
             </Stack.Screen>
-            <Stack.Screen name="Nueva Partida" component={NuevaPartida} />
+            <Stack.Screen name="Nueva Partida" component={NuevaPartida}/>
           </Stack.Navigator>
         </NavigationContainer>
       </PaperProvider>
