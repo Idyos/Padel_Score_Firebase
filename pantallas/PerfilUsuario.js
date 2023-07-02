@@ -12,13 +12,19 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { collection, getDoc, getDocs } from "firebase/firestore";
 import { database } from "../src/config/fb";
 import CartaPartida from "../components/PerfilUsuario/CartaPartida";
-import { ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator, IconButton, useTheme } from "react-native-paper";
+import { getAuth } from "firebase/auth";
+import { LinearGradient } from 'expo-linear-gradient';
 
-const PerfilUsuario = ({ navigation, route, theme }) => {
+
+const auth = getAuth();
+
+const PerfilUsuario = ({ navigation, route }) => {
+  const theme = useTheme();
   const [partidas, setPartidas] = useState([]);
   const matchCount = useRef(0);
   const [hasLoaded, setHasLoaded] = useState(false);
-
+  const isYourProfile = route.name == "perfilUsuarioLocal" ? true : false;
   useEffect(() => {
     setPartidas([]);
     const getMatches = async () => {
@@ -57,31 +63,31 @@ const PerfilUsuario = ({ navigation, route, theme }) => {
                 match.data().set === undefined
                   ? null
                   : setPartidas((current) => [
-                      ...current,
-                      [
-                        equipos,
-                        doc.id,
-                        sets,
-                        setsData,
-                        normas,
-                        image,
-                        finished,
-                      ],
-                    ]);
+                    ...current,
+                    [
+                      equipos,
+                      doc.id,
+                      sets,
+                      setsData,
+                      normas,
+                      image,
+                      finished,
+                    ],
+                  ]);
                 match.data().sets === undefined
                   ? null
                   : setPartidas((current) => [
-                      ...current,
-                      [
-                        equipos,
-                        doc.id,
-                        sets,
-                        setsData,
-                        normas,
-                        image,
-                        finished,
-                      ],
-                    ]);
+                    ...current,
+                    [
+                      equipos,
+                      doc.id,
+                      sets,
+                      setsData,
+                      normas,
+                      image,
+                      finished,
+                    ],
+                  ]);
               });
             });
           } catch (error) {
@@ -114,22 +120,53 @@ const PerfilUsuario = ({ navigation, route, theme }) => {
     }).start();
   }, []);
   return (
-    <SafeAreaView style={styles.pantalla}>
+    <View style={styles.pantalla}>
+      {isYourProfile ? <View style={styles.header}>
+        <IconButton
+          icon="account-settings"
+          mode="contained"
+          onPress={() => navigation.navigate("configUser")}
+        /></View> : null}
       {route.params.photoURL === null ? null : route.params.photoURL.startsWith(
-          "http"
-        ) ? (
+        "http"
+      ) ? (
         <Image
           style={styles.profilePicture}
           source={{ uri: route.params.photoURL }}
         />
       ) : null}
-      <Text style={styles.userName}>{route.params.displayName}</Text>
+
+      {route.params.photoURL == null ?
+        <SafeAreaView style={[styles.nameView, route.params.photoURL == null ? null : { bottom: 53 }]}>
+          {route.params.photoURL == null ? null :
+            <LinearGradient
+              // Background Linear Gradient
+              //locations={[0.2, 0.8]}
+              start={{y: -1}}
+              end={{y: 0}}
+              colors={['transparent', theme.colors.background]}
+              style={styles.gradient}
+            />}
+
+          <Text style={styles.userName}>{route.params.displayName}</Text>
+        </SafeAreaView>
+        : <View style={[styles.nameView, route.params.photoURL == null ? null : { bottom: 53 }]}>
+          {route.params.photoURL == null ? null :
+            <LinearGradient
+              // Background Linear Gradient
+              colors={['transparent', theme.colors.background]}
+              style={styles.gradient}
+            />}
+
+          <Text style={styles.userName}>{route.params.displayName}</Text>
+        </View>
+      }
       {hasLoaded == false ? (
         <ActivityIndicator style={{ flex: 1 }} size="large" animating={true} />
       ) : partidas.length === 0 ? (
         <View style={styles.noMatches}>
           <Text style={{ fontSize: 23, textAlign: "center", paddingHorizontal: 10 }}>
-            Este usuario aún no ha jugado ninguna partida.
+            {isYourProfile ? "Aún no has jugado ninguna partida." : "Este usuario aún no ha jugado ninguna partida."}
           </Text>
         </View>
       ) : (
@@ -147,17 +184,45 @@ const PerfilUsuario = ({ navigation, route, theme }) => {
           keyExtractor={(item, index) => "key" + index}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 
 export default PerfilUsuario;
 
 const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    height: 60,
+    zIndex: 3,
+    width: "100%",
+    alignItems: 'center',
+    marginTop: 38,
+    paddingLeft: 20,
+    paddingRight: 10,
+    shadowColor: "black",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.27,
+    shadowRadius: 4.65,
+    elevation: 6,
+    position: 'absolute',
+  },
+
+
+
+  headerText: {
+    fontWeight: "500",
+    fontSize: 18,
+  },
+
   pantalla: {
+    backgroundColor: 'transparent',
     position: "relative",
     height: "100%",
-    //alignItems: "center",
   },
 
   profilePicture: {
@@ -166,10 +231,21 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
 
+  nameView: {
+    position: 'relative',
+  },
+
   userName: {
     fontWeight: "900",
     fontSize: 40,
-    textAlign: "left",
+    textAlign: "right",
+    paddingRight: 20,
+  },
+
+  gradient: {
+    position: 'absolute',
+    width: "100%",
+    height: "130%",
   },
 
   noMatches: {
