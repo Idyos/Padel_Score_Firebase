@@ -11,12 +11,12 @@ import NuevaPartida from "./pantallas/NuevaPartida";
 import Principal from "./pantallas/Principal";
 import Login from "./pantallas/Login";
 import Registrarse from "./pantallas/Registrarse";
-import Profile from "./pantallas/UserInfo";
 import {
   DefaultTheme,
   MD3DarkTheme,
   MD3LightTheme,
   Provider as PaperProvider,
+  useTheme,
 } from "react-native-paper";
 import InfoPartida from "./pantallas/InfoPartida";
 import { useContext, useReducer, useRef, useState } from "react";
@@ -27,19 +27,23 @@ import {Alert, Share, View, Button} from 'react-native';
 import Partida2 from "./pantallas/Partida2";
 import BuscarUsuarios from "./pantallas/BuscarUsuarios";
 import PerfilUsuario from "./pantallas/PerfilUsuario";
+import Profile from "./pantallas/UserInfo";
+import { DebugInstructions } from "react-native/Libraries/NewAppScreen";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 
 const Stack = createNativeStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
-
-
+const auth = getAuth();
 function Home() {
+  const theme = useTheme();
   return (
     <Tab.Navigator
       shifting={true}
-      initialRouteName="Feed"
-      activeColor="blue"
-      barStyle={{ backgroundColor: "tomato" }}
+      initialRouteName="principal"
+      activeColor={theme.colors.primary}
+      barStyle={{ backgroundColor: theme.colors.tertiaryContainer }}
+      
     >
       <Tab.Screen
         name="principal"
@@ -54,6 +58,7 @@ function Home() {
             />
           ),
         }}
+        
       />
       <Tab.Screen
         name="buscar"
@@ -66,9 +71,11 @@ function Home() {
         }}
       />
       <Tab.Screen
-        name="perfil"
-        component={Profile}
+        name="perfilUsuarioLocal"
+        component={PerfilUsuario}
+        initialParams={{id: auth.currentUser.uid, photoURL: auth.currentUser.photoURL, displayName: auth.currentUser.displayName, isLocal: true}}
         options={{
+          headerShown: true,
           tabBarLabel: "Perfil",
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="account" color={color} size={26} />
@@ -127,6 +134,11 @@ export default function App() {
             <Stack.Screen
               name="info-partida"
               component={InfoPartida}
+            />
+            <Stack.Screen
+              name="configUser"
+              component={Profile}
+              options={{headerShown: false}}
             >
             </Stack.Screen>
             <Stack.Screen name="Nueva Partida" component={NuevaPartida}/>
