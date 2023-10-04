@@ -21,7 +21,7 @@ import {
   Text,
   withTheme,
 } from "react-native-paper";
-import { Easing } from "react-native-reanimated";
+import { Easing, set } from "react-native-reanimated";
 import GraficoInfo from "../components/InfoPartida/GraficosDatos";
 import SetsDetalles from "../components/InfoPartida/SetsDetalles";
 import { database } from "../src/config/fb";
@@ -34,6 +34,7 @@ import {
   orderBy,
   deleteDoc,
   doc,
+  getDoc,
 } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 
@@ -56,7 +57,39 @@ const shareMatch = async (id) => {
   }
 };
 
+const getMatchDetails = async (id) => {
+  let partida;
+    try {
+        const q = collection(
+          database,
+          `Partidas/${id}/PartidoCompleto`
+        );
 
+        const querySnapshot = await getDocs(q);
+        
+        let setsData = [];
+
+        querySnapshot.forEach(async (match) => {
+        
+          normas = match.data().normas;
+          match.data().set === undefined ? "" : (sets = match.data().set);
+          match.data().infoSets === undefined
+            ? ""
+            : (setsData = match.data().infoSets);
+
+          match.data().set === undefined
+            ? null
+            :  partida = [equipos, id, sets, setsData, normas];
+             
+          match.data().sets === undefined
+            ? null
+            : partida = [equipos, id, sets, setsData, normas];
+        });
+        return partida;
+    } catch (error) {
+      console.log(error);
+    }
+};
 
 const InfoPartida = ({ route, theme, navigation }) => {
   useEffect(() => {
@@ -78,11 +111,12 @@ const InfoPartida = ({ route, theme, navigation }) => {
     e.preventDefault();
     navigation.navigate("principal");
   });
-  const infoTeam = route.params[0];
-  const id = route.params[1];
-  const infoSets = route.params[2];
-  const sets =  route.params[3];
-  const normas = route.params[4];
+  const infoTeam = route.params.infoequipos;
+  const id = route.params.matchId;
+  const infoSets = route.params.infoSets;
+
+  const [sets, setSets] = useState();
+  const [normas, setNormas] = useState();
   const [setsResults, setSetsResults] = useState([
     { value: "0", label: "Partida" },
   ]);
@@ -92,6 +126,9 @@ const InfoPartida = ({ route, theme, navigation }) => {
   const [dataType, setDataType] = useState(false);
   const [tipoJugadores, setTipoJugadores] = useState(false);
   const [visibleShare, setVisibleShare] = useState(false);
+  const [infoMatch, setInfoMatch] = useState([]);
+  const [value, setValue] = useState("0");
+  const [gamesOnSet, setGamesOnSet] = useState([]);
 
   useEffect(() => {
     navigation.setOptions({
@@ -123,46 +160,72 @@ const InfoPartida = ({ route, theme, navigation }) => {
   }, []);
 
   useEffect(() => {
-    if (setsResults.length === 1 && normas.aTiempo === false) {
-      Object.keys(infoSets).map((item, index) => {
-        setSetsResults((current) => [
-          ...current,
-          {
-            value: `${index + 1}`,
-            label: `Set ${index + 1}`,
-          },
-        ]);
-      });
+    if(isLoaded){  
+      if (setsResults.length === 1 && normas.aTiempo === false) {
+        Object.keys(infoSets).map((item, index) => {
+          setSetsResults((current) => [
+            ...current,
+            {
+              value: `${index + 1}`,
+              label: `Set ${index + 1}`,
+            },
+          ]);
+        });
+      }
     }
-  }, []);
+  }, [isLoaded]);
 
-  const [infoMatch, setInfoMatch] = useState([]);
-  const [value, setValue] = useState("0");
-
-  //OBTENER INFORMACIÓN DE LOS SETS EN DETALLE
-
-  const [gamesOnSet, setGamesOnSet] = useState([]);
-
-  const getSetsData = async () => {
-    for (let i = 1; i <= sets.length; i++) {
-      const gamesOnSetRef = collection(
+  const getMatchData = async () => {
+    let sets;
+    try {
+      const rules = doc(
         database,
-        `/Partidas/${id}/PartidoCompleto/Matchdetails/Set${i}`
+        `/Partidas/${id}/PartidoCompleto/Matchdetails/`
       );
-      const q = query(gamesOnSetRef, orderBy("order"));
-      const gamesOnSet = await getDocs(q);
-      let gamesOnSetArray = [];
-      gamesOnSet.forEach((doc) => {
-        gamesOnSetArray.push(doc.data());
-      });
-      setGamesOnSet((prevVer) => [...prevVer, gamesOnSetArray]);
+      
+      const q = await getDoc(rules);
+      setNormas(q.data().normas);
+      const allSets = doc(
+        database,
+        `/Partidas/${id}/PartidoCompleto/Matchdetails/`
+      );
+      const q2 = await getDoc(allSets);
+      setSets(q2.data().set);
+      sets = q2.data().set
+    } catch (error) {
+      console.log(error);
+    } finally{
+      getSetsData(sets);
     }
-    setIsLoaded(true);
+  }
+
+  const getSetsData = async (sets) => {
+    let setsLength = Object.keys(sets);
+    try{
+      for (let i = 1; i <= setsLength.length; i++) {
+        const gamesOnSetRef = collection(
+          database,
+          `/Partidas/${id}/PartidoCompleto/Matchdetails/Set${i}`
+        );
+        const q = query(gamesOnSetRef, orderBy("order"));
+        const gamesOnSet = await getDocs(q);
+        let gamesOnSetArray = [];
+        gamesOnSet.forEach((doc) => {
+          gamesOnSetArray.push(doc.data());
+        });
+        setGamesOnSet((prevVer) => [...prevVer, gamesOnSetArray]);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally{
+      setIsLoaded(true);
+    }
   };
 
   useEffect(() => {
-    getSetsData();
+    getMatchData();
   }, []);
+
 
   return !isLoaded ? (
     <ActivityIndicator />
@@ -185,7 +248,7 @@ const InfoPartida = ({ route, theme, navigation }) => {
             <View>
               <FlatList
                 contentContainerStyle={styles.setsPerTeam}
-                data={sets}
+                data={infoSets}
                 renderItem={({ item }) => (
                   <Text style={styles.setResult}>{item.equipo1}</Text>
                 )}
@@ -201,7 +264,7 @@ const InfoPartida = ({ route, theme, navigation }) => {
           <View>
             <FlatList
               contentContainerStyle={styles.setsPerTeam}
-              data={sets}
+              data={infoSets}
               renderItem={({ item }) => (
                 <Text style={styles.setResult}>{item.equipo2}</Text>
               )}
@@ -357,6 +420,8 @@ const InfoPartida = ({ route, theme, navigation }) => {
         </View>
       </View>
       <GraficoInfo
+        setsInfo={sets}
+        infoequipos={infoTeam}
         matchData={route}
         matchFunc={setInfoMatch}
         match={infoMatch}
@@ -372,7 +437,7 @@ const InfoPartida = ({ route, theme, navigation }) => {
         gamesOnSet={gamesOnSet}
         sets={setsResults}
         match={infoMatch}
-        id={route.params[1]}
+        id={id}
         setsLength={infoSets}
         infoTeam={infoTeam}
       />

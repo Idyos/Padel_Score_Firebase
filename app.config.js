@@ -23,7 +23,10 @@ export default {
       ]
     ],
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "url": "https://u.expo.dev/40844559-0dac-4cb0-b72a-205eeee065ba"
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
     },
     "assetBundlePatterns": [
       "**/*"

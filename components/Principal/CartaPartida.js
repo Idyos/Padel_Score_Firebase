@@ -18,15 +18,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const windowHeight = Dimensions.get("window").height;
 
-const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation, cancelarBorrar }) => {
+const CartaPartida = ({partida, infoequipos, finished, imagePartida, infoSets, matchId, theme, setDeleteDialog, longPress, navigation, cancelarBorrar }) => {
+
   const [logout, setLogout] = useState(false);
-  const partidaTerminada= item[6];
-  const image = item[5];
-  const players = item[0];
   const progress = useRef(new Animated.Value(0)).current;
 
-
   useEffect(() => {
+    
     if (logout == true && cancelarBorrar.current==false) {
 
       Animated.timing(progress, {
@@ -78,8 +76,8 @@ const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation, can
           longPress.current = false;
         }, 100)
       }}
-      onLongPress={() => {setDeleteDialog({visible: true, id: item[1]})}}
-      onPress={() => longPress.current == false ? navigation.navigate("info-partida", item) : ""}
+      onLongPress={() => {setDeleteDialog({visible: true, id: matchId})}}
+      onPress={() => longPress.current == false ? navigation.navigate("info-partida", partida) : ""}
     >
       <Surface
         style={[
@@ -88,10 +86,10 @@ const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation, can
         ]}
         elevation={1}
       >
-        <View style={image!==undefined ? {backgroundColor: theme.colors.primaryContainer, borderRadius: 1000, paddingHorizontal: 10, paddingVertical: 4, opacity: 0.8} : null}>
+        <View style={imagePartida!==undefined ? {backgroundColor: theme.colors.primaryContainer, borderRadius: 1000, paddingHorizontal: 10, paddingVertical: 4, opacity: 0.8} : null}>
           <Text style={[styles.title, { color: theme.colors.primary}]}>
-            {item[0] === undefined ? "" : item[0].equipo1.nombre} /{" "}
-            {item[0] === undefined ? "" : item[0].equipo2.nombre}
+            {infoequipos === undefined ? "" : infoequipos.equipo1.nombre} /{" "}
+            {infoequipos === undefined ? "" : infoequipos.equipo2.nombre}
           </Text>
         </View>
         
@@ -99,7 +97,7 @@ const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation, can
           <View style={styles.setContainer}>
             <FlatList
               style={{ flexDirection: "row" }}
-              data={item[3]}
+              data={infoSets}
               renderItem={({ item }) => (
                 <View style={styles.set}>
                   <Text style={{ color: theme.colors.primary }}>
@@ -118,7 +116,7 @@ const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation, can
               justifyContent: "space-between",
               width: "100%",
             }}
-            data={Object.getOwnPropertyNames(item[0])}
+            data={Object.getOwnPropertyNames(infoequipos)}
             renderItem={({ item, index }) => (
               <View>
                 <Text
@@ -128,7 +126,7 @@ const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation, can
                       : { textAlign: "auto", color: theme.colors.primary }
                   }
                 >
-                  {players[item].jugadores.jugador1.nombre}
+                  {infoequipos[item].jugadores.jugador1.nombre}
                 </Text>
                 <Text
                   style={
@@ -137,7 +135,7 @@ const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation, can
                       : { textAlign: "auto", color: theme.colors.primary }
                   }
                 >
-                  {players[item].jugadores.jugador2.nombre}
+                  {infoequipos[item].jugadores.jugador2.nombre}
                 </Text>
               </View>
             )}
@@ -145,7 +143,7 @@ const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation, can
           />
           
         </View>
-        {partidaTerminada ? (
+        {finished ? (
           ""
         ) : (
           <Chip
@@ -171,7 +169,7 @@ const CartaPartida = ({ item, theme, setDeleteDialog, longPress, navigation, can
           ]}
         ></Animated.View>
         <LinearGradient locations={[0, 0.7]} colors={['transparent', theme.colors.primaryContainer]} style={{bottom: -1, width: "200%", height: "60%", position: 'absolute', zIndex: -1}}></LinearGradient>
-         {image!==undefined ? <Image source={{uri: image}} style={styles.image}/> : null}
+         {imagePartida!==undefined ? <Image source={{uri: imagePartida}} style={styles.image}/> : null}
       </Surface>
     </TouchableOpacity>
   );

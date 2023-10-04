@@ -2,12 +2,9 @@ import {
   Text,
   View,
   StyleSheet,
-  Pressable,
   FlatList,
   TouchableOpacity,
-  DatePickerIOS,
   Animated,
-  Button,
   BackHandler,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -24,6 +21,7 @@ import {
   useTheme,
   withTheme,
   Menu,
+  Button,
 } from "react-native-paper";
 import { database } from "../src/config/fb";
 import {
@@ -38,10 +36,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import CartaPartida from "../components/Principal/CartaPartida";
-import { Easing } from "react-native-reanimated";
 import BorrarPartida from "../components/Principal/BorrarPartida";
-import { useClock } from "react-native-timer-hooks";
-
 const Principal = ({ navigation }) => {
   const [partidas, setPartidas] = useState([]);
   const [isExtended, setIsExtended] = useState(true);
@@ -53,9 +48,9 @@ const Principal = ({ navigation }) => {
   const theme = useTheme();
   const auth = getAuth();
   let user;
+
   BackHandler.addEventListener("hardwareBackPress", () => {
     navigation.addListener("beforeRemove", (e) => {
-      // Prevent default behavior of leaving the screen
       e.preventDefault();
 
       BackHandler.exitApp();
@@ -63,8 +58,6 @@ const Principal = ({ navigation }) => {
   });
   onAuthStateChanged(auth, (usuario) => {
     if (usuario) {
-      // User is signed in, see docs for a list of available properties
-      // https://firebase.google.com/docs/reference/js/firebase.User
       const uid = usuario.uid;
       user = usuario.uid;
     } else {
@@ -84,29 +77,6 @@ const Principal = ({ navigation }) => {
     }
   };
 
-  const animateItem = (index) => {
-    const animation = new Animated.Value(-400);
-    Animated.timing(animation, {
-      toValue: 0,
-      duration: 500,
-      delay: index * 100,
-      useNativeDriver: true,
-      // easing: Easing.out(Easing.exp),
-    }).start();
-    return animation;
-  };
-
-  const fadeAnim = useRef(new Animated.Value(-400)).current;
-
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 0,
-      delay: 500,
-      duration: 800,
-      useNativeDriver: true,
-    }).start();
-  }, []);
-
   useEffect(() => {
     const getMatches = async () => {
       const q = query(
@@ -119,60 +89,25 @@ const Principal = ({ navigation }) => {
         if(snapshot.size==0) setHasLoaded(true);
         snapshot.docChanges().forEach(async (change) => {
           const docId = change.doc.id;
-          console.log(change.type);
           if (change.type === 'added') {
             let image = change.doc.data().imagenPartida;
             let finished = change.doc.data().partidaTerminada;
-            const q = collection(
-              database,
-              `Partidas/${docId}/PartidoCompleto`
-            );
-            const queryFunction = async (delay) => {
-              const querySnapshot = await getDocs(q);
-              if (querySnapshot.empty) {
-                console.log("La colección está vacía. Esperando...");
-                setTimeout(() => queryFunction(2000), delay);
-              } else {
-                
-                let equipos = {};
-                let sets = {};
-                let normas = {};
-                let setsData = [];
-                
-                querySnapshot.forEach(async (match) => {
-                  match.data().infoequipos === undefined
-                    ? ""
-                    : (equipos = match.data().infoequipos);
-                  match.data().normas === undefined
-                    ? ""
-                    : (normas = match.data().normas);
-                  match.data().set === undefined ? "" : (sets = match.data().set);
-                  match.data().infoSets === undefined
-                    ? ""
-                    : (setsData = match.data().infoSets);
-    
-                  match.data().set === undefined
-                    ? null
-                    : setPartidas((current) => [
-                        ...current,
-                        [equipos, docId, sets, setsData, normas, image, finished],
-                      ]);
-                  match.data().sets === undefined
-                    ? null
-                    : setPartidas((current) => [
-                        ...current,
-                        [equipos, docId, sets, setsData, normas, image, finished],
-                      ]);
-                });
-              }
-            } 
-            queryFunction(2000);
+            let equipos = change.doc.data().infoequipos;
+            let infoSets = change.doc.data().infoSets;
+            setPartidas((current) => [
+              ...current,
+              {infoequipos: equipos, matchId: docId, matchImage: image, isFinished: finished, infoSets: infoSets},
+            ]);
           }
            else if (change.type === 'modified') {
             setPartidas((current) => {
               return current.map((partida) => {
-                if (partida[1] === docId) {
-                  return [...partida.slice(0, 6), change.doc.data().partidaTerminada];
+                if (partida.matchId === docId) {
+                  return {
+                    ...partida,
+                    isFinished: change.doc.data().partidaTerminada,
+                    infoSets: change.doc.data().infoSets,
+                  };
                 } else {
                   return partida;
                 }
@@ -180,7 +115,7 @@ const Principal = ({ navigation }) => {
             });
           }
            else if (change.type === 'removed') {
-            setPartidas((prevDocs) => prevDocs.filter((doc) => doc[1] !== docId));
+            setPartidas((prevDocs) => prevDocs.filter((doc) => doc.matchId !== docId));
           }
         });
       });
@@ -191,18 +126,17 @@ const Principal = ({ navigation }) => {
     getMatches();
   }, []);
 
-  //PELIGROSO, YA QUE SI NO TIENE INFO DE SETS NO SE VA A MOSTRAR NINGUNA PARTIDA Y NO PRESENTARÁ LAS PARTIDAS
   useEffect(() => {
-    setTimeout(() => {
-      if (partidas.length !== 0 && partidas.length === matchCount.current)
-        setHasLoaded(true);
-    }, 500);
+      if (partidas.length > 0 && partidas.length === matchCount.current) setHasLoaded(true);
   }, [partidas]);
 
   const deleteMatch = async (id) => {
     console.log(id);
     await deleteDoc(doc(database, `Partidas/${id}`));
   };
+
+  const [finishedAnimation, setFinishedAnimation] = useState(false);
+
   return (
     <>
       <BorrarPartida
@@ -223,18 +157,34 @@ const Principal = ({ navigation }) => {
         ) : partidas.length === 0 ? (
           <Text style={styles.noMatches}>No hay partidas... Por ahora.</Text>
         ) : (
-          <FlatList
+          <Animated.FlatList
             onScroll={onScroll}
             style={styles.listaPartidas}
             contentContainerStyle={styles.listaPartidasContainer}
             data={partidas}
-            renderItem={({ item, index }) => (
+            renderItem={({ item, index }) => {
+              const fadeAnim = new Animated.Value(-400);
+              if(!finishedAnimation){
+                Animated.timing(fadeAnim, {
+                  toValue: 0,
+                  delay: index * 500,
+                  duration: 600,
+                  useNativeDriver: true,
+                }).start(() => {
+                  if(partidas.length-1 == index) setFinishedAnimation(true);
+                });
+              }
+
+              return (
               <TouchableOpacity>
-                <Animated.View
-                  style={{ transform: [{ translateX: fadeAnim }] }}
-                >
+                <Animated.View style={{ transform: [{ translateX: fadeAnim }] }}>
                   <CartaPartida
-                    item={item}
+                    partida = {item}
+                    infoequipos={item.infoequipos}
+                    finished={item.isFinished}
+                    image={item.matchImage}
+                    infoSets={item.infoSets}
+                    matchId = {item.matchId}
                     setDeleteDialog={setDeleteDialog}
                     longPress={longPress}
                     navigation={navigation}
@@ -242,7 +192,8 @@ const Principal = ({ navigation }) => {
                   />
                 </Animated.View>
               </TouchableOpacity>
-            )}
+              )
+            }}
             keyExtractor={(item, index) => "key" + index}
           />
         )}

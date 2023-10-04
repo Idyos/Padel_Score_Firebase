@@ -143,8 +143,11 @@ const NuevaPartida = ({ navigation, route }) => {
         partidaTerminada: false,
         creadoEn: serverTimestamp(),
         imagenPartida: null,
+        infoSets: [{equipo1: 0, equipo2: 0}],
+        infoequipos: equipoObj,
       });
       crearPartidaId=crearPartida.id;
+      
       const imagesRef = ref(storage, `matches/${crearPartida.id}`);
       if (image !== undefined) {
         imageBlob(image)
@@ -167,7 +170,6 @@ const NuevaPartida = ({ navigation, route }) => {
       for(let i = 1; i<=Object.keys(equipoObj).length; i++){
         for(let j = 1;  j<=Object.keys(equipoObj["equipo"+i].jugadores).length; j++){
           if(equipoObj["equipo"+i].jugadores["jugador"+j].playerId!==null && equipoObj["equipo"+i].jugadores["jugador"+j].playerId!== undefined && equipoObj["equipo"+i].jugadores["jugador"+j].playerId!== ""){
-            //const userId = doc(database, `Usuarios/${equipoObj["equipo"+i].jugadores["jugador"+j].playerId}`);
             const matchRef = doc(database, `Partidas/${crearPartida.id}`);
             await setDoc(doc(database, `Usuarios/${equipoObj["equipo"+i].jugadores["jugador"+j].playerId}/Partidas/${crearPartida.id}`), {
               match: matchRef,

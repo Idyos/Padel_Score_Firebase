@@ -4,6 +4,8 @@ import { Text } from "react-native-paper";
 import { Easing, EasingNode } from "react-native-reanimated";
 
 const GraficoInfo = ({
+  setsInfo,
+  infoequipos,
   matchData,
   matchFunc,
   match,
@@ -11,9 +13,9 @@ const GraficoInfo = ({
   dataType,
   tipoJugadores,
 }) => {
-  const infoSets = matchData.params[2];
-  const infoEquipo1 = matchData.params[0].equipo1;
-  const infoEquipo2 = matchData.params[0].equipo2;
+  const infoSets = setsInfo;
+  const infoEquipo1 = infoequipos.equipo1;
+  const infoEquipo2 = infoequipos.equipo2;
 
   const getAllMatchData = (dataType) => {
     let partidaEntera;

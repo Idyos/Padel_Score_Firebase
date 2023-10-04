@@ -16,15 +16,13 @@ import { ActivityIndicator, IconButton, useTheme } from "react-native-paper";
 import { getAuth } from "firebase/auth";
 import { LinearGradient } from 'expo-linear-gradient';
 
-
-const auth = getAuth();
-
 const PerfilUsuario = ({ navigation, route }) => {
   const theme = useTheme();
   const [partidas, setPartidas] = useState([]);
   const matchCount = useRef(0);
   const [hasLoaded, setHasLoaded] = useState(false);
   const isYourProfile = route.name == "perfilUsuarioLocal" ? true : false;
+
   useEffect(() => {
     setPartidas([]);
     const getMatches = async () => {
@@ -102,7 +100,6 @@ const PerfilUsuario = ({ navigation, route }) => {
     getMatches();
   }, []);
 
-  //IMPORTANTE ACTUALIZAR CLOUD FUNCTIONS PARA QUE SE BORRE TAMBIÉN DEL USUARIO UNA PARTIDA CUANDO ESTA SE BORRE
   useEffect(() => {
     setTimeout(() => {
       if (partidas.length === matchCount.current) setHasLoaded(true);

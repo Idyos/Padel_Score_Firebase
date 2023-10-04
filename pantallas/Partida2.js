@@ -81,21 +81,13 @@ async function crearPartida(
     database,
     `Partidas/${partidaid}/PartidoCompleto/Matchdetails`
   );
-  const setsRef = doc(
-    database,
-    `Partidas/${partidaid}/PartidoCompleto/SetsResults`
-  );
+
   try {
     const refSnap = await getDoc(matchRef);
     if (!refSnap.exists()) {
       await setDoc(
         doc(database, `Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
-        { infoequipos, normas }
-      );
-      await setDoc(
-        doc(database, `Partidas/${partidaid}/PartidoCompleto/SetsResults`),
-        {
-          infoSets: [{ equipo1: juegosE1, equipo2: juegosE2 }],
+        { normas,
           set: {
             set1: {
               datosJugadores,
@@ -236,7 +228,7 @@ const Partida2 = ({ route, navigation }) => {
     ordenJuegos.current++;
     const serving = serve ? "equipo2" : "equipo1";
     try {
-      await setDoc(
+            await setDoc(
         doc(
           database,
           `/Partidas/${partidaid}/PartidoCompleto/Matchdetails/Set${
@@ -253,7 +245,7 @@ const Partida2 = ({ route, navigation }) => {
     puntosJuego.map(async (puntos, index) => {
       if (puntos.point == "unfError") {
         await setDoc(
-          doc(database, `/Partidas/${partidaid}/PartidoCompleto/SetsResults`),
+          doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
           {
             set: {
               ["set" + (setsE1 + setsE2 + 1)]: {
@@ -284,7 +276,7 @@ const Partida2 = ({ route, navigation }) => {
         //TODO: Reparar orden de aparición de los datos de los breaks
         if (puntos.breakChance == true) {
           await setDoc(
-            doc(database, `/Partidas/${partidaid}/PartidoCompleto/SetsResults`),
+            doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
             {
               set: {
                 ["set" + (setsE1 + setsE2 + 1)]: {
@@ -309,7 +301,7 @@ const Partida2 = ({ route, navigation }) => {
           );
         }
         await setDoc(
-          doc(database, `/Partidas/${partidaid}/PartidoCompleto/SetsResults`),
+          doc(database, `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`),
           {
             set: {
               ["set" + (setsE1 + setsE2 + 1)]: {
@@ -353,7 +345,7 @@ const Partida2 = ({ route, navigation }) => {
     let snapshot = stopwatchTimerRef.current?.getSnapshot();
     const setsDoc = doc(
       database,
-      `/Partidas/${partidaid}/PartidoCompleto/SetsResults`
+      `/Partidas/${partidaid}/PartidoCompleto/Matchdetails`
     );
       if (!finish) {
         try {
@@ -497,7 +489,7 @@ const Partida2 = ({ route, navigation }) => {
   useEffect(() => {
     const updateSetsCount = async () => {
       await setDoc(
-        doc(database, `/Partidas/${partidaid}/PartidoCompleto/SetsResults`),
+        doc(database, `/Partidas/${partidaid}`),
         { infoSets },
         { merge: true }
       );
